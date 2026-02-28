@@ -61,7 +61,7 @@ function DailyLogSection() {
   const [filterStatus, setFilterStatus] = useState<MealStatus | 'all'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ في تحميل البيانات" description="تعذر تحميل البيانات. يرجى المحاولة مرة أخرى." />
   if (fetchedMeals.length === 0 && localMeals.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد وجبات مسجلة لهذا اليوم" />
 
   const filtered = meals.filter((m) =>
@@ -308,7 +308,7 @@ function InventorySection() {
   const error = errorInventory || errorTransactions
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ في تحميل البيانات" description="تعذر تحميل البيانات. يرجى المحاولة مرة أخرى." />
   if (inventory.length === 0 && transactions.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد أصناف أو حركات مخزون مسجلة حاليا" />
 
   const lowStockCount = inventory.filter((i) => i.currentStock <= i.minStock).length
@@ -414,7 +414,7 @@ function SuppliersSection() {
   const { data: suppliers = [], isLoading, error } = useCateringSuppliers()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ في تحميل البيانات" description="تعذر تحميل البيانات. يرجى المحاولة مرة أخرى." />
   if (suppliers.length === 0) return <EmptyState title="لا يوجد موردون" description="لم يتم تسجيل أي موردين حتى الآن" />
 
   const today = new Date().toISOString().split('T')[0]

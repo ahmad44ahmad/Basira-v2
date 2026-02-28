@@ -165,7 +165,7 @@ export function CommandMenu() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="ابحث أو اذهب إلى..."
-              className="flex-1 bg-transparent py-3.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white"
+              className="flex-1 bg-transparent py-3.5 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 dark:text-white"
               dir="rtl"
             />
             <kbd className="rounded border border-slate-200 px-1.5 py-0.5 text-[10px] text-slate-400 dark:border-slate-600">ESC</kbd>

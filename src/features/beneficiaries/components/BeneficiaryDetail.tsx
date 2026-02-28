@@ -91,11 +91,11 @@ function TimelineTab() {
         { id: 'therapy', action: 'جلسة علاج طبيعي', time: 'أمس 14:00', color: 'bg-purple-500' },
         { id: 'visit', action: 'زيارة عائلية', time: 'أمس 10:30', color: 'bg-gold' },
         { id: 'fall-risk', action: 'تقييم مخاطر السقوط', time: 'قبل 3 أيام', color: 'bg-red-500' },
-      ].map((event) => (
+      ].map((event, index) => (
         <div key={event.id} className="flex gap-3">
           <div className="flex flex-col items-center">
             <div className={cn('h-3 w-3 rounded-full', event.color)} />
-            {i < 4 && <div className="w-0.5 flex-1 bg-slate-200 dark:bg-slate-700" />}
+            {index < 4 && <div className="w-0.5 flex-1 bg-slate-200 dark:bg-slate-700" />}
           </div>
           <div className="pb-4">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{event.action}</p>

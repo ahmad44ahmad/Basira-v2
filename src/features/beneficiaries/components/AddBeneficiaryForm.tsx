@@ -98,7 +98,7 @@ export function AddBeneficiaryForm({ open, onClose, onSuccess }: AddBeneficiaryF
       section: step1Data.section,
       room_number: step1Data.roomNumber ?? null,
       bed_number: step1Data.bedNumber ?? null,
-      admission_date: new Date().toISOString().split('T')[0],
+      admission_date: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
       discharge_date: null,
       status: 'نشط' as const,
       evacuation_category: null,

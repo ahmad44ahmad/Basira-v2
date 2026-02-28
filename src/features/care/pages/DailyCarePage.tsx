@@ -131,7 +131,7 @@ function DailyCareFormSection() {
       await createLog.mutateAsync({
         beneficiary_id: data.beneficiaryId,
         shift: data.shift,
-        shift_date: new Date().toISOString().slice(0, 10),
+        shift_date: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`,
         temperature: data.temperature ?? null,
         pulse: data.pulse ?? null,
         blood_pressure_systolic: data.bloodPressureSystolic ?? null,

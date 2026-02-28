@@ -180,7 +180,7 @@ function ComplianceSection() {
   if (requirements.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد متطلبات امتثال مسجلة حاليا" />
 
   const filtered = filterStatus === 'all' ? requirements : requirements.filter((r) => r.complianceStatus === filterStatus)
-  const avgScore = Math.round(requirements.reduce((s, r) => s + r.complianceScore, 0) / requirements.length)
+  const avgScore = requirements.length > 0 ? Math.round(requirements.reduce((s, r) => s + r.complianceScore, 0) / requirements.length) : 0
 
   const stats = {
     total: requirements.length,

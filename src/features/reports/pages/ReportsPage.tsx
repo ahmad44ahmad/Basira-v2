@@ -32,9 +32,9 @@ function StrategicSection() {
   }, [])
 
   const overallScore = useMemo(() => {
-    return Math.round(
+    return STRATEGIC_KPIS.length > 0 ? Math.round(
       (statusSummary.excellent * 100 + statusSummary.good * 75 + statusSummary.needs_improvement * 50 + statusSummary.poor * 25) / STRATEGIC_KPIS.length,
-    )
+    ) : 0
   }, [statusSummary])
 
   const categoryIcon = (cat: KpiCategory) => {

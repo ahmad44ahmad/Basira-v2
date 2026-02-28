@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Settings, Sun, Moon, Monitor, Bell, BellOff, Globe, LayoutGrid, LayoutList, Save, User, Shield } from 'lucide-react'
 import { z } from 'zod'
@@ -32,6 +32,11 @@ export function SettingsPage() {
   const [settings, setSettings] = useState<SettingsState>(loadSettings)
   const [saved, setSaved] = useState(false)
   const { darkMode, toggleDarkMode } = useUIStore()
+  const savedTimer = useRef<ReturnType<typeof setTimeout>>(null)
+
+  useEffect(() => {
+    return () => { if (savedTimer.current) clearTimeout(savedTimer.current) }
+  }, [])
 
   const update = <K extends keyof SettingsState>(key: K, value: SettingsState[K]) => {
     setSettings((s) => ({ ...s, [key]: value }))
@@ -44,7 +49,8 @@ export function SettingsPage() {
     if (settings.theme === 'dark' && !darkMode) toggleDarkMode()
     if (settings.theme === 'light' && darkMode) toggleDarkMode()
     setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+    if (savedTimer.current) clearTimeout(savedTimer.current)
+    savedTimer.current = setTimeout(() => setSaved(false), 2000)
   }
 
   const themeOptions: { value: ThemeOption; label: string; icon: typeof Sun }[] = [

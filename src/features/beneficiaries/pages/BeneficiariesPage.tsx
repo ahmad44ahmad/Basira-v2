@@ -91,7 +91,7 @@ export function BeneficiariesPage() {
         icon={<Users className="h-5 w-5" />}
         actions={
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" icon={<Download className="h-4 w-4" />} onClick={exportCSV}>
+            <Button variant="outline" size="sm" icon={<Download className="h-4 w-4" />} onClick={exportCSV} disabled={filtered.length === 0}>
               تصدير
             </Button>
             <Button variant="gold" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setShowAddForm(true)}>

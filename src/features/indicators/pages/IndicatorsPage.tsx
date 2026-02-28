@@ -230,7 +230,7 @@ function BenchmarkSection() {
   const overallScore = useMemo(() => {
     const results = DEMO_BENCHMARKS.map(evaluateBenchmark)
     const scores = { excellent: 100, good: 75, acceptable: 50, poor: 25 }
-    return Math.round(results.reduce((acc, r) => acc + scores[r], 0) / results.length)
+    return results.length > 0 ? Math.round(results.reduce((acc, r) => acc + scores[r], 0) / results.length) : 0
   }, [])
 
   return (

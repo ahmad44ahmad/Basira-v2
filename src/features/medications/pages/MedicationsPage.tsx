@@ -32,6 +32,9 @@ export function MedicationsPage() {
           setLocalStatuses((prev) => ({ ...prev, [id]: 'administered' }))
           toast.success('تم تسجيل إعطاء الدواء بنجاح')
         },
+        onError: () => {
+          toast.error('فشل تسجيل إعطاء الدواء')
+        },
       },
     )
   }

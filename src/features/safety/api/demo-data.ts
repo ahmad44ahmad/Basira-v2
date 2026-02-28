@@ -31,6 +31,20 @@ export const DEMO_FALL_RISK_ASSESSMENTS: FallRiskAssessment[] = [
     assessed_by: 'ممرض: عادل',
     created_at: now,
   },
+  {
+    id: 'fra003',
+    beneficiary_id: 'b010',
+    fall_history: 0,
+    medications_risk: 15,
+    cognitive_level: 15,
+    mobility_level: 30,
+    risk_score: 60,
+    risk_level: 'عالي',
+    preventive_measures: ['مرافقة مستمرة', 'أرضية مانعة للانزلاق', 'إضاءة ليلية مكثفة', 'درابزين في الحمام'],
+    next_assessment_date: '2026-03-15',
+    assessed_by: 'ممرض: عادل',
+    created_at: now,
+  },
 ]
 
 export const DEMO_RISK_ALERTS: RiskAlert[] = [

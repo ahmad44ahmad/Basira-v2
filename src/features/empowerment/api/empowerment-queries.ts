@@ -3,7 +3,7 @@ import { supabase, isDemoMode } from '@/lib/supabase'
 import { queryKeys } from '@/lib/query-keys'
 import type { RehabGoal, RehabGoalInsert, BeneficiaryPreferences } from '@/types/database'
 import type { GoalProgressLog, DignityProfile } from '../types'
-import { DEMO_GOALS, DEMO_LOGS, DEMO_DIGNITY } from './demo-data'
+import { DEMO_GOALS, DEMO_LOGS, DEMO_DIGNITY, DEMO_DIGNITY_OMAR } from './demo-data'
 
 // ===== Rehab Goals =====
 
@@ -84,7 +84,10 @@ export function useGoalProgressLogs(goalId: string) {
 // ===== Dignity Profile =====
 
 async function fetchDignityProfile(beneficiaryId: string): Promise<DignityProfile | null> {
-  if (isDemoMode || !supabase) return DEMO_DIGNITY
+  if (isDemoMode || !supabase) {
+    const profiles = [DEMO_DIGNITY, DEMO_DIGNITY_OMAR]
+    return profiles.find((p) => p.beneficiaryId === beneficiaryId) ?? null
+  }
 
   const { data, error } = await supabase
     .from('beneficiary_preferences')

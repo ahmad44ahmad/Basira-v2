@@ -6,6 +6,7 @@ const now = new Date().toISOString()
 export const DEMO_RESEARCHES: SocialResearch[] = [
   { id: 'sr1', beneficiary_id: 'b001', national_id: '1234567890', research_date: '2026-01-15', social_status: 'يتيم الأب', family_size: 4, income_source: 'ضمان اجتماعي', housing_type: 'شقة مستأجرة', education_level: 'لم يلتحق', social_worker: 'أ. خالد الشمري', recommendations: 'دعم نفسي وتأهيل اجتماعي', notes: null, created_at: now, updated_at: now },
   { id: 'sr2', beneficiary_id: 'b002', national_id: '2345678901', research_date: '2026-01-20', social_status: 'أسرة مستقرة', family_size: 6, income_source: 'وظيفة حكومية', housing_type: 'فيلا ملك', education_level: 'ابتدائي', social_worker: 'أ. نورة القحطاني', recommendations: 'متابعة دورية', notes: null, created_at: now, updated_at: now },
+  { id: 'sr3', beneficiary_id: 'b009', national_id: '1345678902', research_date: '2026-02-01', social_status: 'أسرة مستقرة', family_size: 5, income_source: 'وظيفة حكومية', housing_type: 'شقة ملك', education_level: 'لم يلتحق', social_worker: 'أ. خالد الشمري', recommendations: 'دعم التأهيل الإبداعي — إقامة معرض فني، تعزيز مشاركة الأسرة في جلسات الرسم', notes: 'أسرة متعاونة جداً — الأب يحضر أسبوعياً بأدوات رسم', created_at: now, updated_at: now },
 ]
 
 export const DEMO_LEAVES: LeaveRequest[] = [
@@ -62,6 +63,25 @@ export const DEMO_LEAVES: LeaveRequest[] = [
     ],
     createdAt: now,
     createdBy: 'أ. خالد الشمري',
+  },
+  {
+    id: 'l4',
+    beneficiaryId: 'b012',
+    beneficiaryName: 'لمى محمد الشمري',
+    leaveType: 'hospital',
+    startDate: '2026-03-05',
+    endDate: '2026-03-05',
+    guardianName: 'محمد صالح الشمري',
+    guardianContact: '0524567890',
+    reason: 'موعد تقييم العمود الفقري في المستشفى',
+    status: 'approved',
+    history: [
+      { action: 'request', actionBy: 'أ. نورة', role: 'أخصائي اجتماعي', date: now },
+      { action: 'medical_clear', actionBy: 'د. سالم', role: 'طبيب', date: now },
+      { action: 'approve', actionBy: 'أ. محمد', role: 'مدير المركز', date: now },
+    ],
+    createdAt: now,
+    createdBy: 'أ. نورة القحطاني',
   },
 ]
 

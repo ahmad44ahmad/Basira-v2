@@ -4,6 +4,7 @@ export const DEMO_VISITS: Visit[] = [
   { id: 'v1', beneficiaryId: 'b001', beneficiaryName: 'أحمد محمد السالم', visitorName: 'محمد أحمد السالم', relation: 'أب', date: '2026-02-28', time: '10:00', type: 'internal', duration: 60, notes: '', employeeName: 'سارة العمري' },
   { id: 'v2', beneficiaryId: 'b002', beneficiaryName: 'فاطمة عبدالله الزهراني', visitorName: 'عبدالله سعيد الزهراني', relation: 'أب', date: '2026-02-27', time: '14:00', type: 'internal', duration: 90, notes: 'زيارة جيدة', employeeName: 'نورا الشهري' },
   { id: 'v3', beneficiaryId: 'b004', beneficiaryName: 'نورة حسن العتيبي', visitorName: 'حسن سالم العتيبي', relation: 'أب', date: '2026-02-26', time: '11:00', type: 'external', duration: 45, notes: '', employeeName: 'سارة العمري' },
+  { id: 'v4', beneficiaryId: 'b009', beneficiaryName: 'عمر يوسف المالكي', visitorName: 'يوسف عمر المالكي', relation: 'أب', date: new Date().toISOString().slice(0, 10), time: '09:00', type: 'internal', duration: 120, notes: 'أحضر ألوان رسم جديدة — جلسة رسم مشتركة مع ابنه', employeeName: 'سارة العمري' },
 ]
 
 export const DEMO_FEED: FeedPost[] = [
@@ -16,4 +17,5 @@ export const DEMO_UPDATES: FamilyUpdate[] = [
   { id: 'u1', type: 'health', title: 'تحديث صحي', description: 'الحالة الصحية مستقرة — العلامات الحيوية طبيعية', date: '2026-02-27' },
   { id: 'u2', type: 'activity', title: 'نشاط يومي', description: 'شارك في ورشة الفنون وأظهر تفاعلاً إيجابياً', date: '2026-02-26' },
   { id: 'u3', type: 'progress', title: 'تحقيق هدف', description: 'أكملت هدف ارتداء الملابس بشكل مستقل بنجاح', date: '2026-02-25' },
+  { id: 'u4', type: 'progress', title: 'مشروع المعرض الفني', description: 'عمر أنجز 3 لوحات جديدة — بدأ التحضير لمعرضه الفني الأول داخل المركز', date: new Date().toISOString().slice(0, 10) },
 ]

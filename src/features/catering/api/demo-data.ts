@@ -31,6 +31,17 @@ export const DEMO_MEALS: DailyMeal[] = [
   { id: 'meal-ref-1', beneficiaryId: 'b001', beneficiaryName: 'أحمد محمد السالم', mealType: 'lunch', status: 'refused', dietaryPlan: 'عادي', mealDate: yesterday },
   { id: 'meal-ref-2', beneficiaryId: 'b001', beneficiaryName: 'أحمد محمد السالم', mealType: 'dinner', status: 'refused', dietaryPlan: 'عادي', mealDate: yesterday },
   { id: 'meal-ref-3', beneficiaryId: 'b001', beneficiaryName: 'أحمد محمد السالم', mealType: 'breakfast', status: 'refused', dietaryPlan: 'عادي', mealDate: twoDaysAgo },
+  // b009 عمر — لينة مهروسة
+  { id: 'meal-b009-0', beneficiaryId: 'b009', beneficiaryName: 'عمر يوسف المالكي', mealType: 'breakfast', status: 'delivered', dietaryPlan: 'لينة مهروسة', mealDate: today, deliveredAt: `${today}T07:30:00` },
+  { id: 'meal-b009-1', beneficiaryId: 'b009', beneficiaryName: 'عمر يوسف المالكي', mealType: 'lunch', status: 'pending', dietaryPlan: 'لينة مهروسة', mealDate: today },
+  // b010 سارة — رفض متكرر (مؤشر على الحالة النفسية)
+  { id: 'meal-b010-0', beneficiaryId: 'b010', beneficiaryName: 'سارة خالد الحربي', mealType: 'breakfast', status: 'refused', dietaryPlan: 'عادي', mealDate: today },
+  { id: 'meal-b010-1', beneficiaryId: 'b010', beneficiaryName: 'سارة خالد الحربي', mealType: 'lunch', status: 'refused', dietaryPlan: 'عادي', mealDate: today },
+  // b011 يزيد — عالية السعرات
+  { id: 'meal-b011-0', beneficiaryId: 'b011', beneficiaryName: 'يزيد عبدالله العسيري', mealType: 'breakfast', status: 'delivered', dietaryPlan: 'عالية السعرات', mealDate: today, deliveredAt: `${today}T07:45:00` },
+  { id: 'meal-b011-1', beneficiaryId: 'b011', beneficiaryName: 'يزيد عبدالله العسيري', mealType: 'lunch', status: 'pending', dietaryPlan: 'عالية السعرات', mealDate: today },
+  // b012 لمى — أنبوب تغذية + لينة
+  { id: 'meal-b012-0', beneficiaryId: 'b012', beneficiaryName: 'لمى محمد الشمري', mealType: 'breakfast', status: 'delivered', dietaryPlan: 'أنبوب تغذية + لينة', mealDate: today, deliveredAt: `${today}T08:00:00` },
 ]
 
 export const DEMO_INVENTORY: InventoryItem[] = [

@@ -1,0 +1,429 @@
+import { useState } from 'react'
+import { Users, FileText, Calendar, ClipboardList, Plus, Search, Eye, CheckCircle, XCircle } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { PageHeader } from '@/components/layout'
+import { StatCard } from '@/components/data'
+import { Button, Card, Badge, Input, Select, Modal, Tabs } from '@/components/ui'
+import { toast } from '@/stores/useToastStore'
+import { cn } from '@/lib/utils'
+import {
+  LEAVE_STATUS_CONFIG, LEAVE_TYPES, TARGET_GROUPS, FOLLOW_UP_STATUS,
+  FATHER_MOTHER_STATUS, HOUSING_TYPES, ECONOMIC_STATUS,
+  type LeaveRequest, type LeaveStatus, type SocialResearch, type SocialActivity,
+} from '../types'
+
+// ─── Demo Data ──────────────────────────────────────────────────
+
+const DEMO_RESEARCHES: SocialResearch[] = [
+  { id: 'sr1', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', researcherName: 'نورة العتيبي', researchDate: '2026-02-15', guardianName: 'محمد السالم', guardianRelation: 'والد', guardianMobile: '0551234567', isFatherAlive: 'alive', isMotherAlive: 'alive', economicStatus: 'average', housingType: 'owned', socialResearchSummary: 'أسرة مستقرة مع حاجة لدعم تأهيلي مستمر', recommendations: 'الاستمرار في البرنامج التأهيلي مع زيادة مشاركة الأسرة', createdAt: '2026-02-15' },
+  { id: 'sr2', beneficiaryId: 'b2', beneficiaryName: 'فاطمة عبدالله الزهراني', researcherName: 'سعاد المالكي', researchDate: '2026-02-10', guardianName: 'عبدالله الزهراني', guardianRelation: 'أخ', guardianMobile: '0559876543', isFatherAlive: 'deceased', isMotherAlive: 'alive', economicStatus: 'poor', housingType: 'rented', socialResearchSummary: 'وضع اقتصادي صعب يحتاج دعم مالي', recommendations: 'التنسيق مع الجمعيات الخيرية لتقديم دعم مالي', createdAt: '2026-02-10' },
+]
+
+const DEMO_LEAVES: LeaveRequest[] = [
+  { id: 'l1', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', leaveType: 'home_visit', startDate: '2026-03-01', endDate: '2026-03-03', guardianName: 'محمد السالم', guardianContact: '0551234567', reason: 'زيارة عائلية بمناسبة عيد الأم', status: 'approved', medicalClearance: { clearedBy: 'د. فهد', clearedAt: '2026-02-26', isFit: true }, history: [{ action: 'request', actionBy: 'نورة', role: 'أخصائية', date: '2026-02-25' }, { action: 'medical_clear', actionBy: 'د. فهد', role: 'طبيب', date: '2026-02-26' }, { action: 'approve', actionBy: 'خالد المدير', role: 'مدير', date: '2026-02-27' }], createdAt: '2026-02-25', createdBy: 'نورة العتيبي' },
+  { id: 'l2', beneficiaryId: 'b3', beneficiaryName: 'خالد سعيد الغامدي', leaveType: 'hospital', startDate: '2026-03-05', endDate: '2026-03-05', guardianName: 'سعيد الغامدي', guardianContact: '0553456789', reason: 'موعد مراجعة في المستشفى', status: 'pending_medical', history: [{ action: 'request', actionBy: 'سعاد', role: 'أخصائية', date: '2026-02-28' }], createdAt: '2026-02-28', createdBy: 'سعاد المالكي' },
+  { id: 'l3', beneficiaryId: 'b2', beneficiaryName: 'فاطمة عبدالله الزهراني', leaveType: 'event', startDate: '2026-03-10', endDate: '2026-03-10', guardianName: 'عبدالله الزهراني', guardianContact: '0559876543', reason: 'حضور حفل زفاف أحد الأقارب', status: 'pending_director', medicalClearance: { clearedBy: 'د. سارة', clearedAt: '2026-02-27', isFit: true, precautions: 'يجب توفير كرسي متحرك' }, history: [{ action: 'request', actionBy: 'نورة', role: 'أخصائية', date: '2026-02-26' }, { action: 'medical_clear', actionBy: 'د. سارة', role: 'طبيبة', date: '2026-02-27' }], createdAt: '2026-02-26', createdBy: 'نورة العتيبي' },
+]
+
+const DEMO_ACTIVITIES: SocialActivity[] = [
+  { id: 'a1', activityName: 'ورشة فنون تشكيلية', supervisor: 'هند المحمد', date: '2026-02-20', targetGroup: 'beneficiaries', location: 'قاعة الأنشطة', objectives: 'تنمية المهارات الحركية الدقيقة', outcomes: 'مشاركة 15 مستفيد بنجاح', internalParticipants: 15, externalParticipants: 2, cost: 500, status: 'achieved' },
+  { id: 'a2', activityName: 'رحلة ترفيهية - حديقة الملك فهد', supervisor: 'سعيد القحطاني', date: '2026-02-25', targetGroup: 'both', location: 'حديقة الملك فهد', objectives: 'تعزيز الدمج المجتمعي', internalParticipants: 20, externalParticipants: 5, cost: 2000, status: 'achieved' },
+  { id: 'a3', activityName: 'احتفال اليوم العالمي لذوي الإعاقة', supervisor: 'نورة العتيبي', date: '2026-03-15', targetGroup: 'community', location: 'المسرح الرئيسي', objectives: 'التوعية المجتمعية', internalParticipants: 30, externalParticipants: 50, cost: 5000, status: 'not_achieved' },
+]
+
+// ─── Main Page ──────────────────────────────────────────────────
+
+export function SocialPage() {
+  const [activeTab, setActiveTab] = useState('leaves')
+
+  const tabs = [
+    { id: 'leaves', label: 'طلبات الإجازات', icon: <Calendar className="h-4 w-4" /> },
+    { id: 'research', label: 'البحث الاجتماعي', icon: <FileText className="h-4 w-4" /> },
+    { id: 'activities', label: 'الأنشطة', icon: <ClipboardList className="h-4 w-4" /> },
+  ]
+
+  return (
+    <div className="animate-fade-in">
+      <PageHeader
+        title="الخدمات الاجتماعية"
+        description="إدارة البحوث الاجتماعية والإجازات والأنشطة"
+        icon={<Users className="h-5 w-5" />}
+      />
+
+      <Tabs
+        tabs={tabs.map((t) => ({ id: t.id, label: t.label }))}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
+
+      <div className="mt-6">
+        {activeTab === 'leaves' && <LeavesSection />}
+        {activeTab === 'research' && <ResearchSection />}
+        {activeTab === 'activities' && <ActivitiesSection />}
+      </div>
+    </div>
+  )
+}
+
+// ─── Leaves Section ─────────────────────────────────────────────
+
+function LeavesSection() {
+  const [leaves, setLeaves] = useState(DEMO_LEAVES)
+  const [filterStatus, setFilterStatus] = useState<LeaveStatus | 'all'>('all')
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null)
+
+  const filtered = filterStatus === 'all' ? leaves : leaves.filter((l) => l.status === filterStatus)
+
+  const stats = {
+    total: leaves.length,
+    pending: leaves.filter((l) => l.status === 'pending_medical' || l.status === 'pending_director').length,
+    approved: leaves.filter((l) => l.status === 'approved').length,
+    active: leaves.filter((l) => l.status === 'active').length,
+  }
+
+  const handleApprove = (id: string, step: 'medical' | 'director') => {
+    setLeaves((prev) =>
+      prev.map((l) => {
+        if (l.id !== id) return l
+        if (step === 'medical') {
+          return { ...l, status: 'pending_director' as const, medicalClearance: { clearedBy: 'الطبيب', clearedAt: new Date().toISOString(), isFit: true }, history: [...l.history, { action: 'medical_clear' as const, actionBy: 'الطبيب', role: 'طبيب', date: new Date().toISOString() }] }
+        }
+        return { ...l, status: 'approved' as const, history: [...l.history, { action: 'approve' as const, actionBy: 'المدير', role: 'مدير', date: new Date().toISOString() }] }
+      }),
+    )
+    toast.success(step === 'medical' ? 'تمت الموافقة الطبية' : 'تمت موافقة المدير')
+  }
+
+  const handleReject = (id: string) => {
+    setLeaves((prev) =>
+      prev.map((l) =>
+        l.id === id ? { ...l, status: 'rejected' as const, history: [...l.history, { action: 'reject' as const, actionBy: 'المستخدم', role: 'مسؤول', date: new Date().toISOString() }] } : l,
+      ),
+    )
+    toast.error('تم رفض الطلب')
+  }
+
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard title="إجمالي الطلبات" value={stats.total} accent="navy" />
+        <StatCard title="قيد الانتظار" value={stats.pending} accent="gold" />
+        <StatCard title="معتمد" value={stats.approved} accent="teal" />
+        <StatCard title="خارج المركز" value={stats.active} accent="danger" />
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {(['all', 'pending_medical', 'pending_director', 'approved', 'rejected'] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setFilterStatus(s)}
+              className={cn(
+                'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                filterStatus === s ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400',
+              )}
+            >
+              {s === 'all' ? 'الكل' : LEAVE_STATUS_CONFIG[s].label}
+            </button>
+          ))}
+        </div>
+        <Button variant="gold" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setShowAddModal(true)}>
+          طلب إجازة
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        <AnimatePresence>
+          {filtered.map((leave) => {
+            const typeConfig = LEAVE_TYPES.find((t) => t.value === leave.leaveType)!
+            const statusConfig = LEAVE_STATUS_CONFIG[leave.status]
+            return (
+              <motion.div key={leave.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50 }}>
+                <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedLeave(leave)}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-lg">{typeConfig.emoji}</span>
+                        <h3 className="font-bold text-slate-900 dark:text-white">{leave.beneficiaryName}</h3>
+                        <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                      </div>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{leave.reason}</p>
+                      <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
+                        <span>📅 {leave.startDate} → {leave.endDate}</span>
+                        <span>👤 {leave.guardianName}</span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      {leave.status === 'pending_medical' && (
+                        <>
+                          <Button variant="primary" size="sm" icon={<CheckCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleApprove(leave.id, 'medical') }}>طبي</Button>
+                          <Button variant="danger" size="sm" icon={<XCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleReject(leave.id) }} />
+                        </>
+                      )}
+                      {leave.status === 'pending_director' && (
+                        <>
+                          <Button variant="primary" size="sm" icon={<CheckCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleApprove(leave.id, 'director') }}>اعتماد</Button>
+                          <Button variant="danger" size="sm" icon={<XCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleReject(leave.id) }} />
+                        </>
+                      )}
+                      {(leave.status !== 'pending_medical' && leave.status !== 'pending_director') && (
+                        <Button variant="outline" size="sm" icon={<Eye className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setSelectedLeave(leave) }} />
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+        {filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-400">لا توجد طلبات</div>}
+      </div>
+
+      {/* Leave Detail Modal */}
+      <Modal open={!!selectedLeave} onClose={() => setSelectedLeave(null)} title="تفاصيل طلب الإجازة" size="lg">
+        {selectedLeave && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><span className="text-slate-500">المستفيد:</span> <strong>{selectedLeave.beneficiaryName}</strong></div>
+              <div><span className="text-slate-500">النوع:</span> <strong>{LEAVE_TYPES.find((t) => t.value === selectedLeave.leaveType)?.label}</strong></div>
+              <div><span className="text-slate-500">من:</span> <strong>{selectedLeave.startDate}</strong></div>
+              <div><span className="text-slate-500">إلى:</span> <strong>{selectedLeave.endDate}</strong></div>
+              <div><span className="text-slate-500">المرافق:</span> <strong>{selectedLeave.guardianName}</strong></div>
+              <div><span className="text-slate-500">التواصل:</span> <strong dir="ltr">{selectedLeave.guardianContact}</strong></div>
+            </div>
+            <div>
+              <span className="text-sm text-slate-500">السبب:</span>
+              <p className="mt-1 text-sm">{selectedLeave.reason}</p>
+            </div>
+            {selectedLeave.medicalClearance && (
+              <div className="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-900/20">
+                <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-400">الموافقة الطبية</h4>
+                <p className="text-xs text-emerald-700 dark:text-emerald-500">
+                  ✅ بواسطة: {selectedLeave.medicalClearance.clearedBy}
+                  {selectedLeave.medicalClearance.precautions && ` — ⚠️ ${selectedLeave.medicalClearance.precautions}`}
+                </p>
+              </div>
+            )}
+            <div>
+              <h4 className="mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">سجل المتابعة</h4>
+              <div className="space-y-2">
+                {selectedLeave.history.map((h, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <span className="h-2 w-2 rounded-full bg-teal" />
+                    <span className="font-medium">{h.actionBy}</span>
+                    <span>({h.role})</span>
+                    <span className="text-slate-400">—</span>
+                    <span>{h.action === 'request' ? 'إنشاء الطلب' : h.action === 'medical_clear' ? 'موافقة طبية' : h.action === 'approve' ? 'اعتماد' : h.action === 'reject' ? 'رفض' : 'عودة'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <AddLeaveModal open={showAddModal} onClose={() => setShowAddModal(false)} onAdd={(data) => {
+        const newLeave: LeaveRequest = {
+          id: `l${Date.now()}`, ...data, status: 'pending_medical',
+          history: [{ action: 'request', actionBy: 'المستخدم', role: 'أخصائي', date: new Date().toISOString() }],
+          createdAt: new Date().toISOString(), createdBy: 'المستخدم الحالي',
+        }
+        setLeaves((prev) => [newLeave, ...prev])
+        toast.success('تم إنشاء طلب الإجازة')
+        setShowAddModal(false)
+      }} />
+    </>
+  )
+}
+
+function AddLeaveModal({ open, onClose, onAdd }: {
+  open: boolean
+  onClose: () => void
+  onAdd: (data: Pick<LeaveRequest, 'beneficiaryId' | 'beneficiaryName' | 'leaveType' | 'startDate' | 'endDate' | 'guardianName' | 'guardianContact' | 'reason'>) => void
+}) {
+  const [form, setForm] = useState({ beneficiaryName: '', leaveType: 'home_visit' as const, startDate: '', endDate: '', guardianName: '', guardianContact: '', reason: '' })
+  const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }))
+
+  return (
+    <Modal open={open} onClose={onClose} title="طلب إجازة جديد" size="lg">
+      <div className="space-y-4">
+        <Input label="اسم المستفيد" value={form.beneficiaryName} onChange={(e) => update('beneficiaryName', e.target.value)} placeholder="اختر المستفيد..." />
+        <Select label="نوع الإجازة" value={form.leaveType} onChange={(e) => update('leaveType', e.target.value)} options={LEAVE_TYPES.map((t) => ({ value: t.value, label: `${t.emoji} ${t.label}` }))} />
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="تاريخ الخروج" type="date" value={form.startDate} onChange={(e) => update('startDate', e.target.value)} />
+          <Input label="تاريخ العودة" type="date" value={form.endDate} onChange={(e) => update('endDate', e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="اسم المرافق" value={form.guardianName} onChange={(e) => update('guardianName', e.target.value)} />
+          <Input label="رقم التواصل" value={form.guardianContact} onChange={(e) => update('guardianContact', e.target.value)} dir="ltr" />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">سبب الإجازة</label>
+          <textarea value={form.reason} onChange={(e) => update('reason', e.target.value)} rows={2} placeholder="سبب الطلب..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onClose}>إلغاء</Button>
+          <Button variant="gold" onClick={() => onAdd({ beneficiaryId: `b${Date.now()}`, ...form })} disabled={!form.beneficiaryName.trim() || !form.startDate}>إنشاء الطلب</Button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+// ─── Research Section ───────────────────────────────────────────
+
+function ResearchSection() {
+  const [researches] = useState(DEMO_RESEARCHES)
+  const [selectedResearch, setSelectedResearch] = useState<SocialResearch | null>(null)
+  const [search, setSearch] = useState('')
+
+  const filtered = researches.filter((r) =>
+    r.beneficiaryName?.includes(search) || r.researcherName.includes(search),
+  )
+
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatCard title="إجمالي البحوث" value={researches.length} accent="navy" />
+        <StatCard title="هذا الشهر" value={researches.filter((r) => r.researchDate.startsWith('2026-02')).length} accent="teal" />
+        <StatCard title="باحثون نشطون" value={new Set(researches.map((r) => r.researcherName)).size} accent="gold" />
+      </div>
+
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex-1">
+          <Input placeholder="بحث بالاسم..." value={search} onChange={(e) => setSearch(e.target.value)} icon={<Search className="h-4 w-4" />} />
+        </div>
+        <Button variant="gold" size="sm" icon={<Plus className="h-4 w-4" />}>بحث جديد</Button>
+      </div>
+
+      <div className="space-y-3">
+        {filtered.map((research) => {
+          const economic = ECONOMIC_STATUS.find((e) => e.value === research.economicStatus)
+          return (
+            <Card key={research.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedResearch(research)}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 dark:text-white">{research.beneficiaryName}</h3>
+                    {economic && <Badge className={economic.color}>{economic.label}</Badge>}
+                  </div>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{research.socialResearchSummary}</p>
+                  <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
+                    <span>📝 {research.researcherName}</span>
+                    <span>📅 {research.researchDate}</span>
+                    <span>👤 ولي: {research.guardianName}</span>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" icon={<Eye className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setSelectedResearch(research) }} />
+              </div>
+            </Card>
+          )
+        })}
+        {filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-400">لا توجد بحوث اجتماعية</div>}
+      </div>
+
+      <Modal open={!!selectedResearch} onClose={() => setSelectedResearch(null)} title="تفاصيل البحث الاجتماعي" size="lg">
+        {selectedResearch && (
+          <div className="space-y-4 text-sm">
+            <div className="grid grid-cols-2 gap-4">
+              <div><span className="text-slate-500">المستفيد:</span> <strong>{selectedResearch.beneficiaryName}</strong></div>
+              <div><span className="text-slate-500">الباحث:</span> <strong>{selectedResearch.researcherName}</strong></div>
+              <div><span className="text-slate-500">التاريخ:</span> <strong>{selectedResearch.researchDate}</strong></div>
+              <div><span className="text-slate-500">ولي الأمر:</span> <strong>{selectedResearch.guardianName} ({selectedResearch.guardianRelation})</strong></div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div><span className="text-slate-500">الأب:</span> <strong>{FATHER_MOTHER_STATUS.find((s) => s.value === selectedResearch.isFatherAlive)?.label}</strong></div>
+              <div><span className="text-slate-500">الأم:</span> <strong>{FATHER_MOTHER_STATUS.find((s) => s.value === selectedResearch.isMotherAlive)?.label}</strong></div>
+              <div><span className="text-slate-500">السكن:</span> <strong>{HOUSING_TYPES.find((h) => h.value === selectedResearch.housingType)?.label}</strong></div>
+            </div>
+            {selectedResearch.socialResearchSummary && (
+              <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
+                <h4 className="mb-1 font-bold text-slate-700 dark:text-slate-300">خلاصة البحث</h4>
+                <p className="text-slate-600 dark:text-slate-400">{selectedResearch.socialResearchSummary}</p>
+              </div>
+            )}
+            {selectedResearch.recommendations && (
+              <div className="rounded-lg bg-teal/5 p-3 dark:bg-teal/10">
+                <h4 className="mb-1 font-bold text-teal">التوصيات</h4>
+                <p className="text-slate-600 dark:text-slate-400">{selectedResearch.recommendations}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
+    </>
+  )
+}
+
+// ─── Activities Section ─────────────────────────────────────────
+
+function ActivitiesSection() {
+  const [activities] = useState(DEMO_ACTIVITIES)
+  const [filterStatus, setFilterStatus] = useState<'all' | 'achieved' | 'not_achieved'>('all')
+
+  const filtered = filterStatus === 'all' ? activities : activities.filter((a) => a.status === filterStatus)
+
+  const stats = {
+    total: activities.length,
+    achieved: activities.filter((a) => a.status === 'achieved').length,
+    totalParticipants: activities.reduce((sum, a) => sum + a.internalParticipants + a.externalParticipants, 0),
+    totalCost: activities.reduce((sum, a) => sum + (a.cost || 0), 0),
+  }
+
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard title="إجمالي الأنشطة" value={stats.total} accent="navy" />
+        <StatCard title="منجز" value={stats.achieved} accent="teal" />
+        <StatCard title="المشاركون" value={stats.totalParticipants} accent="gold" />
+        <StatCard title="التكلفة (ر.س)" value={stats.totalCost.toLocaleString('ar-SA')} accent="navy" />
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {(['all', 'achieved', 'not_achieved'] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setFilterStatus(s)}
+            className={cn(
+              'rounded-full px-3 py-1 text-xs font-medium transition-colors',
+              filterStatus === s ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400',
+            )}
+          >
+            {s === 'all' ? 'الكل' : FOLLOW_UP_STATUS.find((f) => f.value === s)!.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        {filtered.map((activity) => {
+          const targetConfig = TARGET_GROUPS.find((t) => t.value === activity.targetGroup)!
+          const statusConfig = FOLLOW_UP_STATUS.find((f) => f.value === activity.status)!
+          return (
+            <Card key={activity.id}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-bold text-slate-900 dark:text-white">{activity.activityName}</h3>
+                    <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                    <Badge variant="outline">{targetConfig.emoji} {targetConfig.label}</Badge>
+                  </div>
+                  {activity.objectives && <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{activity.objectives}</p>}
+                  {activity.outcomes && <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">✅ {activity.outcomes}</p>}
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span>📅 {activity.date}</span>
+                    <span>📍 {activity.location}</span>
+                    <span>👤 {activity.supervisor}</span>
+                    <span>👥 {activity.internalParticipants + activity.externalParticipants} مشارك</span>
+                    {activity.cost && <span>💰 {activity.cost.toLocaleString('ar-SA')} ر.س</span>}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )
+        })}
+        {filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-400">لا توجد أنشطة</div>}
+      </div>
+    </>
+  )
+}

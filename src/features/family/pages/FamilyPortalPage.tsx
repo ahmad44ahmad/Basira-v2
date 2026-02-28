@@ -70,7 +70,7 @@ export function FamilyPortalPage() {
       </div>
 
       <Tabs
-        tabs={tabs.map((t) => ({ id: t.id, label: t.label }))}
+        tabs={tabs}
         activeTab={activeTab}
         onChange={setActiveTab}
       />

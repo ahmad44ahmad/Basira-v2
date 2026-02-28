@@ -52,7 +52,7 @@ export function SocialPage() {
       />
 
       <Tabs
-        tabs={tabs.map((t) => ({ id: t.id, label: t.label }))}
+        tabs={tabs}
         activeTab={activeTab}
         onChange={setActiveTab}
       />
@@ -620,7 +620,7 @@ function MonitoringSection() {
                 {selectedFollowup.activity_types.length > 0 && (
                   <div>
                     <span className="text-slate-500">أنواع الأنشطة:</span>
-                    <div className="mt-1 flex flex-wrap gap-1">{selectedFollowup.activity_types.map((t, i) => <Badge key={i} variant="outline">{t}</Badge>)}</div>
+                    <div className="mt-1 flex flex-wrap gap-1">{selectedFollowup.activity_types.map((t) => <Badge key={t} variant="outline">{t}</Badge>)}</div>
                   </div>
                 )}
                 {selectedFollowup.has_talent && selectedFollowup.talent_description && (
@@ -685,8 +685,8 @@ function MonitoringSection() {
                 <div>
                   <h4 className="mb-2 font-bold text-slate-700 dark:text-slate-300">الغرف</h4>
                   <div className="space-y-2">
-                    {(selectedRound.rooms as Array<Record<string, unknown>>).map((room, i) => (
-                      <div key={i} className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+                    {(selectedRound.rooms as Array<Record<string, unknown>>).map((room) => (
+                      <div key={String(room.room_number ?? '')} className="rounded-lg border border-slate-200 p-3 dark:border-slate-700">
                         <div className="flex items-center gap-2 font-medium">
                           <MapPin className="h-3.5 w-3.5 text-slate-400" />
                           غرفة {String(room.room_number ?? '')}

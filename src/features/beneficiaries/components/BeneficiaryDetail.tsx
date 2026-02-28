@@ -86,13 +86,13 @@ function TimelineTab() {
   return (
     <div className="space-y-3">
       {[
-        { action: 'تسجيل رعاية يومية', time: 'اليوم 08:30', color: 'bg-teal' },
-        { action: 'فحص العلامات الحيوية', time: 'اليوم 07:00', color: 'bg-blue-500' },
-        { action: 'جلسة علاج طبيعي', time: 'أمس 14:00', color: 'bg-purple-500' },
-        { action: 'زيارة عائلية', time: 'أمس 10:30', color: 'bg-gold' },
-        { action: 'تقييم مخاطر السقوط', time: 'قبل 3 أيام', color: 'bg-red-500' },
-      ].map((event, i) => (
-        <div key={i} className="flex gap-3">
+        { id: 'daily-care', action: 'تسجيل رعاية يومية', time: 'اليوم 08:30', color: 'bg-teal' },
+        { id: 'vitals', action: 'فحص العلامات الحيوية', time: 'اليوم 07:00', color: 'bg-blue-500' },
+        { id: 'therapy', action: 'جلسة علاج طبيعي', time: 'أمس 14:00', color: 'bg-purple-500' },
+        { id: 'visit', action: 'زيارة عائلية', time: 'أمس 10:30', color: 'bg-gold' },
+        { id: 'fall-risk', action: 'تقييم مخاطر السقوط', time: 'قبل 3 أيام', color: 'bg-red-500' },
+      ].map((event) => (
+        <div key={event.id} className="flex gap-3">
           <div className="flex flex-col items-center">
             <div className={cn('h-3 w-3 rounded-full', event.color)} />
             {i < 4 && <div className="w-0.5 flex-1 bg-slate-200 dark:bg-slate-700" />}

@@ -39,7 +39,7 @@ export function CateringPage() {
         icon={<UtensilsCrossed className="h-5 w-5" />}
       />
 
-      <Tabs tabs={tabs.map((t) => ({ id: t.id, label: t.label }))} activeTab={activeTab} onChange={setActiveTab} />
+      <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
       <div className="mt-6">
         {activeTab === 'daily' && <DailyLogSection />}

@@ -83,7 +83,7 @@ export function DailyCarePage() {
       />
 
       <Tabs
-        tabs={tabs.map((t) => ({ id: t.id, label: t.label }))}
+        tabs={tabs}
         activeTab={activeTab}
         onChange={setActiveTab}
       />
@@ -230,12 +230,12 @@ function DailyCareFormSection() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Select
               label="الحالة الحركية اليوم"
-              options={MOBILITY_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+              options={MOBILITY_OPTIONS as unknown as { value: string; label: string }[]}
               {...register('mobilityToday')}
             />
             <Select
               label="المزاج والحالة النفسية"
-              options={MOOD_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+              options={MOOD_OPTIONS as unknown as { value: string; label: string }[]}
               {...register('mood')}
             />
           </div>

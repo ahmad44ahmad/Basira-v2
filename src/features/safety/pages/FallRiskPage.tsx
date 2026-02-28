@@ -48,7 +48,7 @@ export function FallRiskPage() {
   const liveResult = calculateFallRisk(formValues)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ في تحميل البيانات" description="تعذر تحميل بيانات المستفيدين. يرجى المحاولة مرة أخرى." />
   if (beneficiaryOptions.length === 0) return <EmptyState title="لا توجد بيانات" description="لا يوجد مستفيدون نشطون لإجراء تقييم مخاطر السقوط" />
 
   const onSubmit = async (data: FallRiskFormData) => {
@@ -254,8 +254,8 @@ export function FallRiskPage() {
               <Card>
                 <CardHeader><CardTitle>التدابير الوقائية</CardTitle></CardHeader>
                 <div className="space-y-2">
-                  {result.preventiveMeasures.map((measure, i) => (
-                    <div key={i} className="flex items-start gap-2">
+                  {result.preventiveMeasures.map((measure) => (
+                    <div key={measure} className="flex items-start gap-2">
                       <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
                       <span className="text-sm text-slate-700 dark:text-slate-300">{measure}</span>
                     </div>

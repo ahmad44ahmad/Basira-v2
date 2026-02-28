@@ -51,7 +51,7 @@ export function EmpowermentPage() {
       />
 
       <Tabs
-        tabs={tabs.map((t) => ({ id: t.id, label: t.label }))}
+        tabs={tabs}
         activeTab={activeTab}
         onChange={setActiveTab}
       />

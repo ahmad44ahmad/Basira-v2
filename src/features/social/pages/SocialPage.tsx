@@ -325,7 +325,7 @@ function ResearchSection() {
     <>
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard title="إجمالي البحوث" value={researches.length} accent="navy" />
-        <StatCard title="هذا الشهر" value={researches.filter((r) => r.research_date?.startsWith('2026-02')).length} accent="teal" />
+        <StatCard title="هذا الشهر" value={researches.filter((r) => r.research_date?.startsWith(new Date().toISOString().slice(0, 7))).length} accent="teal" />
         <StatCard title="باحثون نشطون" value={new Set(researches.map((r) => r.social_worker)).size} accent="gold" />
       </div>
 

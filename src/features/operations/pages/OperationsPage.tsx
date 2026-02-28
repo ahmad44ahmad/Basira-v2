@@ -302,7 +302,7 @@ function MaintenanceSection() {
 
       <AddMaintenanceModal open={showAddModal} onClose={() => setShowAddModal(false)} onAdd={(data) => {
         const newReq: MaintenanceRequest = {
-          id: `m${Date.now()}`, requestNumber: `MR-2026-${String(requests.length + 44).padStart(4, '0')}`,
+          id: `m${Date.now()}`, requestNumber: `MR-${new Date().getFullYear()}-${String(requests.length + 44).padStart(4, '0')}`,
           ...data, status: 'pending', reportedBy: 'المستخدم الحالي', reportedDate: new Date().toISOString().split('T')[0],
         }
         const current = localRequests.length > 0 ? localRequests : fetchedRequests

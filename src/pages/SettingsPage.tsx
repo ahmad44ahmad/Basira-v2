@@ -95,7 +95,7 @@ export function SettingsPage() {
             >
               <motion.div
                 animate={{ x: settings.notifications ? -20 : 0 }}
-                className="absolute top-0.5 right-0.5 h-5 w-5 rounded-full bg-white shadow"
+                className="absolute top-0.5 end-0.5 h-5 w-5 rounded-full bg-white shadow"
               />
             </button>
           </div>

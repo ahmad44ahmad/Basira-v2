@@ -90,7 +90,7 @@ function TimelineTab() {
         { action: 'فحص العلامات الحيوية', time: 'اليوم 07:00', color: 'bg-blue-500' },
         { action: 'جلسة علاج طبيعي', time: 'أمس 14:00', color: 'bg-purple-500' },
         { action: 'زيارة عائلية', time: 'أمس 10:30', color: 'bg-gold' },
-        { action: 'تقييم مخاطر السقوط', time: '2026-02-25', color: 'bg-red-500' },
+        { action: 'تقييم مخاطر السقوط', time: 'قبل 3 أيام', color: 'bg-red-500' },
       ].map((event, i) => (
         <div key={i} className="flex gap-3">
           <div className="flex flex-col items-center">

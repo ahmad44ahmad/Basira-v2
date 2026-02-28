@@ -159,6 +159,7 @@ const navSections: NavSection[] = [
 
 function SidebarSection({ section }: { section: NavSection }) {
   const location = useLocation()
+  const { setSidebarOpen } = useUIStore()
   const isActive = section.items.some((item) => location.pathname.startsWith(item.to))
   const [open, setOpen] = useState(isActive)
 
@@ -194,6 +195,7 @@ function SidebarSection({ section }: { section: NavSection }) {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  onClick={() => setSidebarOpen(false)}
                   className={({ isActive: active }) =>
                     cn(
                       'block rounded-lg px-3 py-1.5 text-sm transition-colors',
@@ -266,6 +268,7 @@ export function Sidebar() {
         <div className="border-t border-slate-200 p-3 dark:border-slate-700">
           <NavLink
             to="/settings"
+            onClick={() => setSidebarOpen(false)}
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <Settings className="h-4 w-4" />

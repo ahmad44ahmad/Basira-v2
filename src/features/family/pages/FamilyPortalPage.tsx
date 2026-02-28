@@ -64,7 +64,7 @@ export function FamilyPortalPage() {
       {/* Quick Stats */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard title="الأهداف النشطة" value={GOALS_PROGRESS.length} accent="teal" />
-        <StatCard title="الزيارات هذا الشهر" value={visits.filter((v) => v.date?.startsWith('2026-02')).length} accent="navy" />
+        <StatCard title="الزيارات هذا الشهر" value={visits.filter((v) => v.date?.startsWith(new Date().toISOString().slice(0, 7))).length} accent="navy" />
         <StatCard title="متوسط التقدم" value={`${Math.round(GOALS_PROGRESS.reduce((s, g) => s + g.progress, 0) / GOALS_PROGRESS.length)}%`} accent="gold" />
         <StatCard title="التحديثات الجديدة" value={updates.length} accent="teal" />
       </div>

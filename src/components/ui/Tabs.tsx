@@ -53,7 +53,7 @@ export function Tabs({ tabs, defaultTab, activeTab: controlledTab, onChange, cla
             {tab.id === currentTab && (
               <motion.div
                 layoutId="tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal"
+                className="absolute bottom-0 start-0 end-0 h-0.5 bg-teal"
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
             )}

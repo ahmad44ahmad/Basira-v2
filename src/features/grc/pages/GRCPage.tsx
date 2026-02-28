@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ShieldCheck, AlertTriangle, ClipboardCheck, Flame, Plus, ChevronDown, ChevronUp, ShieldAlert } from 'lucide-react'
+import { ShieldCheck, Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'

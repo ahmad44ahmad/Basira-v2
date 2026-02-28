@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   HelpCircle, MessageCircle, Book, ChevronDown, ChevronUp,
-  ExternalLink, Phone, Mail, Clock, Shield,
+  Phone, Mail, Clock, Shield,
 } from 'lucide-react'
 import { PageHeader } from '@/components/layout'
 import { Card, CardHeader, CardTitle } from '@/components/ui'

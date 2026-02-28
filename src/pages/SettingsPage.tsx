@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Settings, Sun, Moon, Monitor, Bell, BellOff, Globe, LayoutGrid, LayoutList, Save, User, Shield } from 'lucide-react'
+import { Settings, Sun, Moon, Monitor, Bell, BellOff, Globe, LayoutGrid, LayoutList, Save, User } from 'lucide-react'
 import { z } from 'zod'
 import { PageHeader } from '@/components/layout'
 import { Card, CardHeader, CardTitle, Button } from '@/components/ui'

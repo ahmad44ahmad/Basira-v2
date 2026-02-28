@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { GraduationCap, Users, Briefcase, Globe, CheckCircle, Plus, Calendar } from 'lucide-react'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Card, CardHeader, CardTitle, Badge, Button, Modal, Input, Select } from '@/components/ui'
+import { Card, Badge, Button, Modal, Input, Select } from '@/components/ui'
 
 // ── Types ───────────────────────────────────────────────────────
 

@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { motion } from 'framer-motion'
 import { Sparkles, LogIn, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
-import { Button, Input } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { toast } from '@/stores/useToastStore'
 
 const loginSchema = z.object({

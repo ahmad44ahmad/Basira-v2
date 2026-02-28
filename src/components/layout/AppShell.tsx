@@ -1,12 +1,17 @@
 import { Suspense } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { ErrorBoundary } from '@/components/feedback'
 import { FullPageSpinner } from '@/components/ui'
 import { CommandMenu } from '@/components/CommandMenu'
+import { useAuth } from '@/providers/AuthProvider'
 
 export function AppShell() {
+  const { user, loading, isDemoMode } = useAuth()
+  if (loading) return <FullPageSpinner />
+  if (!user && !isDemoMode) return <Navigate to="/login" replace />
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />

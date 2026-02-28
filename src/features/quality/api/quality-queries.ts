@@ -18,17 +18,17 @@ async function fetchNCRs(): Promise<NCR[]> {
   if (error) throw error
   return (data ?? []).map((f: GrcNcr) => ({
     id: f.id,
-    code: f.id.slice(0, 8).toUpperCase(),
     title: f.title,
+    description: f.description ?? f.title,
     department: f.category ?? '',
-    severity: f.severity === 'major' ? 'major' : 'minor',
-    status: f.status === 'open' ? 'open' : f.status === 'in_progress' ? 'in_progress' : f.status === 'verified' ? 'verified' : 'closed',
+    severity: (f.severity === 'critical' ? 'critical' : f.severity === 'major' ? 'major' : f.severity === 'observation' ? 'observation' : 'minor') as NCR['severity'],
+    status: (f.status === 'open' ? 'open' : f.status === 'in_progress' ? 'in_progress' : f.status === 'closed' ? 'closed' : 'investigating') as NCR['status'],
     isoClause: f.category ?? '',
-    identifiedDate: f.created_at,
+    reportedBy: f.assigned_to ?? '',
+    reportedDate: f.created_at,
     dueDate: f.due_date ?? '',
-    assignedTo: f.assigned_to ?? '',
     rootCause: f.root_cause ?? '',
-    capas: f.corrective_action ? [{ id: `capa-${f.id}`, description: f.corrective_action, type: 'corrective' as const, status: f.status === 'verified' ? 'verified' as const : 'open' as const, dueDate: f.due_date ?? '' }] : [],
+    capas: f.corrective_action ? [{ id: `capa-${f.id}`, description: f.corrective_action, type: 'corrective' as const, assignedTo: f.assigned_to ?? '', status: (f.status === 'closed' ? 'verified' : 'pending') as const, dueDate: f.due_date ?? '' }] : [],
   }))
 }
 
@@ -53,14 +53,12 @@ async function fetchAuditCycles(): Promise<AuditCycle[]> {
   return (data ?? []).map((a: GrcAudit) => ({
     id: a.id,
     cycleName: a.audit_code ?? `تدقيق ${a.audit_type ?? ''}`,
-    year: a.audit_date ? new Date(a.audit_date).getFullYear() : new Date().getFullYear(),
-    quarter: a.audit_date ? Math.ceil((new Date(a.audit_date).getMonth() + 1) / 3) : 1,
+    cycleYear: a.audit_date ? new Date(a.audit_date).getFullYear() : new Date().getFullYear(),
+    cycleQuarter: a.audit_date ? Math.ceil((new Date(a.audit_date).getMonth() + 1) / 3) : 1,
     status: 'completed' as const,
-    startDate: a.audit_date ?? '',
-    endDate: a.audit_date ?? '',
+    plannedStartDate: a.audit_date ?? '',
+    plannedEndDate: a.audit_date ?? '',
     leadAuditor: a.auditor_name ?? '',
-    totalAudits: 1,
-    completedAudits: 1,
     findings: [],
   }))
 }

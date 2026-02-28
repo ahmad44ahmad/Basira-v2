@@ -67,6 +67,17 @@ export const DEMO_HANDOVER_REPORTS: ShiftHandoverReport[] = [
     needs_attention_count: 5,
     critical_count: 2,
     summary_incidents: 'ارتفاع حرارة مستفيد واحد — تم التعامل',
+    staff_fatigue_index: 3,
+    assigned_high_acuity_cases: 2,
+    critical_information_flag: true,
+    handover_compliance_score: 92,
+    illness_severity: 'monitoring',
+    action_list: [
+      { task: 'متابعة حرارة المستفيد أحمد', priority: 'high' },
+      { task: 'إعطاء جرعة الأنسولين المتأخرة', priority: 'high' },
+    ],
+    situation_awareness: 'مستفيد واحد يحتاج متابعة دقيقة للحرارة، ومستفيدة واحدة تأخرت جرعة الأنسولين',
+    synthesis_confirmed: true,
     created_at: now,
   },
 ]

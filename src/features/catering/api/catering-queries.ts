@@ -19,12 +19,13 @@ async function fetchDailyMeals(): Promise<DailyMeal[]> {
   if (error) throw error
   return (data ?? []).map((m) => ({
     id: m.id,
-    beneficiaryName: m.beneficiary_id,
+    beneficiaryId: m.beneficiary_id,
+    beneficiaryName: m.beneficiary_id, // will be resolved via join later
     mealType: m.meal_type as DailyMeal['mealType'],
     status: m.status as DailyMeal['status'],
-    dietaryNotes: m.notes ?? '',
-    deliveredAt: m.delivered_at ?? '',
-    date: m.meal_date,
+    dietaryPlan: m.notes ?? '',
+    mealDate: m.meal_date,
+    deliveredAt: m.delivered_at ?? undefined,
   }))
 }
 
@@ -68,13 +69,15 @@ async function fetchInventory(): Promise<InventoryItem[]> {
   if (error) throw error
   return (data ?? []).map((m: CateringRawMaterial) => ({
     id: m.id,
-    name: m.name,
+    code: m.id.slice(0, 8).toUpperCase(),
+    nameAr: m.name,
     category: m.category,
     unit: m.unit,
     currentStock: m.current_stock,
     minStock: m.min_stock,
     maxStock: m.max_stock,
-    status: m.current_stock <= m.min_stock ? 'low' : m.current_stock >= m.max_stock ? 'overstock' : 'normal',
+    dailyQuota: 0,
+    lastUpdated: m.created_at ?? new Date().toISOString().slice(0, 10),
   }))
 }
 
@@ -103,7 +106,7 @@ export function useCateringStats() {
   return {
     totalMeals: meals?.length ?? 0,
     deliveredMeals: meals?.filter((m) => m.status === 'delivered').length ?? 0,
-    lowStockItems: inventory?.filter((i) => i.status === 'low').length ?? 0,
+    lowStockItems: inventory?.filter((i) => i.currentStock <= i.minStock).length ?? 0,
     totalInventoryItems: inventory?.length ?? 0,
   }
 }

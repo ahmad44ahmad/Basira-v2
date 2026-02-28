@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { MessageCircleHeart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
-import { Spinner } from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { Spinner, Tabs } from '@/components/ui'
 import { useVisualSurveys } from '../api/feedback-queries'
 import { VisualSurvey } from '../components/VisualSurvey'
 import { MoodCurveDashboard } from '../components/MoodCurveDashboard'
@@ -30,22 +29,12 @@ export function FeedbackPage() {
         icon={<MessageCircleHeart className="h-5 w-5" />}
       />
 
-      <div className="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-700">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              'px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
-              activeTab === tab.id
-                ? 'border-teal-600 text-teal-700 dark:text-teal-400'
-                : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400'
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        className="mb-6"
+      />
 
       <AnimatePresence mode="wait">
         <motion.div

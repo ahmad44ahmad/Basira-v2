@@ -296,9 +296,9 @@ function SroiSection() {
             </BarChart>
           </ResponsiveContainer>
           <div className="mt-3 flex gap-4 text-xs text-slate-500">
-            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: '#f87171' }} /> التكلفة التقليدية</span>
-            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: '#2dd4bf' }} /> نموذج التمكين</span>
-            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: '#fbbf24' }} /> القيمة الاقتصادية</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded bg-red-400" /> التكلفة التقليدية</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded bg-teal-400" /> نموذج التمكين</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded bg-amber-400" /> القيمة الاقتصادية</span>
           </div>
         </div>
       </Card>

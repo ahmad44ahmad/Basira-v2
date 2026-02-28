@@ -4,14 +4,15 @@ import { motion } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
 import { Button, Card, CardHeader, CardTitle, Badge } from '@/components/ui'
-import { FullPageSpinner } from '@/components/ui'
+import { FullPageSpinner, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { STATUS_CONFIG, FIVE_RIGHTS, type MedicationStatus } from '../types'
 import { useMedicationSchedule, useMedicationStats, useAdministerMedication } from '../api/medication-queries'
 
 export function MedicationsPage() {
-  const { data: medications = [], isLoading } = useMedicationSchedule()
+  const { data: medications = [], isLoading, error } = useMedicationSchedule()
   const stats = useMedicationStats()
   const administerMutation = useAdministerMedication()
   const [filter, setFilter] = useState<MedicationStatus | 'all'>('all')
@@ -40,7 +41,9 @@ export function MedicationsPage() {
     toast.warning('تم تخطي الدواء')
   }
 
-  if (isLoading) return <FullPageSpinner />
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (medications.length === 0) return <EmptyState title="لا توجد بيانات" description="لا يوجد جدول أدوية مسجل حالياً" />
 
   return (
     <div className="animate-fade-in">

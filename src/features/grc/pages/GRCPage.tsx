@@ -3,7 +3,8 @@ import { ShieldCheck, AlertTriangle, ClipboardCheck, Flame, Plus, ChevronDown, C
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Tabs } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
@@ -44,9 +45,13 @@ export function GRCPage() {
 // ─── Risk Section ───────────────────────────────────────────────
 
 function RiskSection() {
-  const { data: risks = [] } = useRisks()
+  const { data: risks = [], isLoading, error } = useRisks()
   const [filterLevel, setFilterLevel] = useState<RiskLevel | 'all'>('all')
   const [filterCategory, setFilterCategory] = useState<RiskCategory | 'all'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (risks.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد مخاطر مسجلة في السجل حاليا" />
 
   const filtered = risks.filter((r) =>
     (filterLevel === 'all' || r.riskLevel === filterLevel) &&
@@ -163,8 +168,12 @@ function RiskSection() {
 // ─── Compliance Section ─────────────────────────────────────────
 
 function ComplianceSection() {
-  const { data: requirements = [] } = useComplianceRequirements()
+  const { data: requirements = [], isLoading, error } = useComplianceRequirements()
   const [filterStatus, setFilterStatus] = useState<ComplianceStatus | 'all'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (requirements.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد متطلبات امتثال مسجلة حاليا" />
 
   const filtered = filterStatus === 'all' ? requirements : requirements.filter((r) => r.complianceStatus === filterStatus)
   const avgScore = Math.round(requirements.reduce((s, r) => s + r.complianceScore, 0) / requirements.length)
@@ -237,8 +246,12 @@ function ComplianceSection() {
 // ─── Safety Section ─────────────────────────────────────────────
 
 function SafetySection() {
-  const { data: incidents = [] } = useSafetyIncidents()
+  const { data: incidents = [], isLoading, error } = useSafetyIncidents()
   const [filterType, setFilterType] = useState<SafetyIncidentType | 'all'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (incidents.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد حوادث سلامة مسجلة حاليا" />
 
   const filtered = filterType === 'all' ? incidents : incidents.filter((i) => i.incidentType === filterType)
 

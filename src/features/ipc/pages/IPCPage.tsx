@@ -6,33 +6,32 @@ import {
 } from 'lucide-react'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Card, CardHeader, CardTitle, Badge, Button, Modal, Tabs } from '@/components/ui'
+import { Card, CardHeader, CardTitle, Badge, Button, Modal, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import {
   INSPECTION_CATEGORY_CONFIG, SHIFT_CONFIG, IPC_LOCATIONS, DEFAULT_CHECKLIST,
   calculateComplianceScore,
   IPC_INCIDENT_CATEGORY_CONFIG, IPC_SEVERITY_CONFIG, IPC_STATUS_CONFIG,
   IMMUNITY_STATUS_CONFIG, VACCINE_TYPES,
   OUTBREAK_SEVERITY_CONFIG, CONTAINMENT_STATUS_CONFIG,
-  type Outbreak,
   type IPCIncidentCategory, type IPCIncidentStatus, type ImmunityStatus,
   type ChecklistItem, type InspectionShift,
 } from '../types'
 import { useIPCInspections, useIPCIncidents, useIPCImmunizations } from '../api/ipc-queries'
-
-// ── Outbreaks demo data (no dedicated query yet) ────────────────
-const DEMO_OUTBREAKS: Outbreak[] = [
-  { id: '1', code: 'OB-2026-001', pathogen: 'Norovirus', severity: 'high', location: 'جناح الإناث أ', staffAffected: 1, beneficiariesAffected: 3, containmentStatus: 'contained', mohNotified: true, detectionDate: '2026-02-20', description: 'تفشي نوروفيروس مع أعراض هضمية' },
-  { id: '2', code: 'OB-2026-002', pathogen: 'Influenza A', severity: 'moderate', location: 'جناح الذكور أ', staffAffected: 0, beneficiariesAffected: 2, containmentStatus: 'active', mohNotified: false, detectionDate: '2026-02-26', description: 'حالتان مؤكدتان من إنفلونزا A' },
-]
+import { DEMO_OUTBREAKS } from '../api/demo-data'
 
 // ── Inspections Tab ─────────────────────────────────────────────
 
 function InspectionsSection() {
-  const { data: inspections = [] } = useIPCInspections()
+  const { data: inspections = [], isLoading, error } = useIPCInspections()
   const [showNewInspection, setShowNewInspection] = useState(false)
   const [checklist, setChecklist] = useState<ChecklistItem[]>(DEFAULT_CHECKLIST.map((i) => ({ ...i })))
   const [newLocation, setNewLocation] = useState(IPC_LOCATIONS[0])
   const [newShift, setNewShift] = useState<InspectionShift>('morning')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (inspections.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي جولات تفتيش بعد" />
 
   const avgCompliance = inspections.length > 0 ? Math.round(inspections.reduce((a, i) => a + i.compliance_score, 0) / inspections.length) : 0
   const followUps = inspections.filter((i) => i.follow_up_required).length
@@ -156,13 +155,17 @@ function InspectionsSection() {
 // ── Incidents Tab ───────────────────────────────────────────────
 
 function IncidentsSection() {
-  const { data: incidents = [] } = useIPCIncidents()
+  const { data: incidents = [], isLoading, error } = useIPCIncidents()
   const [catFilter, setCatFilter] = useState<string | 'all'>('all')
   const filtered = useMemo(
     () => catFilter === 'all' ? incidents : incidents.filter((i) => i.incident_category === catFilter),
     [catFilter, incidents],
   )
   const openCount = incidents.filter((i) => i.status !== 'closed' && i.status !== 'resolved').length
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (incidents.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي حوادث مكافحة عدوى بعد" />
 
   return (
     <div className="space-y-6">
@@ -230,12 +233,16 @@ function IncidentsSection() {
 // ── Immunizations Tab ───────────────────────────────────────────
 
 function ImmunizationsSection() {
-  const { data: immunizations = [] } = useIPCImmunizations()
+  const { data: immunizations = [], isLoading, error } = useIPCImmunizations()
   const [typeFilter, setTypeFilter] = useState<'all' | 'staff' | 'beneficiary'>('all')
   const filtered = useMemo(
     () => typeFilter === 'all' ? immunizations : immunizations.filter((i) => i.person_type === typeFilter),
     [typeFilter, immunizations],
   )
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (immunizations.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي سجلات تحصين بعد" />
 
   const immuneCount = immunizations.filter((i) => i.immunity_status === 'complete').length
   const pendingCount = immunizations.filter((i) => i.immunity_status === 'incomplete').length

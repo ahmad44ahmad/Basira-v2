@@ -3,7 +3,8 @@ import { Sparkles, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award } from
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, CardHeader, CardTitle, Badge, Modal, Input, Select, Tabs } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, Badge, Modal, Input, Select, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
@@ -49,11 +50,15 @@ export function EmpowermentPage() {
 // ─── Goals Section ──────────────────────────────────────────────
 
 function GoalsSection() {
-  const { data: goals = [] } = useRehabGoals()
+  const { data: goals = [], isLoading, error } = useRehabGoals()
   const [filterDomain, setFilterDomain] = useState<GoalDomain | 'all'>('all')
   const [filterStatus, setFilterStatus] = useState<GoalStatus | 'all'>('all')
   const [expandedGoal, setExpandedGoal] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (goals.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم إنشاء أي أهداف تأهيلية بعد" />
 
   const filtered = goals.filter((g) =>
     (filterDomain === 'all' || g.domain === filterDomain) &&
@@ -332,9 +337,11 @@ function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void })
 // ─── Dignity Section ────────────────────────────────────────────
 
 function DignitySection() {
-  const { data: profile } = useDignityProfile('b1')
+  const { data: profile, isLoading, error } = useDignityProfile('b1')
 
-  if (!profile) return <div className="py-12 text-center text-sm text-slate-400">لا يوجد ملف كرامة</div>
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (!profile) return <EmptyState title="لا يوجد ملف كرامة" description="لم يتم إنشاء ملف كرامة لهذا المستفيد بعد" />
 
   const personalityConfig = PERSONALITY_TYPES.find((p) => p.value === profile.personalityType)
   const commConfig = COMMUNICATION_STYLES.find((c) => c.value === profile.communicationStyle)

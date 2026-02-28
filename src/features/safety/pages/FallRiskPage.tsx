@@ -3,15 +3,17 @@ import { useForm } from 'react-hook-form'
 import { ShieldAlert, Save, AlertTriangle, CheckCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
-import { Button, Select, Card, CardHeader, CardTitle, Badge } from '@/components/ui'
+import { Button, Select, Card, CardHeader, CardTitle, Badge, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { calculateFallRisk, RISK_LEVEL_CONFIG, type FallRiskFormData, type FallRiskResult } from '../types'
 import { useCreateFallRiskAssessment } from '../api/safety-queries'
-import { useBeneficiaryOptions } from '@/features/beneficiaries/api/beneficiary-queries'
+import { useBeneficiaryOptions, useBeneficiaries } from '@/features/beneficiaries/api/beneficiary-queries'
 
 export function FallRiskPage() {
   const [result, setResult] = useState<FallRiskResult | null>(null)
+  const { isLoading, error } = useBeneficiaries()
   const beneficiaryOptions = useBeneficiaryOptions()
   const createAssessment = useCreateFallRiskAssessment()
 
@@ -30,6 +32,10 @@ export function FallRiskPage() {
   // Live score calculation
   const formValues = watch()
   const liveResult = calculateFallRisk(formValues)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (beneficiaryOptions.length === 0) return <EmptyState title="لا توجد بيانات" description="لا يوجد مستفيدون نشطون لإجراء تقييم مخاطر السقوط" />
 
   const onSubmit = async (data: FallRiskFormData) => {
     const calcResult = calculateFallRisk(data)

@@ -3,7 +3,8 @@ import { Shield, FileText, Search, Plus, ChevronDown, ChevronUp, CheckCircle, Al
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Tabs } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
@@ -44,9 +45,13 @@ export function QualityPage() {
 // ─── NCR Section ────────────────────────────────────────────────
 
 function NcrSection() {
-  const { data: ncrs = [] } = useNCRs()
+  const { data: ncrs = [], isLoading, error } = useNCRs()
   const [filterSeverity, setFilterSeverity] = useState<NcrSeverity | 'all'>('all')
   const [expandedNcr, setExpandedNcr] = useState<string | null>(null)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (ncrs.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد تقارير عدم مطابقة مسجلة حاليا" />
 
   const filtered = filterSeverity === 'all' ? ncrs : ncrs.filter((n) => n.severity === filterSeverity)
 
@@ -161,8 +166,12 @@ function NcrSection() {
 // ─── Audit Section ──────────────────────────────────────────────
 
 function AuditSection() {
-  const { data: audits = [] } = useAuditCycles()
+  const { data: audits = [], isLoading, error } = useAuditCycles()
   const [expandedAudit, setExpandedAudit] = useState<string | null>(audits[0]?.id ?? null)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (audits.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد دورات تدقيق مسجلة حاليا" />
 
   const allFindings = audits.flatMap((a) => a.findings)
   const stats = {
@@ -242,8 +251,12 @@ function AuditSection() {
 // ─── OVR Section ────────────────────────────────────────────────
 
 function OvrSection() {
-  const { data: reports = [] } = useOVRReports()
+  const { data: reports = [], isLoading, error } = useOVRReports()
   const [filterCategory, setFilterCategory] = useState<OvrCategory | 'all'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (reports.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد تقارير انحراف مسجلة حاليا" />
 
   const filtered = filterCategory === 'all' ? reports : reports.filter((r) => r.category === filterCategory)
 

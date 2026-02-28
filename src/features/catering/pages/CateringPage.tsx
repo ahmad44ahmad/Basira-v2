@@ -3,7 +3,8 @@ import { UtensilsCrossed, ClipboardCheck, Package, Plus, CheckCircle, XCircle, A
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Tabs } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
@@ -48,11 +49,15 @@ export function CateringPage() {
 // ─── Daily Log Section ──────────────────────────────────────────
 
 function DailyLogSection() {
-  const { data: fetchedMeals = [] } = useDailyMeals()
+  const { data: fetchedMeals = [], isLoading, error } = useDailyMeals()
   const [localMeals, setLocalMeals] = useState<DailyMeal[]>([])
   const meals = localMeals.length > 0 ? localMeals : fetchedMeals
   const [filterMealType, setFilterMealType] = useState<MealType | 'all'>('all')
   const [filterStatus, setFilterStatus] = useState<MealStatus | 'all'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (fetchedMeals.length === 0 && localMeals.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد وجبات مسجلة لهذا اليوم" />
 
   const filtered = meals.filter((m) =>
     (filterMealType === 'all' || m.mealType === filterMealType) &&
@@ -270,9 +275,16 @@ function QualitySection() {
 // ─── Inventory Section ──────────────────────────────────────────
 
 function InventorySection() {
-  const { data: inventory = [] } = useInventory()
-  const { data: transactions = [] } = useInventoryTransactions()
+  const { data: inventory = [], isLoading: isLoadingInventory, error: errorInventory } = useInventory()
+  const { data: transactions = [], isLoading: isLoadingTransactions, error: errorTransactions } = useInventoryTransactions()
   const [view, setView] = useState<'stock' | 'transactions'>('stock')
+
+  const isLoading = isLoadingInventory || isLoadingTransactions
+  const error = errorInventory || errorTransactions
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (inventory.length === 0 && transactions.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد أصناف أو حركات مخزون مسجلة حاليا" />
 
   const lowStockCount = inventory.filter((i) => i.currentStock <= i.minStock).length
   const totalItems = inventory.length

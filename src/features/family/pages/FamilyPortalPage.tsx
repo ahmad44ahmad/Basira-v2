@@ -3,7 +3,8 @@ import { Heart, Calendar, MessageCircle, Image, Video, Trophy, Phone, Send, Thum
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, Badge, Input, Modal, Tabs } from '@/components/ui'
+import { Button, Card, Badge, Input, Modal, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
@@ -73,7 +74,11 @@ export function FamilyPortalPage() {
 // ─── Updates Section ────────────────────────────────────────────
 
 function UpdatesSection() {
-  const { data: updates = [] } = useFamilyUpdates()
+  const { data: updates = [], isLoading, error } = useFamilyUpdates()
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (updates.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد تحديثات جديدة حالياً" />
 
   return (
     <div className="space-y-3">
@@ -106,9 +111,13 @@ function UpdatesSection() {
 // ─── Visits Section ─────────────────────────────────────────────
 
 function VisitsSection() {
-  const { data: visits = [] } = useVisits()
+  const { data: visits = [], isLoading, error } = useVisits()
   const [filterType, setFilterType] = useState<VisitType | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (visits.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي زيارات بعد" />
 
   const filtered = filterType === 'all' ? visits : visits.filter((v) => v.type === filterType)
 
@@ -205,9 +214,13 @@ function AddVisitModal({ open, onClose }: { open: boolean; onClose: () => void }
 // ─── Feed Section ───────────────────────────────────────────────
 
 function FeedSection() {
-  const { data: fetchedPosts = [] } = useFamilyFeed()
+  const { data: fetchedPosts = [], isLoading, error } = useFamilyFeed()
   const [posts, setPosts] = useState<FeedPost[]>([])
   const displayPosts = posts.length > 0 ? posts : fetchedPosts
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (displayPosts.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد منشورات في البث الإعلامي حالياً" />
 
   const toggleLike = (id: string) => {
     const current = posts.length > 0 ? posts : fetchedPosts

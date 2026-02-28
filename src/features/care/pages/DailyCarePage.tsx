@@ -3,12 +3,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { HeartPulse, Save, AlertTriangle, Thermometer, Activity as ActivityIcon } from 'lucide-react'
 import { PageHeader } from '@/components/layout'
-import { Button, Input, Select, Card, CardHeader, CardTitle, Badge } from '@/components/ui'
+import { Button, Input, Select, Card, CardHeader, CardTitle, Badge, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { SHIFT_CONFIG, MOBILITY_OPTIONS, MOOD_OPTIONS, type Shift } from '../types'
 import { useCreateDailyCareLog } from '../api/care-queries'
-import { useBeneficiaryOptions } from '@/features/beneficiaries/api/beneficiary-queries'
+import { useBeneficiaryOptions, useBeneficiaries } from '@/features/beneficiaries/api/beneficiary-queries'
 
 const careLogSchema = z.object({
   beneficiaryId: z.string().min(1, 'اختر المستفيد'),
@@ -37,6 +38,7 @@ function getCurrentShift(): Shift {
 }
 
 export function DailyCarePage() {
+  const { isLoading, error } = useBeneficiaries()
   const beneficiaryOptions = useBeneficiaryOptions()
   const createLog = useCreateDailyCareLog()
   const currentShift = getCurrentShift()
@@ -51,6 +53,10 @@ export function DailyCarePage() {
       requiresFollowup: false,
     },
   })
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (beneficiaryOptions.length === 0) return <EmptyState title="لا توجد بيانات" description="لا يوجد مستفيدون نشطون لتسجيل الرعاية اليومية لهم" />
 
   const temp = watch('temperature')
   const systolic = watch('bloodPressureSystolic')

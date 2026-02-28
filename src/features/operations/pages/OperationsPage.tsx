@@ -3,7 +3,8 @@ import { Building2, Wrench, Trash2, Plus, Search, CheckCircle, AlertTriangle, Ey
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, Badge, Input, Select, Modal, Tabs } from '@/components/ui'
+import { Button, Card, Badge, Input, Select, Modal, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn, formatCurrency } from '@/lib/utils'
 import {
@@ -51,9 +52,16 @@ export function OperationsPage() {
 // ─── Dashboard Section ──────────────────────────────────────────
 
 function DashboardSection() {
-  const { data: assets = [] } = useAssets()
-  const { data: maintenance = [] } = useMaintenanceRequests()
-  const { data: waste = [] } = useWasteRecords()
+  const { data: assets = [], isLoading: isLoadingAssets, error: errorAssets } = useAssets()
+  const { data: maintenance = [], isLoading: isLoadingMaintenance, error: errorMaintenance } = useMaintenanceRequests()
+  const { data: waste = [], isLoading: isLoadingWaste, error: errorWaste } = useWasteRecords()
+
+  const isLoading = isLoadingAssets || isLoadingMaintenance || isLoadingWaste
+  const error = errorAssets || errorMaintenance || errorWaste
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (assets.length === 0 && maintenance.length === 0 && waste.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد بيانات في لوحة التحكم حاليا" />
 
   const activeAssets = assets.filter((a) => a.status === 'active').length
   const totalValue = assets.reduce((s, a) => s + a.currentBookValue, 0)
@@ -120,9 +128,13 @@ function DashboardSection() {
 // ─── Assets Section ─────────────────────────────────────────────
 
 function AssetsSection() {
-  const { data: assets = [] } = useAssets()
+  const { data: assets = [], isLoading, error } = useAssets()
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<AssetStatus | 'all'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (assets.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد أصول مسجلة حاليا" />
 
   const filtered = assets.filter((a) =>
     (filterStatus === 'all' || a.status === filterStatus) &&
@@ -185,11 +197,15 @@ function AssetsSection() {
 // ─── Maintenance Section ────────────────────────────────────────
 
 function MaintenanceSection() {
-  const { data: fetchedRequests = [] } = useMaintenanceRequests()
+  const { data: fetchedRequests = [], isLoading, error } = useMaintenanceRequests()
   const [localRequests, setLocalRequests] = useState<MaintenanceRequest[]>([])
   const requests = localRequests.length > 0 ? localRequests : fetchedRequests
   const [filterStatus, setFilterStatus] = useState<MaintenanceStatus | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (fetchedRequests.length === 0 && localRequests.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد طلبات صيانة مسجلة حاليا" />
 
   const filtered = filterStatus === 'all' ? requests : requests.filter((r) => r.status === filterStatus)
 
@@ -325,9 +341,13 @@ function AddMaintenanceModal({ open, onClose, onAdd }: {
 // ─── Waste Section ──────────────────────────────────────────────
 
 function WasteSection() {
-  const { data: records = [] } = useWasteRecords()
+  const { data: records = [], isLoading, error } = useWasteRecords()
   const [filterType, setFilterType] = useState<WasteType | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (records.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد سجلات نفايات مسجلة حاليا" />
 
   const filtered = filterType === 'all' ? records : records.filter((r) => r.wasteType === filterType)
 

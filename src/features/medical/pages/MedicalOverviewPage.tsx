@@ -2,7 +2,8 @@ import { Stethoscope, Users, Syringe, ShieldAlert, Activity, FileText, Smile, Ea
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Card, CardHeader, CardTitle, Badge } from '@/components/ui'
+import { Card, CardHeader, CardTitle, Badge, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { cn } from '@/lib/utils'
 import { useMedicalProfiles, useMedicalStats } from '../api/medical-queries'
 import { useBeneficiaryStats } from '@/features/beneficiaries/api/beneficiary-queries'
@@ -18,9 +19,13 @@ const quickActions = [
 ]
 
 export function MedicalOverviewPage() {
-  const { data: profiles, isLoading } = useMedicalProfiles()
+  const { data: profiles, isLoading, error } = useMedicalProfiles()
   const medStats = useMedicalStats()
   const benStats = useBeneficiaryStats()
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if ((profiles ?? []).length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي ملفات طبية بعد" />
 
   const recentExams = (profiles ?? []).slice(0, 4).map((p) => ({
     name: p.beneficiary_id,

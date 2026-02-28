@@ -3,7 +3,8 @@ import { Users, FileText, Calendar, ClipboardList, Plus, Search, Eye, CheckCircl
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, Badge, Input, Select, Modal, Tabs } from '@/components/ui'
+import { Button, Card, Badge, Input, Select, Modal, Tabs, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
@@ -49,12 +50,16 @@ export function SocialPage() {
 // ─── Leaves Section ─────────────────────────────────────────────
 
 function LeavesSection() {
-  const { data: fetchedLeaves = [] } = useLeaveRequests()
+  const { data: fetchedLeaves = [], isLoading, error } = useLeaveRequests()
   const [localLeaves, setLocalLeaves] = useState<LeaveRequest[] | null>(null)
   const leaves = localLeaves ?? fetchedLeaves
   const [filterStatus, setFilterStatus] = useState<LeaveStatus | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (leaves.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تقديم أي طلبات إجازة بعد" />
 
   const filtered = filterStatus === 'all' ? leaves : leaves.filter((l) => l.status === filterStatus)
 
@@ -260,10 +265,14 @@ function AddLeaveModal({ open, onClose, onAdd }: {
 // ─── Research Section ───────────────────────────────────────────
 
 function ResearchSection() {
-  const { data: researches = [] } = useSocialResearches()
+  const { data: researches = [], isLoading, error } = useSocialResearches()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- DB type differs from local type; will unify later
   const [selectedResearch, setSelectedResearch] = useState<Record<string, unknown> | null>(null)
   const [search, setSearch] = useState('')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (researches.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم إجراء أي بحوث اجتماعية بعد" />
 
   const filtered = researches.filter((r) => {
     const worker = (r as Record<string, unknown>).social_worker as string | undefined
@@ -345,8 +354,12 @@ function ResearchSection() {
 // ─── Activities Section ─────────────────────────────────────────
 
 function ActivitiesSection() {
-  const { data: activities = [] } = useSocialActivities()
+  const { data: activities = [], isLoading, error } = useSocialActivities()
   const [filterStatus, setFilterStatus] = useState<'all' | 'achieved' | 'not_achieved'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (activities.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي أنشطة اجتماعية بعد" />
 
   const filtered = filterStatus === 'all' ? activities : activities.filter((a) => a.status === filterStatus)
 

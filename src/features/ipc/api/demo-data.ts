@@ -1,4 +1,5 @@
 import type { IpcInspection, IpcIncident, IpcImmunization } from '@/types/database'
+import type { Outbreak } from '../types'
 
 const now = new Date().toISOString()
 
@@ -17,4 +18,9 @@ export const DEMO_IMMUNIZATIONS: IpcImmunization[] = [
   { id: '1', person_type: 'beneficiary', beneficiary_id: 'b001', staff_name: null, vaccine_code: 'FLU', vaccine_name: 'Influenza', vaccine_name_ar: 'الإنفلونزا', dose_number: 1, total_doses: 1, date_administered: '2026-01-15', next_due_date: '2027-01-15', immunity_status: 'complete', adverse_reaction: null, created_at: now },
   { id: '2', person_type: 'beneficiary', beneficiary_id: 'b002', staff_name: null, vaccine_code: 'HEP_B', vaccine_name: 'Hepatitis B', vaccine_name_ar: 'التهاب الكبد ب', dose_number: 2, total_doses: 3, date_administered: '2026-02-01', next_due_date: '2026-08-01', immunity_status: 'incomplete', adverse_reaction: null, created_at: now },
   { id: '3', person_type: 'staff', beneficiary_id: null, staff_name: 'أ. محمد الحربي', vaccine_code: 'FLU', vaccine_name: 'Influenza', vaccine_name_ar: 'الإنفلونزا', dose_number: 1, total_doses: 1, date_administered: '2026-01-10', next_due_date: '2027-01-10', immunity_status: 'complete', adverse_reaction: null, created_at: now },
+]
+
+export const DEMO_OUTBREAKS: Outbreak[] = [
+  { id: '1', code: 'OB-2026-001', pathogen: 'Norovirus', severity: 'high', location: 'جناح الإناث أ', staffAffected: 1, beneficiariesAffected: 3, containmentStatus: 'contained', mohNotified: true, detectionDate: '2026-02-20', description: 'تفشي نوروفيروس مع أعراض هضمية' },
+  { id: '2', code: 'OB-2026-002', pathogen: 'Influenza A', severity: 'moderate', location: 'جناح الذكور أ', staffAffected: 0, beneficiariesAffected: 2, containmentStatus: 'active', mohNotified: false, detectionDate: '2026-02-26', description: 'حالتان مؤكدتان من إنفلونزا A' },
 ]

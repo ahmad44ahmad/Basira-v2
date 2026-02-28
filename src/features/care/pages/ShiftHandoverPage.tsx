@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
 import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal } from '@/components/ui'
-import { FullPageSpinner } from '@/components/ui'
+import { FullPageSpinner, Spinner } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { SHIFT_CONFIG, CATEGORY_CONFIG, type Shift, type ShiftHandoverItem, type HandoverCategory, type HandoverPriority } from '../types'
@@ -20,7 +21,7 @@ function getCurrentShift(): Shift {
 export function ShiftHandoverPage() {
   const currentShift = getCurrentShift()
   const shiftInfo = SHIFT_CONFIG[currentShift]
-  const { data: fetchedItems = [], isLoading } = useHandoverItems()
+  const { data: fetchedItems = [], isLoading, error } = useHandoverItems()
   const [localItems, setLocalItems] = useState<ShiftHandoverItem[]>([])
   const items = [...localItems, ...fetchedItems]
   const [showAddModal, setShowAddModal] = useState(false)
@@ -35,7 +36,9 @@ export function ShiftHandoverPage() {
     pending: items.filter((i) => i.status === 'active' && i.category === 'pending').length,
   }
 
-  if (isLoading) return <FullPageSpinner />
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (fetchedItems.length === 0 && localItems.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد بنود تسليم مسجلة للورديات حالياً" />
 
   const markDone = (id: string) => {
     setLocalItems((prev) => prev.map((i) => (i.id === id ? { ...i, status: 'completed' as const } : i)))

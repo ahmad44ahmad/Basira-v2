@@ -2,7 +2,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Save } from 'lucide-react'
-import { Button, Card, CardHeader, CardTitle } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, Select } from '@/components/ui'
 import { toast } from '@/stores/useToastStore'
 import { useCreateVisualSurvey } from '../api/feedback-queries'
 import { useBeneficiaryOptions } from '@/features/beneficiaries'
@@ -105,19 +105,13 @@ export function VisualSurvey() {
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
         {/* Beneficiary select */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">المستفيد</label>
-          <select
-            {...register('beneficiaryId')}
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-white"
-          >
-            <option value="">اختر المستفيد</option>
-            {beneficiaryOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          {errors.beneficiaryId && <p className="mt-1 text-xs text-red-500">{errors.beneficiaryId.message}</p>}
-        </div>
+        <Select
+          label="المستفيد"
+          placeholder="اختر المستفيد..."
+          options={beneficiaryOptions}
+          {...register('beneficiaryId')}
+          error={errors.beneficiaryId?.message}
+        />
 
         {/* Emoji rating grids */}
         <div className="grid grid-cols-2 gap-6">

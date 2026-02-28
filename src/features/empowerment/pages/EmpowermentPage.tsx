@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Sparkles, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award, Brain, ScrollText, Scale, GraduationCap, ClipboardList, Handshake, Wallet } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
@@ -255,28 +258,45 @@ function GoalsSection() {
   )
 }
 
+const goalSchema = z.object({
+  goalTitle: z.string().min(3, 'العنوان مطلوب (3 أحرف على الأقل)'),
+  goalDescription: z.string().optional(),
+  measurementType: z.string().default('numeric'),
+  measurementUnit: z.string().optional(),
+  baselineValue: z.string().optional(),
+  targetValue: z.string().optional(),
+  startDate: z.string().optional(),
+  targetDate: z.string().min(1, 'تاريخ الإنجاز مطلوب'),
+  assignedTo: z.string().optional(),
+})
+
+type GoalFormData = z.infer<typeof goalSchema>
+
 function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [step, setStep] = useState(1)
   const [domain, setDomain] = useState<GoalDomain | ''>('')
-  const [form, setForm] = useState({ goalTitle: '', goalDescription: '', measurementType: 'numeric', measurementUnit: '', baselineValue: '', targetValue: '', startDate: '', targetDate: '', assignedTo: '' })
-  const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }))
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<GoalFormData>({
+    resolver: zodResolver(goalSchema),
+    defaultValues: { measurementType: 'numeric' },
+  })
 
   const createGoal = useCreateRehabGoal()
-  const handleSubmit = () => {
+  const onSubmit = (data: GoalFormData) => {
     createGoal.mutate({
       beneficiary_id: '',
       domain: domain || 'physical',
-      goal_title: form.goalTitle,
-      goal_description: form.goalDescription || null,
-      measurement_type: form.measurementType || null,
-      measurement_unit: form.measurementUnit || null,
-      baseline_value: form.baselineValue ? Number(form.baselineValue) : null,
-      target_value: form.targetValue ? Number(form.targetValue) : null,
+      goal_title: data.goalTitle,
+      goal_description: data.goalDescription || null,
+      measurement_type: data.measurementType || null,
+      measurement_unit: data.measurementUnit || null,
+      baseline_value: data.baselineValue ? Number(data.baselineValue) : null,
+      target_value: data.targetValue ? Number(data.targetValue) : null,
       current_value: null,
       quality_of_life_dimension: null,
-      start_date: form.startDate || null,
-      target_date: form.targetDate || null,
-      assigned_to: form.assignedTo || null,
+      start_date: data.startDate || null,
+      target_date: data.targetDate || null,
+      assigned_to: data.assignedTo || null,
       assigned_department: null,
       status: 'active',
       progress_percentage: 0,
@@ -286,9 +306,10 @@ function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void })
       linked_national_goal: null,
     })
     toast.success('تم إنشاء الهدف التأهيلي')
-    onClose()
+    reset()
     setStep(1)
     setDomain('')
+    onClose()
   }
 
   return (
@@ -315,39 +336,39 @@ function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void })
       )}
 
       {step === 2 && domain && (
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex items-center gap-2">
             <Badge className={REHAB_DOMAINS.find((d) => d.value === domain)!.color}>
               {REHAB_DOMAINS.find((d) => d.value === domain)!.emoji} {REHAB_DOMAINS.find((d) => d.value === domain)!.label}
             </Badge>
-            <button onClick={() => setStep(1)} className="text-xs text-teal hover:underline">تغيير</button>
+            <button type="button" onClick={() => setStep(1)} className="text-xs text-teal hover:underline">تغيير</button>
           </div>
 
-          <Input label="عنوان الهدف" value={form.goalTitle} onChange={(e) => update('goalTitle', e.target.value)} placeholder="مثال: المشي باستقلالية لمسافة 50 متر" />
+          <Input label="عنوان الهدف" {...register('goalTitle')} error={errors.goalTitle?.message} placeholder="مثال: المشي باستقلالية لمسافة 50 متر" />
           <div>
             <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">وصف الهدف</label>
-            <textarea value={form.goalDescription} onChange={(e) => update('goalDescription', e.target.value)} rows={2} placeholder="وصف تفصيلي للهدف..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
+            <textarea {...register('goalDescription')} rows={2} placeholder="وصف تفصيلي للهدف..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Select label="نوع القياس" value={form.measurementType} onChange={(e) => update('measurementType', e.target.value)} options={MEASUREMENT_TYPES.map((m) => ({ value: m.value, label: `${m.label} (${m.example})` }))} />
-            <Input label="وحدة القياس" value={form.measurementUnit} onChange={(e) => update('measurementUnit', e.target.value)} placeholder="متر، كلمة، دقيقة..." />
+            <Select label="نوع القياس" {...register('measurementType')} error={errors.measurementType?.message} options={MEASUREMENT_TYPES.map((m) => ({ value: m.value, label: `${m.label} (${m.example})` }))} />
+            <Input label="وحدة القياس" {...register('measurementUnit')} error={errors.measurementUnit?.message} placeholder="متر، كلمة، دقيقة..." />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Input label="القيمة الأساسية" type="number" value={form.baselineValue} onChange={(e) => update('baselineValue', e.target.value)} />
-            <Input label="القيمة المستهدفة" type="number" value={form.targetValue} onChange={(e) => update('targetValue', e.target.value)} />
+            <Input label="القيمة الأساسية" type="number" {...register('baselineValue')} error={errors.baselineValue?.message} />
+            <Input label="القيمة المستهدفة" type="number" {...register('targetValue')} error={errors.targetValue?.message} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Input label="تاريخ البداية" type="date" value={form.startDate} onChange={(e) => update('startDate', e.target.value)} />
-            <Input label="تاريخ الإنجاز المستهدف" type="date" value={form.targetDate} onChange={(e) => update('targetDate', e.target.value)} />
+            <Input label="تاريخ البداية" type="date" {...register('startDate')} error={errors.startDate?.message} />
+            <Input label="تاريخ الإنجاز المستهدف" type="date" {...register('targetDate')} error={errors.targetDate?.message} />
           </div>
-          <Input label="الأخصائي المسؤول" value={form.assignedTo} onChange={(e) => update('assignedTo', e.target.value)} />
+          <Input label="الأخصائي المسؤول" {...register('assignedTo')} error={errors.assignedTo?.message} />
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setStep(1)}>رجوع</Button>
-            <Button variant="gold" onClick={handleSubmit} disabled={!form.goalTitle.trim() || !form.targetDate}>إنشاء الهدف</Button>
+            <Button variant="outline" type="button" onClick={() => setStep(1)}>رجوع</Button>
+            <Button variant="gold" type="submit">إنشاء الهدف</Button>
           </div>
-        </div>
+        </form>
       )}
     </Modal>
   )

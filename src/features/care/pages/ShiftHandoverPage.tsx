@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { FileText, Plus, Check, Clock, AlertTriangle, Activity, UserCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
@@ -288,55 +291,61 @@ function StaffWellbeingSection() {
   )
 }
 
+const handoverSchema = z.object({
+  title: z.string().min(3, 'العنوان مطلوب (3 أحرف على الأقل)'),
+  description: z.string().optional(),
+  category: z.enum(['critical', 'medication', 'care', 'pending']).default('care'),
+  priority: z.enum(['high', 'medium', 'low']).default('medium'),
+})
+
+type HandoverFormData = z.infer<typeof handoverSchema>
+
 function AddHandoverModal({ open, onClose, onAdd }: {
   open: boolean
   onClose: () => void
   onAdd: (data: { title: string; description: string; category: HandoverCategory; priority: HandoverPriority }) => void
 }) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [category, setCategory] = useState<HandoverCategory>('care')
-  const [priority, setPriority] = useState<HandoverPriority>('medium')
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<HandoverFormData>({
+    resolver: zodResolver(handoverSchema),
+    defaultValues: { title: '', description: '', category: 'care', priority: 'medium' },
+  })
 
-  const handleSubmit = () => {
-    if (!title.trim()) return
-    onAdd({ title, description, category, priority })
-    setTitle('')
-    setDescription('')
+  const onSubmit = (data: HandoverFormData) => {
+    onAdd({ ...data, description: data.description ?? '' })
+    reset()
   }
 
   return (
     <Modal open={open} onClose={onClose} title="إضافة بند تسليم">
-      <div className="space-y-4">
-        <Input label="العنوان" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="وصف مختصر للبند..." />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input label="العنوان" {...register('title')} placeholder="وصف مختصر للبند..." error={errors.title?.message} />
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">التفاصيل</label>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            {...register('description')}
             rows={3}
             placeholder="تفاصيل إضافية..."
             className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Select label="التصنيف" value={category} onChange={(e) => setCategory(e.target.value as HandoverCategory)} options={[
+          <Select label="التصنيف" {...register('category')} options={[
             { value: 'critical', label: '🔴 حرج' },
             { value: 'medication', label: '💊 أدوية' },
             { value: 'care', label: '💗 رعاية' },
             { value: 'pending', label: '⏱️ معلق' },
-          ]} />
-          <Select label="الأولوية" value={priority} onChange={(e) => setPriority(e.target.value as HandoverPriority)} options={[
+          ]} error={errors.category?.message} />
+          <Select label="الأولوية" {...register('priority')} options={[
             { value: 'high', label: 'عالية' },
             { value: 'medium', label: 'متوسطة' },
             { value: 'low', label: 'منخفضة' },
-          ]} />
+          ]} error={errors.priority?.message} />
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>إلغاء</Button>
-          <Button variant="gold" onClick={handleSubmit} disabled={!title.trim()}>إضافة</Button>
+          <Button type="button" variant="outline" onClick={onClose}>إلغاء</Button>
+          <Button type="submit" variant="gold">إضافة</Button>
         </div>
-      </div>
+      </form>
     </Modal>
   )
 }

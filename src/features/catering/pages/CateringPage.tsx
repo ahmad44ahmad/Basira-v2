@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { z } from 'zod'
 import { UtensilsCrossed, ClipboardCheck, Package, Plus, CheckCircle, XCircle, AlertTriangle, ThumbsUp, ThumbsDown, Truck, Phone, Calendar, Users, ShieldAlert } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
@@ -155,6 +156,18 @@ function DailyLogSection() {
 
 // ─── Quality Section ────────────────────────────────────────────
 
+const qualitySubmissionSchema = z.object({
+  checklist: z.array(z.object({
+    id: z.string(),
+    question: z.string(),
+    category: z.string(),
+    status: z.enum(['compliant', 'non_compliant'], { required_error: 'يجب تقييم هذا البند' }),
+    observation: z.string().optional(),
+    deductionAmount: z.number().min(0).default(0),
+  })),
+  notes: z.string().optional(),
+})
+
 function QualitySection() {
   const [checklist, setChecklist] = useState<QualityCheckItem[]>(
     DEFAULT_CHECKLIST.map((item) => ({ ...item, status: null, deductionAmount: 0 })),
@@ -178,6 +191,14 @@ function QualitySection() {
       toast.error('يرجى تقييم جميع البنود')
       return
     }
+
+    const parseResult = qualitySubmissionSchema.safeParse({ checklist, notes })
+    if (!parseResult.success) {
+      const firstError = parseResult.error.errors[0]
+      toast.error(firstError.message)
+      return
+    }
+
     setSubmitted(true)
     toast.success('تم حفظ تقييم الجودة')
   }

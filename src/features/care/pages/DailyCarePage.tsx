@@ -209,13 +209,13 @@ function DailyCareFormSection() {
           )}
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            <Input label="الحرارة (°C)" type="number" step="0.1" placeholder="36.5" {...register('temperature', { valueAsNumber: true })} error={errors.temperature?.message} />
-            <Input label="النبض (BPM)" type="number" placeholder="72" {...register('pulse', { valueAsNumber: true })} error={errors.pulse?.message} />
-            <Input label="الضغط الانقباضي" type="number" placeholder="120" {...register('bloodPressureSystolic', { valueAsNumber: true })} />
-            <Input label="الضغط الانبساطي" type="number" placeholder="80" {...register('bloodPressureDiastolic', { valueAsNumber: true })} />
-            <Input label="الأكسجين (%)" type="number" placeholder="98" {...register('oxygenSaturation', { valueAsNumber: true })} />
-            <Input label="السكر (mg/dL)" type="number" placeholder="100" {...register('bloodSugar', { valueAsNumber: true })} />
-            <Input label="الوزن (kg)" type="number" step="0.1" placeholder="65" {...register('weight', { valueAsNumber: true })} />
+            <Input label="الحرارة (°C)" type="number" step="0.1" placeholder="36.5" min="35" max="42" {...register('temperature', { valueAsNumber: true })} error={errors.temperature?.message} />
+            <Input label="النبض (BPM)" type="number" placeholder="72" min="40" max="180" {...register('pulse', { valueAsNumber: true })} error={errors.pulse?.message} />
+            <Input label="الضغط الانقباضي" type="number" placeholder="120" min="70" max="200" {...register('bloodPressureSystolic', { valueAsNumber: true })} error={errors.bloodPressureSystolic?.message} />
+            <Input label="الضغط الانبساطي" type="number" placeholder="80" min="40" max="130" {...register('bloodPressureDiastolic', { valueAsNumber: true })} error={errors.bloodPressureDiastolic?.message} />
+            <Input label="الأكسجين (%)" type="number" placeholder="98" min="70" max="100" {...register('oxygenSaturation', { valueAsNumber: true })} error={errors.oxygenSaturation?.message} />
+            <Input label="السكر (mg/dL)" type="number" placeholder="100" min="20" max="600" {...register('bloodSugar', { valueAsNumber: true })} error={errors.bloodSugar?.message} />
+            <Input label="الوزن (kg)" type="number" step="0.1" placeholder="65" min="10" max="300" {...register('weight', { valueAsNumber: true })} error={errors.weight?.message} />
           </div>
         </Card>
 

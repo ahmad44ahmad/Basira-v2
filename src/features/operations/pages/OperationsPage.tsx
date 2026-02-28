@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Building2, Wrench, Trash2, Plus, Search, CheckCircle, AlertTriangle, Eye, Play, ChevronDown, ChevronUp, ClipboardCheck, CircleCheck, CircleX, CircleMinus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
@@ -311,34 +314,55 @@ function MaintenanceSection() {
   )
 }
 
+const maintenanceSchema = z.object({
+  title: z.string().min(3, 'العنوان مطلوب (3 أحرف على الأقل)'),
+  description: z.string().optional(),
+  requestType: z.enum(['corrective', 'preventive', 'emergency']).default('corrective'),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
+  targetCompletion: z.string().optional(),
+  estimatedCost: z.string().optional(),
+})
+
+type MaintenanceFormData = z.infer<typeof maintenanceSchema>
+
 function AddMaintenanceModal({ open, onClose, onAdd }: {
   open: boolean; onClose: () => void
   onAdd: (data: Pick<MaintenanceRequest, 'title' | 'description' | 'requestType' | 'priority' | 'targetCompletion' | 'estimatedCost'>) => void
 }) {
-  const [form, setForm] = useState({ title: '', description: '', requestType: 'corrective' as MaintenanceType, priority: 'medium' as MaintenancePriority, targetCompletion: '', estimatedCost: '' })
-  const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }))
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<MaintenanceFormData>({
+    resolver: zodResolver(maintenanceSchema),
+    defaultValues: { title: '', description: '', requestType: 'corrective', priority: 'medium', targetCompletion: '', estimatedCost: '' },
+  })
+
+  const onSubmit = (data: MaintenanceFormData) => {
+    onAdd({
+      ...data,
+      estimatedCost: Number(data.estimatedCost) || 0,
+    })
+    reset()
+  }
 
   return (
     <Modal open={open} onClose={onClose} title="طلب صيانة جديد" size="lg">
-      <div className="space-y-4">
-        <Input label="العنوان" value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="وصف مختصر للمشكلة..." />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input label="العنوان" {...register('title')} placeholder="وصف مختصر للمشكلة..." error={errors.title?.message} />
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">التفاصيل</label>
-          <textarea value={form.description} onChange={(e) => update('description', e.target.value)} rows={2} placeholder="تفاصيل إضافية..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
+          <textarea {...register('description')} rows={2} placeholder="تفاصيل إضافية..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Select label="النوع" value={form.requestType} onChange={(e) => update('requestType', e.target.value)} options={Object.entries(MAINTENANCE_TYPE_CONFIG).map(([v, c]) => ({ value: v, label: `${c.emoji} ${c.label}` }))} />
-          <Select label="الأولوية" value={form.priority} onChange={(e) => update('priority', e.target.value)} options={Object.entries(MAINTENANCE_PRIORITY_CONFIG).map(([v, c]) => ({ value: v, label: c.label }))} />
+          <Select label="النوع" {...register('requestType')} options={Object.entries(MAINTENANCE_TYPE_CONFIG).map(([v, c]) => ({ value: v, label: `${c.emoji} ${c.label}` }))} error={errors.requestType?.message} />
+          <Select label="الأولوية" {...register('priority')} options={Object.entries(MAINTENANCE_PRIORITY_CONFIG).map(([v, c]) => ({ value: v, label: c.label }))} error={errors.priority?.message} />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Input label="تاريخ الإنجاز المستهدف" type="date" value={form.targetCompletion} onChange={(e) => update('targetCompletion', e.target.value)} />
-          <Input label="التكلفة المقدرة (ر.س)" type="number" value={form.estimatedCost} onChange={(e) => update('estimatedCost', e.target.value)} />
+          <Input label="تاريخ الإنجاز المستهدف" type="date" {...register('targetCompletion')} error={errors.targetCompletion?.message} />
+          <Input label="التكلفة المقدرة (ر.س)" type="number" {...register('estimatedCost')} error={errors.estimatedCost?.message} />
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>إلغاء</Button>
-          <Button variant="gold" onClick={() => onAdd({ ...form, estimatedCost: form.estimatedCost ? Number(form.estimatedCost) : undefined })} disabled={!form.title.trim()}>إنشاء الطلب</Button>
+          <Button type="button" variant="outline" onClick={onClose}>إلغاء</Button>
+          <Button type="submit" variant="gold">إنشاء الطلب</Button>
         </div>
-      </div>
+      </form>
     </Modal>
   )
 }

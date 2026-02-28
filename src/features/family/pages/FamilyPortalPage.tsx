@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import {
   Heart, Calendar, MessageCircle, Image, Video, Trophy, Phone, Send,
   ThumbsUp, Plus, Clock, ClipboardCheck, Users,
@@ -198,28 +201,48 @@ function VisitsSection() {
   )
 }
 
+const visitSchema = z.object({
+  beneficiaryName: z.string().min(1, 'اسم المستفيد مطلوب'),
+  type: z.enum(['internal', 'external']).default('internal'),
+  date: z.string().optional(),
+  time: z.string().optional(),
+  visitorName: z.string().optional(),
+  relation: z.string().optional(),
+  notes: z.string().optional(),
+})
+
+type VisitFormData = z.infer<typeof visitSchema>
+
 function AddVisitModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [form, setForm] = useState({ beneficiaryName: '', type: 'internal' as VisitType, date: '', time: '', visitorName: '', relation: '', notes: '' })
-  const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }))
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<VisitFormData>({
+    resolver: zodResolver(visitSchema),
+    defaultValues: { type: 'internal' },
+  })
+
+  const onSubmit = (_data: VisitFormData) => {
+    toast.success('تم تسجيل الزيارة')
+    reset()
+    onClose()
+  }
 
   return (
     <Modal open={open} onClose={onClose} title="تسجيل زيارة جديدة">
-      <div className="space-y-4">
-        <Input label="المستفيد" value={form.beneficiaryName} onChange={(e) => update('beneficiaryName', e.target.value)} placeholder="اسم المستفيد..." />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input label="المستفيد" {...register('beneficiaryName')} error={errors.beneficiaryName?.message} placeholder="اسم المستفيد..." />
         <div className="grid grid-cols-3 gap-4">
-          <Input label="اسم الزائر" value={form.visitorName} onChange={(e) => update('visitorName', e.target.value)} />
-          <Input label="صلة القرابة" value={form.relation} onChange={(e) => update('relation', e.target.value)} placeholder="والد، أخ..." />
-          <Input label="التاريخ" type="date" value={form.date} onChange={(e) => update('date', e.target.value)} />
+          <Input label="اسم الزائر" {...register('visitorName')} error={errors.visitorName?.message} />
+          <Input label="صلة القرابة" {...register('relation')} error={errors.relation?.message} placeholder="والد، أخ..." />
+          <Input label="التاريخ" type="date" {...register('date')} error={errors.date?.message} />
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">ملاحظات</label>
-          <textarea value={form.notes} onChange={(e) => update('notes', e.target.value)} rows={2} placeholder="ملاحظات عن الزيارة..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
+          <textarea {...register('notes')} rows={2} placeholder="ملاحظات عن الزيارة..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>إلغاء</Button>
-          <Button variant="gold" onClick={() => { toast.success('تم تسجيل الزيارة'); onClose() }} disabled={!form.beneficiaryName.trim()}>تسجيل</Button>
+          <Button variant="outline" type="button" onClick={onClose}>إلغاء</Button>
+          <Button variant="gold" type="submit">تسجيل</Button>
         </div>
-      </div>
+      </form>
     </Modal>
   )
 }

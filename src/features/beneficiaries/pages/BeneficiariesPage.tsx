@@ -64,10 +64,12 @@ export function BeneficiariesPage() {
       .join('\n')
 
     const blob = new Blob([BOM + header + rows], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
+    link.href = url
     link.download = `beneficiaries_${new Date().toISOString().slice(0, 10)}.csv`
     link.click()
+    URL.revokeObjectURL(url)
   }
 
   if (error) {

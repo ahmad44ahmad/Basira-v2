@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ShieldAlert, Save, AlertTriangle, CheckCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
-import { Button, Select, Card, CardHeader, CardTitle, Badge, Spinner } from '@/components/ui'
+import { Button, Input, Select, Card, CardHeader, CardTitle, Badge, Spinner } from '@/components/ui'
 import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
@@ -30,7 +30,7 @@ export function FallRiskPage() {
   const beneficiaryOptions = useBeneficiaryOptions()
   const createAssessment = useCreateFallRiskAssessment()
 
-  const { register, handleSubmit, watch } = useForm<FallRiskFormData>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<FallRiskFormData>({
     resolver: zodResolver(fallRiskSchema),
     defaultValues: {
       assessmentDate: new Date().toISOString().slice(0, 10),
@@ -95,15 +95,15 @@ export function FallRiskPage() {
                 placeholder="اختر المستفيد..."
                 options={beneficiaryOptions}
                 {...register('beneficiaryId')}
+                error={errors.beneficiaryId?.message}
               />
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">تاريخ التقييم</label>
-                <input
-                  type="date"
-                  {...register('assessmentDate')}
-                  className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50"
-                />
-              </div>
+              <Input
+                type="date"
+                label="تاريخ التقييم"
+                {...register('assessmentDate')}
+                error={errors.assessmentDate?.message}
+                max={new Date().toISOString().slice(0, 10)}
+              />
             </div>
           </Card>
 
@@ -147,6 +147,7 @@ export function FallRiskPage() {
                     { value: 'furniture', label: 'يتكئ على الأثاث (+30)' },
                   ]}
                   {...register('ambulatoryAid')}
+                  error={errors.ambulatoryAid?.message}
                 />
               </div>
 
@@ -175,6 +176,7 @@ export function FallRiskPage() {
                     { value: 'impaired', label: 'متعثر — صعوبة النهوض (+20)' },
                   ]}
                   {...register('gait')}
+                  error={errors.gait?.message}
                 />
               </div>
 
@@ -190,6 +192,7 @@ export function FallRiskPage() {
                     { value: 'forgets', label: 'ينسى محدودية قدراته (+15)' },
                   ]}
                   {...register('mentalStatus')}
+                  error={errors.mentalStatus?.message}
                 />
               </div>
             </div>

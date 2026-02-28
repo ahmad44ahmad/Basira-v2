@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import {
   Users, FileText, Calendar, ClipboardList, Plus, Search, Eye,
   CheckCircle, XCircle, Send, Shirt, Wallet, AlertTriangle, Phone, MapPin,
@@ -248,36 +251,55 @@ function LeavesSection() {
   )
 }
 
+const leaveSchema = z.object({
+  beneficiaryName: z.string().min(1, 'اسم المستفيد مطلوب'),
+  leaveType: z.enum(['home_visit', 'medical', 'vacation', 'family_visit', 'other']).default('home_visit'),
+  startDate: z.string().min(1, 'تاريخ البداية مطلوب'),
+  endDate: z.string().optional(),
+  guardianName: z.string().optional(),
+  guardianContact: z.string().optional(),
+  reason: z.string().optional(),
+})
+
+type LeaveFormData = z.infer<typeof leaveSchema>
+
 function AddLeaveModal({ open, onClose, onAdd }: {
   open: boolean
   onClose: () => void
   onAdd: (data: Pick<LeaveRequest, 'beneficiaryId' | 'beneficiaryName' | 'leaveType' | 'startDate' | 'endDate' | 'guardianName' | 'guardianContact' | 'reason'>) => void
 }) {
-  const [form, setForm] = useState({ beneficiaryName: '', leaveType: 'home_visit' as const, startDate: '', endDate: '', guardianName: '', guardianContact: '', reason: '' })
-  const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }))
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<LeaveFormData>({
+    resolver: zodResolver(leaveSchema),
+    defaultValues: { leaveType: 'home_visit' },
+  })
+
+  const onSubmit = (data: LeaveFormData) => {
+    onAdd({ beneficiaryId: `b${Date.now()}`, ...data })
+    reset()
+  }
 
   return (
     <Modal open={open} onClose={onClose} title="طلب إجازة جديد" size="lg">
-      <div className="space-y-4">
-        <Input label="اسم المستفيد" value={form.beneficiaryName} onChange={(e) => update('beneficiaryName', e.target.value)} placeholder="اختر المستفيد..." />
-        <Select label="نوع الإجازة" value={form.leaveType} onChange={(e) => update('leaveType', e.target.value)} options={LEAVE_TYPES.map((t) => ({ value: t.value, label: `${t.emoji} ${t.label}` }))} />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input label="اسم المستفيد" {...register('beneficiaryName')} error={errors.beneficiaryName?.message} placeholder="اختر المستفيد..." />
+        <Select label="نوع الإجازة" {...register('leaveType')} error={errors.leaveType?.message} options={LEAVE_TYPES.map((t) => ({ value: t.value, label: `${t.emoji} ${t.label}` }))} />
         <div className="grid grid-cols-2 gap-4">
-          <Input label="تاريخ الخروج" type="date" value={form.startDate} onChange={(e) => update('startDate', e.target.value)} />
-          <Input label="تاريخ العودة" type="date" value={form.endDate} onChange={(e) => update('endDate', e.target.value)} />
+          <Input label="تاريخ الخروج" type="date" {...register('startDate')} error={errors.startDate?.message} />
+          <Input label="تاريخ العودة" type="date" {...register('endDate')} error={errors.endDate?.message} />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Input label="اسم المرافق" value={form.guardianName} onChange={(e) => update('guardianName', e.target.value)} />
-          <Input label="رقم التواصل" value={form.guardianContact} onChange={(e) => update('guardianContact', e.target.value)} dir="ltr" />
+          <Input label="اسم المرافق" {...register('guardianName')} error={errors.guardianName?.message} />
+          <Input label="رقم التواصل" {...register('guardianContact')} error={errors.guardianContact?.message} dir="ltr" />
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">سبب الإجازة</label>
-          <textarea value={form.reason} onChange={(e) => update('reason', e.target.value)} rows={2} placeholder="سبب الطلب..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
+          <textarea {...register('reason')} rows={2} placeholder="سبب الطلب..." className="w-full rounded-lg border border-slate-300 bg-white p-3 text-sm dark:border-slate-600 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-gold/50" />
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>إلغاء</Button>
-          <Button variant="gold" onClick={() => onAdd({ beneficiaryId: `b${Date.now()}`, ...form })} disabled={!form.beneficiaryName.trim() || !form.startDate}>إنشاء الطلب</Button>
+          <Button variant="outline" type="button" onClick={onClose}>إلغاء</Button>
+          <Button variant="gold" type="submit">إنشاء الطلب</Button>
         </div>
-      </div>
+      </form>
     </Modal>
   )
 }

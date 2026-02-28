@@ -184,7 +184,7 @@ export function AddBeneficiaryForm({ open, onClose, onSuccess }: AddBeneficiaryF
                   {...form1.register('gender')}
                   error={form1.formState.errors.gender?.message}
                 />
-                <Input label="تاريخ الميلاد" type="date" {...form1.register('dateOfBirth')} error={form1.formState.errors.dateOfBirth?.message} />
+                <Input label="تاريخ الميلاد" type="date" {...form1.register('dateOfBirth')} error={form1.formState.errors.dateOfBirth?.message} max={new Date().toISOString().slice(0, 10)} />
                 <Input label="الجنسية" {...form1.register('nationality')} error={form1.formState.errors.nationality?.message} />
                 <Select
                   label="القسم"
@@ -233,12 +233,12 @@ export function AddBeneficiaryForm({ open, onClose, onSuccess }: AddBeneficiaryF
               <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
                 <h4 className="mb-3 text-sm font-bold text-slate-700 dark:text-slate-300">العلامات الحيوية</h4>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                  <Input label="الحرارة (°C)" type="number" step="0.1" {...form2.register('vitals.temperature', { valueAsNumber: true })} />
-                  <Input label="النبض (bpm)" type="number" {...form2.register('vitals.pulse', { valueAsNumber: true })} />
-                  <Input label="الضغط الانقباضي" type="number" {...form2.register('vitals.bloodPressureSystolic', { valueAsNumber: true })} />
-                  <Input label="الضغط الانبساطي" type="number" {...form2.register('vitals.bloodPressureDiastolic', { valueAsNumber: true })} />
-                  <Input label="تشبع الأكسجين (%)" type="number" {...form2.register('vitals.oxygenSaturation', { valueAsNumber: true })} />
-                  <Input label="الوزن (kg)" type="number" step="0.1" {...form2.register('vitals.weight', { valueAsNumber: true })} />
+                  <Input label="الحرارة (°C)" type="number" step="0.1" min="35" max="42" {...form2.register('vitals.temperature', { valueAsNumber: true })} error={form2.formState.errors.vitals?.temperature?.message} />
+                  <Input label="النبض (bpm)" type="number" min="40" max="180" {...form2.register('vitals.pulse', { valueAsNumber: true })} error={form2.formState.errors.vitals?.pulse?.message} />
+                  <Input label="الضغط الانقباضي" type="number" min="70" max="200" {...form2.register('vitals.bloodPressureSystolic', { valueAsNumber: true })} error={form2.formState.errors.vitals?.bloodPressureSystolic?.message} />
+                  <Input label="الضغط الانبساطي" type="number" min="40" max="130" {...form2.register('vitals.bloodPressureDiastolic', { valueAsNumber: true })} error={form2.formState.errors.vitals?.bloodPressureDiastolic?.message} />
+                  <Input label="تشبع الأكسجين (%)" type="number" min="70" max="100" {...form2.register('vitals.oxygenSaturation', { valueAsNumber: true })} error={form2.formState.errors.vitals?.oxygenSaturation?.message} />
+                  <Input label="الوزن (kg)" type="number" step="0.1" min="10" max="300" {...form2.register('vitals.weight', { valueAsNumber: true })} error={form2.formState.errors.vitals?.weight?.message} />
                 </div>
               </div>
 

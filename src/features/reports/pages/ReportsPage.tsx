@@ -271,7 +271,7 @@ function SroiSection() {
                   className="flex-1"
                 />
                 <span className="w-20 text-left text-sm font-bold text-slate-900 dark:text-white">
-                  {scenario[f.key].toLocaleString()} {f.unit}
+                  {scenario[f.key].toLocaleString('ar-SA')} {f.unit}
                 </span>
               </div>
             </div>

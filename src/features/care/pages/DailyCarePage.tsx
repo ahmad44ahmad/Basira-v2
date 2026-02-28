@@ -22,7 +22,7 @@ import {
   type Shift,
 } from '../types'
 import { useCreateDailyCareLog } from '../api/care-queries'
-import { useBeneficiaryOptions, useBeneficiaries } from '@/features/beneficiaries/api/beneficiary-queries'
+import { useBeneficiaryOptions, useBeneficiaries } from '@/features/beneficiaries'
 import { useNursingAssessments, useVitalSignCharts, useNursingNotes } from '../api/nursing-queries'
 import { useEpilepsyTracking, useMenstrualTracking, useWeightTracking, useHygieneFollowup } from '../api/health-tracking-queries'
 import { useAppointments, useIsolationRecords, useAmbulanceChecks } from '../api/scheduling-queries'

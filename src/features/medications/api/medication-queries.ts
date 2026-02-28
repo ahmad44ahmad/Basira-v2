@@ -8,6 +8,17 @@ import { DEMO_MEDICATIONS } from './demo-data'
 // Medications are derived from medical_profiles.current_medications joined with beneficiaries.
 // In production, this could also be a dedicated medication_administration table.
 
+interface MedProfileWithBeneficiary {
+  id: string
+  beneficiary_id: string
+  current_medications: Array<{ name: string; dosage: string; frequency: string; scheduledTime?: string }> | null
+  beneficiaries: {
+    full_name: string
+    room_number: string | null
+    allergies: string | null
+  }
+}
+
 async function fetchMedicationSchedule(): Promise<Medication[]> {
   if (isDemoMode || !supabase) return DEMO_MEDICATIONS
 
@@ -20,8 +31,8 @@ async function fetchMedicationSchedule(): Promise<Medication[]> {
   // Transform medical profile medications into schedule items
   const meds: Medication[] = []
   for (const profile of data ?? []) {
-    const beneficiary = (profile as unknown as { beneficiaries: { full_name: string; room_number: string | null; allergies: string | null } }).beneficiaries
-    const medications = profile.current_medications as Array<{ name: string; dosage: string; frequency: string; scheduledTime?: string }> | null
+    const beneficiary = (profile as MedProfileWithBeneficiary).beneficiaries
+    const medications = (profile as MedProfileWithBeneficiary).current_medications
 
     for (const med of medications ?? []) {
       meds.push({

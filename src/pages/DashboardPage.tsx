@@ -10,9 +10,9 @@ import { DEPARTMENT_PERFORMANCE, RECENT_ACTIVITY, PENDING_TASKS, COMPLIANCE_TREN
 import { StatCard } from '@/components/data'
 import { Card, CardHeader, CardTitle, Badge } from '@/components/ui'
 import { useBeneficiaryStats } from '@/features/beneficiaries'
-import { useRehabGoals } from '@/features/empowerment/api/empowerment-queries'
-import { useRisks } from '@/features/grc/api/grc-queries'
-import { useMaintenanceRequests } from '@/features/operations/api/operations-queries'
+import { useRehabGoals } from '@/features/empowerment'
+import { useRisks } from '@/features/grc'
+import { useMaintenanceRequests } from '@/features/operations'
 
 const DEPT_COLORS = ['#1E6B5C', '#14415A', '#F59601', '#3b82f6', '#8b5cf6']
 

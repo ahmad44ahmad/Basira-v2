@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { ShieldAlert, Save, AlertTriangle, CheckCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
@@ -9,7 +11,18 @@ import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { calculateFallRisk, RISK_LEVEL_CONFIG, type FallRiskFormData, type FallRiskResult } from '../types'
 import { useCreateFallRiskAssessment } from '../api/safety-queries'
-import { useBeneficiaryOptions, useBeneficiaries } from '@/features/beneficiaries/api/beneficiary-queries'
+import { useBeneficiaryOptions, useBeneficiaries } from '@/features/beneficiaries'
+
+const fallRiskSchema = z.object({
+  beneficiaryId: z.string().min(1, 'اختر المستفيد'),
+  assessmentDate: z.string().min(1, 'حدد تاريخ التقييم'),
+  historyOfFalls: z.boolean(),
+  secondaryDiagnosis: z.boolean(),
+  ambulatoryAid: z.enum(['none', 'crutches', 'furniture']),
+  ivTherapy: z.boolean(),
+  gait: z.enum(['normal', 'weak', 'impaired']),
+  mentalStatus: z.enum(['oriented', 'forgets']),
+})
 
 export function FallRiskPage() {
   const [result, setResult] = useState<FallRiskResult | null>(null)
@@ -18,6 +31,7 @@ export function FallRiskPage() {
   const createAssessment = useCreateFallRiskAssessment()
 
   const { register, handleSubmit, watch } = useForm<FallRiskFormData>({
+    resolver: zodResolver(fallRiskSchema),
     defaultValues: {
       assessmentDate: new Date().toISOString().slice(0, 10),
       historyOfFalls: false,

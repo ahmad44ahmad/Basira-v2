@@ -8,7 +8,7 @@ import { DEMO_RESEARCHES, DEMO_LEAVES, DEMO_ACTIVITIES } from './demo-data'
 // ===== Social Research =====
 
 async function fetchSocialResearches(): Promise<SocialResearch[]> {
-  if (isDemoMode || !supabase) return DEMO_RESEARCHES as unknown as SocialResearch[]
+  if (isDemoMode || !supabase) return DEMO_RESEARCHES
 
   const { data, error } = await supabase
     .from('social_research')

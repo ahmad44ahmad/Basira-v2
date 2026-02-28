@@ -8,7 +8,7 @@ import { DEMO_GOALS, DEMO_LOGS, DEMO_DIGNITY } from './demo-data'
 // ===== Rehab Goals =====
 
 async function fetchRehabGoals(): Promise<RehabGoal[]> {
-  if (isDemoMode || !supabase) return DEMO_GOALS as unknown as RehabGoal[]
+  if (isDemoMode || !supabase) return DEMO_GOALS
 
   const { data, error } = await supabase
     .from('rehab_goals')
@@ -98,14 +98,20 @@ async function fetchDignityProfile(beneficiaryId: string): Promise<DignityProfil
   return {
     id: data.id,
     beneficiaryId: data.beneficiary_id,
-    preferredName: data.preferred_name ?? '',
-    communicationStyle: data.communication_style ?? '',
-    likes: data.preferred_activities ?? [],
-    dislikes: [],
-    strengths: data.strengths ?? [],
-    motivators: data.motivators ?? [],
+    preferredName: data.preferred_name ?? undefined,
+    communicationStyle: (data.communication_style ?? 'verbal') as DignityProfile['communicationStyle'],
+    personalityType: 'calm' as DignityProfile['personalityType'],
+    preferredActivities: data.preferred_activities ?? [],
+    hobbies: data.hobbies ?? [],
     calmingStrategies: data.calming_strategies ?? [],
-    dreams: data.my_dreams ?? '',
+    motivators: data.motivators ?? [],
+    favoriteFoods: data.favorite_foods ?? [],
+    whatMakesMeHappy: data.what_makes_me_happy ?? undefined,
+    whatMakesMeUpset: data.what_makes_me_upset ?? undefined,
+    myDreams: data.my_dreams ?? undefined,
+    wakeUpTime: data.wake_up_time ?? undefined,
+    sleepTime: data.sleep_time ?? undefined,
+    lastUpdated: data.updated_at ?? data.created_at ?? new Date().toISOString(),
   }
 }
 

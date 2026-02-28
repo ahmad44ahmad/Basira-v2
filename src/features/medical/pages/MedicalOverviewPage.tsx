@@ -15,7 +15,7 @@ import { useExaminations, usePrescriptions, useLabOrders } from '../api/examinat
 import { useClinicalNotes, useMdtRounds } from '../api/clinical-queries'
 import { useTransfers, useDiseaseNotifications } from '../api/transfer-queries'
 import { useTherapySessions, usePsychAssessments } from '../api/therapy-queries'
-import { useBeneficiaryStats } from '@/features/beneficiaries/api/beneficiary-queries'
+import { useBeneficiaryStats } from '@/features/beneficiaries'
 import {
   PRESCRIPTION_TYPE_CONFIG, PRESCRIPTION_STATUS_CONFIG,
   NOTE_TYPE_CONFIG, DISCIPLINE_CONFIG,

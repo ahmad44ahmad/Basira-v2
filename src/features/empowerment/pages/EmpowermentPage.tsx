@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Sparkles, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award } from 'lucide-react'
+import { Sparkles, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award, Brain, ScrollText, Scale, GraduationCap, ClipboardList } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
@@ -10,9 +10,17 @@ import { cn } from '@/lib/utils'
 import {
   REHAB_DOMAINS, GOAL_STATUS_CONFIG, MEASUREMENT_TYPES,
   PERSONALITY_TYPES, COMMUNICATION_STYLES,
-  type GoalStatus, type GoalDomain,
+  ICF_COMPONENT_CONFIG, ICF_QUALIFIER_LABELS, ENVIRONMENTAL_QUALIFIER_TYPES,
+  RIGHTS_STATUS_CONFIG, CRPD_ARTICLES,
+  LIFE_PLAN_STATUS_CONFIG, LIFE_PLAN_DOMAINS,
+  EVALUATION_TYPES, SKILLS_LEVELS,
+  type GoalStatus, type GoalDomain, type IcfComponent,
 } from '../types'
 import { useRehabGoals, useDignityProfile, useCreateRehabGoal } from '../api/empowerment-queries'
+import { useIcfAssessments, useIcfStats } from '../api/icf-queries'
+import { useLifePlans } from '../api/life-plan-queries'
+import { useRightsLog, useRightsStats } from '../api/rights-queries'
+import { useTrainingReferrals, useTrainingEvaluations } from '../api/training-queries'
 import { DEMO_LOGS } from '../api/demo-data'
 
 // ─── Main Page ──────────────────────────────────────────────────
@@ -23,13 +31,17 @@ export function EmpowermentPage() {
   const tabs = [
     { id: 'goals', label: 'الأهداف التأهيلية' },
     { id: 'dignity', label: 'ملف الكرامة' },
+    { id: 'icf', label: 'تقييم ICF' },
+    { id: 'lifePlans', label: 'خطة الحياة' },
+    { id: 'rights', label: 'رصد الحقوق' },
+    { id: 'training', label: 'البرامج التدريبية' },
   ]
 
   return (
     <div className="animate-fade-in">
       <PageHeader
         title="التمكين وجودة الحياة"
-        description="الأهداف التأهيلية SMART وملف الكرامة (إحسان)"
+        description="الأهداف التأهيلية، تقييم ICF، خطط الحياة الفردية، ورصد الحقوق (CRPD)"
         icon={<Sparkles className="h-5 w-5" />}
       />
 
@@ -42,6 +54,10 @@ export function EmpowermentPage() {
       <div className="mt-6">
         {activeTab === 'goals' && <GoalsSection />}
         {activeTab === 'dignity' && <DignitySection />}
+        {activeTab === 'icf' && <IcfSection />}
+        {activeTab === 'lifePlans' && <LifePlansSection />}
+        {activeTab === 'rights' && <RightsSection />}
+        {activeTab === 'training' && <TrainingSection />}
       </div>
     </div>
   )
@@ -334,6 +350,246 @@ function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void })
   )
 }
 
+// ─── ICF Assessment Section ─────────────────────────────────────
+
+function IcfSection() {
+  const { data: assessments = [], isLoading, error } = useIcfAssessments()
+  const stats = useIcfStats()
+  const [filterComponent, setFilterComponent] = useState<IcfComponent | 'all'>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (assessments.length === 0) return <EmptyState title="لا توجد تقييمات ICF" description="لم يتم إجراء أي تقييم بإطار التصنيف الدولي للأداء بعد" />
+
+  const filtered = filterComponent === 'all' ? assessments : assessments.filter((a) => a.component === filterComponent)
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="إجمالي التقييمات" value={stats.total} accent="teal" />
+        <StatCard title="وظائف الجسم (b)" value={stats.byComponent.b} accent="navy" />
+        <StatCard title="الأنشطة والمشاركة (d)" value={stats.byComponent.d} accent="gold" />
+        <StatCard title="فجوات بيئية" value={stats.environmentalGaps} accent="danger" />
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilterComponent('all')}
+          className={cn('rounded-full px-3 py-1 text-xs font-medium transition-colors', filterComponent === 'all' ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400')}
+        >
+          الكل
+        </button>
+        {(Object.entries(ICF_COMPONENT_CONFIG) as [IcfComponent, typeof ICF_COMPONENT_CONFIG[IcfComponent]][]).map(([key, config]) => (
+          <button
+            key={key}
+            onClick={() => setFilterComponent(key)}
+            className={cn('rounded-full px-3 py-1 text-xs font-medium transition-colors', filterComponent === key ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400')}
+          >
+            {config.labelAr} ({key})
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        {filtered.map((a) => {
+          const compConfig = ICF_COMPONENT_CONFIG[a.component]
+          const hasGap = a.component === 'd' && a.capacity_qualifier != null && a.performance_qualifier != null && a.capacity_qualifier !== a.performance_qualifier
+
+          return (
+            <Card key={a.id} className={cn(hasGap && 'border-r-4 border-r-amber-500')}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className={compConfig.color}>{compConfig.labelAr}</Badge>
+                    <span className="text-sm font-mono font-bold text-slate-900 dark:text-white">{a.icf_code}</span>
+                    {hasGap && <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">فجوة بيئية</Badge>}
+                  </div>
+
+                  {a.component === 'd' && (a.capacity_qualifier != null || a.performance_qualifier != null) && (
+                    <div className="mt-2 flex gap-4 text-xs">
+                      {a.capacity_qualifier != null && (
+                        <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5">
+                          <span className="text-blue-600 dark:text-blue-400">القدرة: </span>
+                          <span className="font-bold">{ICF_QUALIFIER_LABELS[a.capacity_qualifier]?.label ?? a.capacity_qualifier}</span>
+                        </div>
+                      )}
+                      {a.performance_qualifier != null && (
+                        <div className="rounded-lg bg-teal-50 dark:bg-teal-900/20 px-3 py-1.5">
+                          <span className="text-teal-600 dark:text-teal-400">الأداء: </span>
+                          <span className="font-bold">{ICF_QUALIFIER_LABELS[a.performance_qualifier]?.label ?? a.performance_qualifier}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {a.component === 'e' && a.qualifier_type && (
+                    <div className="mt-2 flex gap-2 text-xs">
+                      <Badge className={
+                        a.qualifier_type === 'facilitator' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                        : a.qualifier_type === 'barrier' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                      }>
+                        {ENVIRONMENTAL_QUALIFIER_TYPES.find((t) => t.value === a.qualifier_type)?.label}
+                        {a.qualifier_magnitude != null && ` (${a.qualifier_magnitude})`}
+                      </Badge>
+                    </div>
+                  )}
+
+                  {(a.component === 'b' || a.component === 's') && a.qualifier != null && (
+                    <div className="mt-2 text-xs">
+                      <span className="text-slate-500">المُحدِّد: </span>
+                      <span className="font-medium">{ICF_QUALIFIER_LABELS[a.qualifier]?.label ?? a.qualifier}</span>
+                    </div>
+                  )}
+
+                  {a.notes && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{a.notes}</p>}
+                </div>
+                <div className="text-left text-xs text-slate-400 shrink-0">
+                  <p>{a.assessor_id}</p>
+                </div>
+              </div>
+            </Card>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── Life Plans Section ─────────────────────────────────────────
+
+function LifePlansSection() {
+  const { data: plans = [], isLoading, error } = useLifePlans()
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (plans.length === 0) return <EmptyState title="لا توجد خطط حياة" description="لم يتم إنشاء خطط حياة فردية بعد" />
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="إجمالي الخطط" value={plans.length} accent="teal" />
+        <StatCard title="خطط نشطة" value={plans.filter((p) => p.status === 'active').length} accent="success" />
+        <StatCard title="تصميم مشترك" value={plans.filter((p) => p.beneficiary_participated).length} accent="gold" />
+        <StatCard title="مشاركة الأسرة" value={plans.filter((p) => p.guardian_participated).length} accent="navy" />
+      </div>
+
+      {plans.map((plan) => {
+        const statusConfig = LIFE_PLAN_STATUS_CONFIG[plan.status]
+        return (
+          <Card key={plan.id}>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white">
+                    خطة {plan.plan_period_start} — {plan.plan_period_end}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    التصميم المشترك: {plan.co_designed_with.join('، ') || 'غير محدد'}
+                  </p>
+                </div>
+                <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+              </div>
+
+              <div className="flex flex-wrap gap-2 text-xs">
+                {plan.beneficiary_participated && <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400">مشاركة المستفيد</Badge>}
+                {plan.guardian_participated && <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">مشاركة ولي الأمر</Badge>}
+                {plan.review_date && <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">المراجعة: {plan.review_date}</Badge>}
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {LIFE_PLAN_DOMAINS.map((domain) => {
+                  const goals = plan[domain.key as keyof typeof plan] as Record<string, unknown>[]
+                  if (!goals || goals.length === 0) return null
+                  return (
+                    <div key={domain.key} className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-3">
+                      <div className="flex items-center gap-1 mb-2">
+                        <span>{domain.emoji}</span>
+                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{domain.label}</span>
+                      </div>
+                      {goals.map((g, i) => (
+                        <p key={i} className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                          {(g as Record<string, string>).goal ?? JSON.stringify(g)}
+                        </p>
+                      ))}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </Card>
+        )
+      })}
+    </div>
+  )
+}
+
+// ─── Rights Realization Section ─────────────────────────────────
+
+function RightsSection() {
+  const { data: log = [], isLoading, error } = useRightsLog()
+  const stats = useRightsStats()
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (log.length === 0) return <EmptyState title="لا توجد سجلات حقوق" description="لم يتم تسجيل أي إدخالات في سجل تحقّق الحقوق بعد" />
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="إجمالي السجلات" value={stats.totalEntries} accent="teal" />
+        <StatCard title="حقوق محققة" value={stats.realized} accent="success" />
+        <StatCard title="محققة جزئياً" value={stats.partial} accent="gold" />
+        <StatCard title="عوائق محددة" value={stats.barriers} accent="danger" />
+      </div>
+
+      <div className="space-y-3">
+        {log.map((entry) => {
+          const statusConfig = RIGHTS_STATUS_CONFIG[entry.status]
+          const article = CRPD_ARTICLES.find((a) => a.value === entry.crpd_article)
+
+          return (
+            <Card key={entry.id} className={cn(
+              entry.status === 'barrier_identified' && 'border-r-4 border-r-red-500',
+              entry.status === 'realized' && 'border-r-4 border-r-emerald-500',
+            )}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Scale className="h-4 w-4 text-slate-400" />
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">
+                      {article?.label ?? `المادة ${entry.crpd_article}`}
+                    </span>
+                  </div>
+                  <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                </div>
+
+                <p className="text-sm text-slate-700 dark:text-slate-300">{entry.right_domain}</p>
+
+                {entry.barrier_description && (
+                  <div className="rounded-lg bg-red-50 dark:bg-red-900/10 p-3">
+                    <p className="text-xs font-medium text-red-700 dark:text-red-400 mb-1">العائق:</p>
+                    <p className="text-xs text-red-600 dark:text-red-300">{entry.barrier_description}</p>
+                  </div>
+                )}
+
+                {entry.action_required && (
+                  <div className="rounded-lg bg-blue-50 dark:bg-blue-900/10 p-3">
+                    <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">الإجراء المطلوب:</p>
+                    <p className="text-xs text-blue-600 dark:text-blue-300">{entry.action_required}</p>
+                  </div>
+                )}
+
+                <p className="text-xs text-slate-400">بواسطة: {entry.logged_by}</p>
+              </div>
+            </Card>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ─── Dignity Section ────────────────────────────────────────────
 
 function DignitySection() {
@@ -470,6 +726,206 @@ function DignitySection() {
             <p className="text-sm text-slate-600 dark:text-slate-400">{profile.myDreams}</p>
           </Card>
         )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Training Section (البرامج التدريبية) ────────────────────────
+
+function TrainingSection() {
+  const { data: referrals = [], isLoading: loadingReferrals, error: errorReferrals } = useTrainingReferrals()
+  const { data: evaluations = [], isLoading: loadingEvaluations, error: errorEvaluations } = useTrainingEvaluations()
+
+  const isLoading = loadingReferrals || loadingEvaluations
+  const error = errorReferrals || errorEvaluations
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (referrals.length === 0 && evaluations.length === 0) return <EmptyState title="لا توجد بيانات تدريبية" description="لم يتم إنشاء أي إحالات أو تقييمات تدريبية بعد" />
+
+  const avgPercentage = evaluations.length
+    ? Math.round(evaluations.reduce((sum, e) => sum + (e.percentage ?? 0), 0) / evaluations.length)
+    : 0
+
+  return (
+    <div className="space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard title="إحالات التدريب" value={referrals.length} accent="navy" />
+        <StatCard title="التقييمات" value={evaluations.length} accent="teal" />
+        <StatCard title="متوسط الأداء" value={`${avgPercentage}%`} accent={avgPercentage >= 70 ? 'teal' : avgPercentage >= 50 ? 'gold' : 'danger'} />
+        <StatCard title="أهداف الإحالة" value={referrals.reduce((sum, r) => sum + r.referral_goals.length, 0)} accent="gold" />
+      </div>
+
+      {/* Training Referrals */}
+      <div>
+        <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
+          <ClipboardList className="h-5 w-5 text-teal" />
+          إحالات التدريب والتأهيل
+        </h3>
+        <div className="space-y-3">
+          {referrals.map((ref) => (
+            <Card key={ref.id}>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-bold text-slate-900 dark:text-white">إحالة تدريبية</span>
+                    <span className="text-xs text-slate-500">{ref.referral_date}</span>
+                  </div>
+                  {ref.supervisor_name && (
+                    <span className="text-xs text-slate-500">المشرف: {ref.supervisor_name}</span>
+                  )}
+                </div>
+
+                {/* Diagnosis info */}
+                {(ref.medical_diagnosis || ref.psychological_diagnosis) && (
+                  <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+                    {ref.medical_diagnosis && (
+                      <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                        <span className="text-slate-500">التشخيص الطبي: </span>
+                        <span className="font-medium text-slate-700 dark:text-slate-300">{ref.medical_diagnosis}</span>
+                      </div>
+                    )}
+                    {ref.psychological_diagnosis && (
+                      <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                        <span className="text-slate-500">التشخيص النفسي: </span>
+                        <span className="font-medium text-slate-700 dark:text-slate-300">{ref.psychological_diagnosis}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Referral Goals */}
+                <div>
+                  <p className="mb-1.5 text-xs font-medium text-slate-500">أهداف الإحالة</p>
+                  <div className="flex flex-wrap gap-2">
+                    {ref.referral_goals.map((goal) => (
+                      <Badge key={goal} className="bg-teal/10 text-teal dark:bg-teal/20">{goal}</Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Skills Assessment */}
+                <div>
+                  <p className="mb-1.5 text-xs font-medium text-slate-500">تقييم المهارات</p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(ref.skills_assessment as Record<string, string>).map(([skill, level]) => {
+                      const skillLabels: Record<string, string> = {
+                        self_care: 'العناية الذاتية',
+                        communication: 'التواصل',
+                        cognitive: 'المعرفي',
+                        performance: 'الأداء',
+                      }
+                      const levelConfig = SKILLS_LEVELS.find((l) => l.value === level)
+                      return (
+                        <div key={skill} className="flex items-center gap-1">
+                          <span className="text-xs text-slate-500">{skillLabels[skill] ?? skill}:</span>
+                          <Badge className={levelConfig?.color ?? 'bg-slate-100 text-slate-700'}>
+                            {levelConfig?.label ?? level}
+                          </Badge>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Referral staff */}
+                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                  {ref.referred_by && <span>المُحيل: {ref.referred_by}</span>}
+                  {ref.received_by && <span>المستقبِل: {ref.received_by}</span>}
+                  {ref.assistive_devices && <span>الأجهزة المساعدة: {ref.assistive_devices}</span>}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Training Evaluations */}
+      <div>
+        <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
+          <GraduationCap className="h-5 w-5 text-gold" />
+          التقييمات التدريبية
+        </h3>
+        <div className="space-y-3">
+          {evaluations.map((eval_item) => {
+            const evalTypeConfig = EVALUATION_TYPES.find((t) => t.value === eval_item.evaluation_type)
+            const pct = eval_item.percentage ?? 0
+
+            return (
+              <Card key={eval_item.id} className={cn(pct >= 70 && 'border-r-4 border-r-emerald-500')}>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400">
+                        {evalTypeConfig?.label ?? eval_item.evaluation_type}
+                      </Badge>
+                      <span className="text-xs text-slate-500">{eval_item.evaluation_date}</span>
+                    </div>
+                    <span className="text-xs text-slate-500">المقيِّم: {eval_item.evaluator_name}</span>
+                  </div>
+
+                  {/* Overall Score Progress */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                      <motion.div
+                        className={cn(
+                          'h-full rounded-full',
+                          pct >= 70 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500',
+                        )}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                      />
+                    </div>
+                    <span className="min-w-[4rem] text-left text-sm font-bold text-slate-700 dark:text-slate-300">
+                      {eval_item.total_score}/{eval_item.max_total} ({pct}%)
+                    </span>
+                  </div>
+
+                  {/* Sections Breakdown */}
+                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                    {(eval_item.sections as Array<{ section_name: string; max_score: number; items: Array<{ name: string; score: number; max: number }> }>).map((section, idx) => {
+                      const sectionTotal = section.items.reduce((s, item) => s + item.score, 0)
+                      const sectionPct = section.max_score > 0 ? Math.round((sectionTotal / section.max_score) * 100) : 0
+
+                      return (
+                        <div key={idx} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
+                          <div className="mb-2 flex items-center justify-between">
+                            <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{section.section_name}</span>
+                            <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{sectionTotal}/{section.max_score}</span>
+                          </div>
+                          <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                            <div
+                              className={cn('h-full rounded-full', sectionPct >= 70 ? 'bg-emerald-500' : sectionPct >= 50 ? 'bg-amber-500' : 'bg-red-500')}
+                              style={{ width: `${sectionPct}%` }}
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            {section.items.map((item, iIdx) => (
+                              <div key={iIdx} className="flex items-center justify-between text-xs">
+                                <span className="text-slate-500">{item.name}</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{item.score}/{item.max}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Notes */}
+                  {eval_item.notes && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      📝 {eval_item.notes}
+                    </p>
+                  )}
+                </div>
+              </Card>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

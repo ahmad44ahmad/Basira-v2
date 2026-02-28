@@ -1,3 +1,7 @@
 export { EmpowermentPage } from './pages/EmpowermentPage'
 export { useRehabGoals, useEmpowermentStats, useDignityProfile } from './api/empowerment-queries'
+export { useIcfAssessments, useIcfStats } from './api/icf-queries'
+export { useLifePlans } from './api/life-plan-queries'
+export { useRightsLog, useRightsStats } from './api/rights-queries'
+export { useTrainingReferrals, useTrainingEvaluations } from './api/training-queries'
 export type * from './types'

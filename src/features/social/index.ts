@@ -1,3 +1,7 @@
 export { SocialPage } from './pages/SocialPage'
 export { useLeaveRequests, useSocialActivities, useSocialResearches } from './api/social-queries'
+export { useSocialFollowups, useDailyMonitorRounds } from './api/monitoring-queries'
+export { useReferrals, useFamilyNotifications, useIncidentReports } from './api/referral-queries'
+export { useClothingInventory, useClothingTransactions } from './api/clothing-queries'
+export { useActivityAdvances } from './api/advance-queries'
 export type * from './types'

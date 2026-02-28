@@ -19,6 +19,8 @@ import {
   Handshake,
   GraduationCap,
   Sparkles,
+  MessageCircleHeart,
+  ShieldAlert,
 } from 'lucide-react'
 
 interface NavSection {
@@ -65,6 +67,22 @@ const navSections: NavSection[] = [
     items: [
       { to: '/care', label: 'سجل الرعاية' },
       { to: '/handover', label: 'تسليم الورديات' },
+    ],
+  },
+  {
+    id: 'feedback',
+    label: 'الصدى الصامت',
+    icon: <MessageCircleHeart className="h-5 w-5" />,
+    items: [
+      { to: '/feedback', label: 'الاستبيان والمزاج' },
+    ],
+  },
+  {
+    id: 'emergency',
+    label: 'خطط الطوارئ',
+    icon: <ShieldAlert className="h-5 w-5" />,
+    items: [
+      { to: '/emergency', label: 'خطط PEEP والمعدات' },
     ],
   },
   {

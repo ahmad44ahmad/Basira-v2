@@ -21,6 +21,9 @@ const GRCPage = lazy(() => import('@/features/grc').then((m) => ({ default: m.GR
 const ReportsPage = lazy(() => import('@/features/reports').then((m) => ({ default: m.ReportsPage })))
 const IndicatorsPage = lazy(() => import('@/features/indicators').then((m) => ({ default: m.IndicatorsPage })))
 const IPCPage = lazy(() => import('@/features/ipc').then((m) => ({ default: m.IPCPage })))
+const DentalPage = lazy(() => import('@/features/dental').then((m) => ({ default: m.DentalPage })))
+const FeedbackPage = lazy(() => import('@/features/feedback').then((m) => ({ default: m.FeedbackPage })))
+const EmergencyPage = lazy(() => import('@/features/safety').then((m) => ({ default: m.EmergencyPage })))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })))
 const TrainingPage = lazy(() => import('@/pages/TrainingPage').then((m) => ({ default: m.TrainingPage })))
 const SupportPage = lazy(() => import('@/pages/SupportPage').then((m) => ({ default: m.SupportPage })))
@@ -51,6 +54,15 @@ export const router = createBrowserRouter([
       // Care
       { path: 'care', element: <DailyCarePage /> },
       { path: 'handover', element: <ShiftHandoverPage /> },
+
+      // Feedback (Silent Echo)
+      { path: 'feedback', element: <FeedbackPage /> },
+
+      // Emergency PEEP
+      { path: 'emergency', element: <EmergencyPage /> },
+
+      // Dental
+      { path: 'dental', element: <DentalPage /> },
 
       // IPC
       { path: 'ipc', element: <IPCPage /> },

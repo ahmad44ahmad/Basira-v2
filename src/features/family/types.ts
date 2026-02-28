@@ -74,3 +74,66 @@ export const UPDATE_TYPE_CONFIG: Record<FamilyUpdate['type'], { label: string; e
   social: { label: 'اجتماعي', emoji: '😊', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
   health: { label: 'صحة', emoji: '❤️', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
 }
+
+// ─── Visit Records (سجل الزيارات الشامل) ─────────────────────────
+
+export const VISITOR_RELATIONS = [
+  { value: 'father', label: 'الأب' },
+  { value: 'mother', label: 'الأم' },
+  { value: 'brother', label: 'أخ' },
+  { value: 'sister', label: 'أخت' },
+  { value: 'grandparent_m', label: 'جد' },
+  { value: 'grandparent_f', label: 'جدة' },
+  { value: 'uncle_paternal', label: 'عم' },
+  { value: 'uncle_maternal', label: 'خال' },
+  { value: 'aunt_paternal', label: 'عمة' },
+  { value: 'aunt_maternal', label: 'خالة' },
+  { value: 'other', label: 'أخرى' },
+] as const
+
+export const VISIT_RECORD_TYPES = [
+  { value: 'internal', label: 'زيارة داخلية', emoji: '🏠', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+  { value: 'external', label: 'زيارة خارجية', emoji: '🚗', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
+] as const
+
+export const FAMILY_INTEGRATION_LEVELS = [
+  { value: 'good', label: 'جيد', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { value: 'partial', label: 'متوسط', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  { value: 'poor', label: 'ضعيف', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+] as const
+
+export const EXTERNAL_VISIT_CHECKLIST = [
+  { key: 'checklist_medical_exam', label: 'الفحص الطبي' },
+  { key: 'checklist_personal_hygiene', label: 'النظافة الشخصية' },
+  { key: 'checklist_medications_delivered', label: 'تسليم الأدوية' },
+  { key: 'checklist_clothing_sufficient', label: 'كفاية الملابس' },
+  { key: 'checklist_weight_monitored', label: 'متابعة الوزن' },
+  { key: 'checklist_medications_given', label: 'إعطاء الأدوية' },
+  { key: 'checklist_clothing_returned', label: 'إعادة الملابس' },
+  { key: 'checklist_care_instructions', label: 'تعليمات العناية' },
+  { key: 'checklist_diet_followed', label: 'اتباع الحمية' },
+  { key: 'checklist_hospital_appointments', label: 'مواعيد المستشفى' },
+  { key: 'checklist_development_plans', label: 'خطط التطوير' },
+] as const
+
+// ─── Family Counseling (الإرشاد الأسري) ────────────────────────
+
+export const PLAN_DURATIONS = [
+  { value: '1month', label: 'شهر واحد' },
+  { value: '3months', label: '3 أشهر' },
+  { value: '6months', label: '6 أشهر' },
+  { value: '1year', label: 'سنة' },
+  { value: 'other', label: 'أخرى' },
+] as const
+
+export const ENGAGEMENT_LEVELS = [
+  { value: 'engaged', label: 'متفاعل', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { value: 'partial', label: 'جزئي', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  { value: 'not_engaged', label: 'غير متفاعل', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+] as const
+
+export const COUNSELING_STATUS_CONFIG = {
+  active: { label: 'نشطة', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  completed: { label: 'مكتملة', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+  closed: { label: 'مغلقة', color: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' },
+} as const

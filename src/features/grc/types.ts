@@ -140,3 +140,35 @@ export const SAFETY_STATUS_CONFIG: Record<SafetyIncidentStatus, { label: string;
   action_required: { label: 'يتطلب إجراء', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
   closed: { label: 'مُغلق', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
 }
+
+// ─── Abuse Reports (بلاغات العنف والإيذاء) ─────────────────────
+
+export const ABUSE_TYPE_CONFIG: Record<string, { label: string; emoji: string; color: string }> = {
+  physical: { label: 'جسدي', emoji: '🤕', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  psychological: { label: 'نفسي', emoji: '😰', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
+  neglect: { label: 'إهمال', emoji: '⚠️', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  sexual: { label: 'جنسي', emoji: '🚨', color: 'bg-red-200 text-red-900 dark:bg-red-900/50 dark:text-red-300' },
+  other: { label: 'أخرى', emoji: '📋', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+}
+
+export const ABUSE_SEVERITY_CONFIG: Record<string, { label: string; color: string }> = {
+  minor: { label: 'بسيط', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+  moderate: { label: 'متوسط', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  severe: { label: 'شديد', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
+  critical: { label: 'حرج', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+}
+
+export const PERPETRATOR_TYPE_CONFIG: Record<string, { label: string }> = {
+  staff: { label: 'موظف' },
+  other_resident: { label: 'مستفيد آخر' },
+  visitor: { label: 'زائر' },
+  family: { label: 'أسرة' },
+  unknown: { label: 'مجهول' },
+}
+
+export const INVESTIGATION_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  reported: { label: 'مُبلّغ', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+  investigating: { label: 'قيد التحقيق', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
+  resolved: { label: 'تم الحل', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  referred_to_authorities: { label: 'محال للجهات', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+}

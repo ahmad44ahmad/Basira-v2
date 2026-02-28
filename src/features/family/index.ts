@@ -1,3 +1,5 @@
 export { FamilyPortalPage } from './pages/FamilyPortalPage'
 export { useVisits, useFamilyFeed, useFamilyUpdates } from './api/family-queries'
+export { useVisitRecords } from './api/visit-queries'
+export { useCounselingCases } from './api/counseling-queries'
 export type * from './types'

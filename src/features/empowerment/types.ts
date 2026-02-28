@@ -132,3 +132,97 @@ export const SESSION_TYPES = [
   { value: 'group', label: 'جماعي', emoji: '👥' },
   { value: 'home', label: 'منزلي', emoji: '🏠' },
 ] as const
+
+// ─── ICF Framework ──────────────────────────────────────────────
+
+export type IcfComponent = 'b' | 's' | 'd' | 'e'
+
+export const ICF_COMPONENT_CONFIG: Record<IcfComponent, { label: string; labelAr: string; color: string }> = {
+  b: { label: 'Body Functions', labelAr: 'وظائف الجسم', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+  s: { label: 'Body Structures', labelAr: 'بنى الجسم', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
+  d: { label: 'Activities & Participation', labelAr: 'الأنشطة والمشاركة', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' },
+  e: { label: 'Environmental Factors', labelAr: 'العوامل البيئية', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+}
+
+export const ICF_QUALIFIER_LABELS = [
+  { value: 0, label: 'لا مشكلة (0-4%)' },
+  { value: 1, label: 'مشكلة خفيفة (5-24%)' },
+  { value: 2, label: 'مشكلة متوسطة (25-49%)' },
+  { value: 3, label: 'مشكلة شديدة (50-95%)' },
+  { value: 4, label: 'مشكلة كاملة (96-100%)' },
+] as const
+
+export const ENVIRONMENTAL_QUALIFIER_TYPES = [
+  { value: 'facilitator', label: 'ميسِّر', color: 'text-emerald-600' },
+  { value: 'barrier', label: 'عائق', color: 'text-red-600' },
+  { value: 'neutral', label: 'محايد', color: 'text-slate-600' },
+] as const
+
+// ─── Rights Realization (CRPD) ──────────────────────────────────
+
+export const RIGHTS_STATUS_CONFIG = {
+  realized: { label: 'محقق', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  partially_realized: { label: 'محقق جزئياً', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+  barrier_identified: { label: 'عائق محدد', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+  not_applicable: { label: 'غير منطبق', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+} as const
+
+export const CRPD_ARTICLES = [
+  { value: '5', label: 'المادة 5 — المساواة وعدم التمييز' },
+  { value: '9', label: 'المادة 9 — إمكانية الوصول' },
+  { value: '12', label: 'المادة 12 — الاعتراف بالأهلية القانونية' },
+  { value: '14', label: 'المادة 14 — حرية الشخص وأمنه' },
+  { value: '19', label: 'المادة 19 — العيش المستقل والاندماج' },
+  { value: '21', label: 'المادة 21 — حرية التعبير والرأي' },
+  { value: '24', label: 'المادة 24 — التعليم' },
+  { value: '25', label: 'المادة 25 — الصحة' },
+  { value: '26', label: 'المادة 26 — التأهيل وإعادة التأهيل' },
+  { value: '27', label: 'المادة 27 — العمل والتوظيف' },
+  { value: '28', label: 'المادة 28 — مستوى المعيشة اللائق' },
+  { value: '30', label: 'المادة 30 — المشاركة في الحياة الثقافية' },
+] as const
+
+// ─── Life Plan Status ───────────────────────────────────────────
+
+export const LIFE_PLAN_STATUS_CONFIG = {
+  active: { label: 'نشطة', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  completed: { label: 'مكتملة', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+  cancelled: { label: 'ملغاة', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+  draft: { label: 'مسودة', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+} as const
+
+export const LIFE_PLAN_DOMAINS = [
+  { key: 'emotional_wellbeing_goals', label: 'الرفاه العاطفي', emoji: '💚' },
+  { key: 'interpersonal_relations_goals', label: 'العلاقات الشخصية', emoji: '🤝' },
+  { key: 'material_wellbeing_goals', label: 'الرفاه المادي', emoji: '🏠' },
+  { key: 'personal_development_goals', label: 'التطور الشخصي', emoji: '📚' },
+  { key: 'physical_wellbeing_goals', label: 'الرفاه الجسدي', emoji: '💪' },
+  { key: 'self_determination_goals', label: 'تقرير المصير', emoji: '🎯' },
+  { key: 'social_inclusion_goals', label: 'الاندماج الاجتماعي', emoji: '🌍' },
+  { key: 'rights_goals', label: 'الحقوق', emoji: '⚖️' },
+] as const
+
+// ─── Training Programs (البرامج التدريبية) ─────────────────────
+
+export const EVALUATION_TYPES = [
+  { value: 'semi_annual', label: 'نصف سنوي' },
+  { value: 'training_performance', label: 'أداء تدريبي' },
+  { value: 'vocational', label: 'مهني' },
+] as const
+
+export const TRAINING_REFERRAL_GOALS = [
+  'تحسين المهارات الحركية',
+  'تطوير مهارات التواصل',
+  'تعزيز المهارات المعرفية',
+  'التدريب على العناية الذاتية',
+  'التأهيل المهني',
+  'تحسين السلوك الاجتماعي',
+] as const
+
+export const SKILLS_LEVELS = [
+  { value: 'independent', label: 'مستقل', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { value: 'partial', label: 'جزئي', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  { value: 'developing', label: 'قيد التطوير', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+  { value: 'basic', label: 'أساسي', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+  { value: 'needs_support', label: 'يحتاج دعم', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+] as const

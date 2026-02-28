@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ShieldCheck, AlertTriangle, ClipboardCheck, Flame, Plus, ChevronDown, ChevronUp } from 'lucide-react'
+import { ShieldCheck, AlertTriangle, ClipboardCheck, Flame, Plus, ChevronDown, ChevronUp, ShieldAlert } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
@@ -12,11 +12,13 @@ import {
   LIKELIHOOD_LABELS, IMPACT_LABELS, calculateRiskLevel,
   COMPLIANCE_STATUS_CONFIG,
   SAFETY_INCIDENT_TYPE_CONFIG, SAFETY_SEVERITY_CONFIG, SAFETY_STATUS_CONFIG,
+  ABUSE_TYPE_CONFIG, ABUSE_SEVERITY_CONFIG, PERPETRATOR_TYPE_CONFIG, INVESTIGATION_STATUS_CONFIG,
   type Risk, type RiskCategory, type RiskLevel, type RiskStatus,
   type ComplianceRequirement, type ComplianceStatus,
   type SafetyIncident, type SafetyIncidentType,
 } from '../types'
 import { useRisks, useComplianceRequirements, useSafetyIncidents } from '../api/grc-queries'
+import { useAbuseReports } from '../api/abuse-queries'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -27,6 +29,7 @@ export function GRCPage() {
     { id: 'risks', label: 'سجل المخاطر' },
     { id: 'compliance', label: 'الامتثال' },
     { id: 'safety', label: 'السلامة' },
+    { id: 'abuse', label: 'بلاغات العنف' },
   ]
 
   return (
@@ -37,6 +40,7 @@ export function GRCPage() {
         {activeTab === 'risks' && <RiskSection />}
         {activeTab === 'compliance' && <ComplianceSection />}
         {activeTab === 'safety' && <SafetySection />}
+        {activeTab === 'abuse' && <AbuseSection />}
       </div>
     </div>
   )
@@ -313,6 +317,177 @@ function SafetySection() {
           )
         })}
         {filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-400">لا توجد حوادث</div>}
+      </div>
+    </>
+  )
+}
+
+// ─── Abuse Reporting Section ─────────────────────────────────────
+
+function AbuseSection() {
+  const { data: reports = [], isLoading, error } = useAbuseReports()
+  const [filterStatus, setFilterStatus] = useState<string>('all')
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (reports.length === 0) return <EmptyState title="لا توجد بلاغات" description="لم يتم تسجيل أي بلاغات عنف أو إيذاء" />
+
+  const filtered = filterStatus === 'all' ? reports : reports.filter((r) => r.investigation_status === filterStatus)
+
+  const stats = {
+    total: reports.length,
+    minor: reports.filter((r) => r.severity === 'minor').length,
+    moderate: reports.filter((r) => r.severity === 'moderate').length,
+    severe: reports.filter((r) => r.severity === 'severe' || r.severity === 'critical').length,
+    investigating: reports.filter((r) => r.investigation_status === 'investigating').length,
+  }
+
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <StatCard title="إجمالي البلاغات" value={stats.total} accent="navy" />
+        <StatCard title="بسيط" value={stats.minor} accent="teal" />
+        <StatCard title="متوسط" value={stats.moderate} accent="gold" />
+        <StatCard title="شديد/حرج" value={stats.severe} accent="danger" />
+        <StatCard title="قيد التحقيق" value={stats.investigating} accent="navy" />
+      </div>
+
+      {/* Status Filter */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterStatus('all')}
+            className={cn('rounded-full px-3 py-1 text-xs font-medium transition-colors', filterStatus === 'all' ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400')}
+          >
+            الكل
+          </button>
+          {Object.entries(INVESTIGATION_STATUS_CONFIG).map(([key, config]) => (
+            <button
+              key={key}
+              onClick={() => setFilterStatus(key)}
+              className={cn('rounded-full px-3 py-1 text-xs font-medium transition-colors', filterStatus === key ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400')}
+            >
+              {config.label}
+            </button>
+          ))}
+        </div>
+        <Button variant="gold" size="sm" icon={<Plus className="h-4 w-4" />}>
+          تسجيل بلاغ
+        </Button>
+      </div>
+
+      {/* Abuse Report Cards */}
+      <div className="space-y-3">
+        {filtered.map((report) => {
+          const typeConfig = ABUSE_TYPE_CONFIG[report.abuse_type]
+          const sevConfig = ABUSE_SEVERITY_CONFIG[report.severity]
+          const statusConfig = INVESTIGATION_STATUS_CONFIG[report.investigation_status]
+          const perpConfig = report.perpetrator_type ? PERPETRATOR_TYPE_CONFIG[report.perpetrator_type] : null
+
+          return (
+            <Card
+              key={report.id}
+              className={cn(
+                report.severity === 'severe' && 'border-r-4 border-r-orange-500',
+                report.severity === 'critical' && 'border-r-4 border-r-red-500',
+                report.investigation_status === 'referred_to_authorities' && 'border-r-4 border-r-red-600',
+              )}
+            >
+              <div className="space-y-3">
+                {/* Header badges */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-lg">{typeConfig?.emoji}</span>
+                  <Badge className={typeConfig?.color ?? ''}>{typeConfig?.label ?? report.abuse_type}</Badge>
+                  <Badge className={sevConfig?.color ?? ''}>{sevConfig?.label ?? report.severity}</Badge>
+                  <Badge className={statusConfig?.color ?? ''}>{statusConfig?.label ?? report.investigation_status}</Badge>
+                  {report.medical_examination_done && (
+                    <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">🏥 فحص طبي</Badge>
+                  )}
+                  {report.authority_notified && (
+                    <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">⚠️ مُبلّغ للجهات</Badge>
+                  )}
+                </div>
+
+                {/* Description */}
+                {report.description && (
+                  <p className="text-sm text-slate-700 dark:text-slate-300">{report.description}</p>
+                )}
+
+                {/* Meta info */}
+                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                  <span>📅 {report.report_date}</span>
+                  {report.report_time && <span>🕐 {report.report_time}</span>}
+                  {report.location_in_facility && <span>📍 {report.location_in_facility}</span>}
+                  {perpConfig && <span>👤 {perpConfig.label}</span>}
+                  <span>المُبلّغ: {report.reported_by}</span>
+                </div>
+
+                {/* Medical report */}
+                {report.medical_report && (
+                  <div className="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-900/10">
+                    <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">التقرير الطبي:</p>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-300">{report.medical_report}</p>
+                  </div>
+                )}
+
+                {/* Authority reference */}
+                {report.authority_notified && report.authority_reference && (
+                  <div className="rounded-lg bg-red-50 p-3 dark:bg-red-900/10">
+                    <p className="text-xs font-medium text-red-700 dark:text-red-400 mb-1">مرجع الجهة المختصة:</p>
+                    <p className="text-xs font-mono text-red-600 dark:text-red-300">{report.authority_reference}</p>
+                  </div>
+                )}
+
+                {/* Immediate Actions */}
+                {report.immediate_actions.length > 0 && (
+                  <div>
+                    <p className="mb-1 text-xs font-medium text-slate-500">الإجراءات الفورية:</p>
+                    <div className="space-y-0.5">
+                      {report.immediate_actions.map((action, idx) => (
+                        <p key={idx} className="text-xs text-slate-600 dark:text-slate-400">• {action}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Follow-up Actions */}
+                {report.follow_up_actions.length > 0 && (
+                  <div>
+                    <p className="mb-1 text-xs font-medium text-slate-500">إجراءات المتابعة:</p>
+                    <div className="space-y-1">
+                      {(report.follow_up_actions as Array<{ action: string; status: string; date: string | null }>).map((fa, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-xs">
+                          <span className={cn(
+                            'inline-block h-2 w-2 rounded-full',
+                            fa.status === 'completed' ? 'bg-emerald-500' : fa.status === 'in_progress' ? 'bg-amber-500' : 'bg-slate-400',
+                          )} />
+                          <span className="text-slate-600 dark:text-slate-400">{fa.action}</span>
+                          {fa.date && <span className="text-slate-400">({fa.date})</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Investigation notes */}
+                {report.investigation_notes && (
+                  <div className="rounded-lg bg-purple-50 p-3 dark:bg-purple-900/10">
+                    <p className="text-xs font-medium text-purple-700 dark:text-purple-400 mb-1">ملاحظات التحقيق:</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-300">{report.investigation_notes}</p>
+                  </div>
+                )}
+
+                {/* Witnesses */}
+                {report.witness_names.length > 0 && (
+                  <p className="text-xs text-slate-400">
+                    الشهود: {report.witness_names.join('، ')}
+                  </p>
+                )}
+              </div>
+            </Card>
+          )
+        })}
+        {filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-400">لا توجد بلاغات</div>}
       </div>
     </>
   )

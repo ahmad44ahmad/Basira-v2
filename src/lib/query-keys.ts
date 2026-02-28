@@ -13,8 +13,15 @@ export const queryKeys = {
     profiles: () => [...queryKeys.medical.all, 'profiles'] as const,
     profile: (beneficiaryId: string) =>
       [...queryKeys.medical.all, 'profile', beneficiaryId] as const,
-    examinations: (beneficiaryId: string) =>
-      [...queryKeys.medical.all, 'examinations', beneficiaryId] as const,
+    examinations: () => [...queryKeys.medical.all, 'examinations'] as const,
+    prescriptions: () => [...queryKeys.medical.all, 'prescriptions'] as const,
+    clinicalNotes: () => [...queryKeys.medical.all, 'clinical-notes'] as const,
+    labOrders: () => [...queryKeys.medical.all, 'lab-orders'] as const,
+    mdtRounds: () => [...queryKeys.medical.all, 'mdt-rounds'] as const,
+    diseaseNotifications: () => [...queryKeys.medical.all, 'disease-notifications'] as const,
+    transfers: () => [...queryKeys.medical.all, 'transfers'] as const,
+    therapySessions: () => [...queryKeys.medical.all, 'therapy-sessions'] as const,
+    psychAssessments: () => [...queryKeys.medical.all, 'psych-assessments'] as const,
     medications: (beneficiaryId: string) =>
       [...queryKeys.medical.all, 'medications', beneficiaryId] as const,
   },
@@ -28,6 +35,16 @@ export const queryKeys = {
     handover: (shiftDate: string, shift: string) =>
       [...queryKeys.care.all, 'handover', shiftDate, shift] as const,
     handoverAll: () => [...queryKeys.care.all, 'handover'] as const,
+    nursingAssessments: () => [...queryKeys.care.all, 'nursing-assessments'] as const,
+    vitalSignCharts: () => [...queryKeys.care.all, 'vital-sign-charts'] as const,
+    epilepsyTracking: () => [...queryKeys.care.all, 'epilepsy-tracking'] as const,
+    menstrualTracking: () => [...queryKeys.care.all, 'menstrual-tracking'] as const,
+    weightTracking: () => [...queryKeys.care.all, 'weight-tracking'] as const,
+    hygieneFollowup: () => [...queryKeys.care.all, 'hygiene-followup'] as const,
+    nursingNotes: () => [...queryKeys.care.all, 'nursing-notes'] as const,
+    appointments: () => [...queryKeys.care.all, 'appointments'] as const,
+    isolationRecords: () => [...queryKeys.care.all, 'isolation-records'] as const,
+    ambulanceChecks: () => [...queryKeys.care.all, 'ambulance-checks'] as const,
   },
   medications: {
     all: ['medications'] as const,
@@ -53,6 +70,14 @@ export const queryKeys = {
     researches: () => [...queryKeys.social.all, 'researches'] as const,
     leaves: () => [...queryKeys.social.all, 'leaves'] as const,
     activities: () => [...queryKeys.social.all, 'activities'] as const,
+    followups: () => [...queryKeys.social.all, 'followups'] as const,
+    referrals: () => [...queryKeys.social.all, 'referrals'] as const,
+    familyNotifications: () => [...queryKeys.social.all, 'family-notifications'] as const,
+    incidentReports: () => [...queryKeys.social.all, 'incident-reports'] as const,
+    monitorRounds: () => [...queryKeys.social.all, 'monitor-rounds'] as const,
+    clothingInventory: () => [...queryKeys.social.all, 'clothing-inventory'] as const,
+    clothingTransactions: () => [...queryKeys.social.all, 'clothing-transactions'] as const,
+    activityAdvances: () => [...queryKeys.social.all, 'activity-advances'] as const,
   },
   empowerment: {
     all: ['empowerment'] as const,
@@ -63,6 +88,8 @@ export const queryKeys = {
     dignityProfile: (beneficiaryId: string) =>
       [...queryKeys.empowerment.all, 'dignity', beneficiaryId] as const,
     templates: () => [...queryKeys.empowerment.all, 'templates'] as const,
+    trainingReferrals: () => [...queryKeys.empowerment.all, 'training-referrals'] as const,
+    trainingEvaluations: () => [...queryKeys.empowerment.all, 'training-evaluations'] as const,
   },
   family: {
     all: ['family'] as const,
@@ -71,6 +98,8 @@ export const queryKeys = {
     updates: (beneficiaryId?: string) =>
       [...queryKeys.family.all, 'updates', beneficiaryId] as const,
     feed: () => [...queryKeys.family.all, 'feed'] as const,
+    visitRecords: () => [...queryKeys.family.all, 'visit-records'] as const,
+    counseling: () => [...queryKeys.family.all, 'counseling'] as const,
   },
   catering: {
     all: ['catering'] as const,
@@ -85,6 +114,7 @@ export const queryKeys = {
     maintenance: () => [...queryKeys.operations.all, 'maintenance'] as const,
     preventive: () => [...queryKeys.operations.all, 'preventive'] as const,
     categories: () => [...queryKeys.operations.all, 'categories'] as const,
+    checklists: () => [...queryKeys.operations.all, 'checklists'] as const,
   },
   quality: {
     all: ['quality'] as const,
@@ -97,11 +127,50 @@ export const queryKeys = {
     all: ['grc'] as const,
     risks: () => [...queryKeys.grc.all, 'risks'] as const,
     compliance: () => [...queryKeys.grc.all, 'compliance'] as const,
+    abuseReports: () => [...queryKeys.grc.all, 'abuse-reports'] as const,
   },
   stats: {
     all: ['stats'] as const,
     dashboard: () => [...queryKeys.stats.all, 'dashboard'] as const,
     kpis: () => [...queryKeys.stats.all, 'kpis'] as const,
+  },
+  feedback: {
+    all: ['feedback'] as const,
+    surveys: () => [...queryKeys.feedback.all, 'surveys'] as const,
+    surveysByBeneficiary: (id: string) => [...queryKeys.feedback.all, 'surveys', id] as const,
+    mood: () => [...queryKeys.feedback.all, 'mood'] as const,
+    stressAlerts: () => [...queryKeys.feedback.all, 'stress-alerts'] as const,
+  },
+  emergency: {
+    all: ['emergency'] as const,
+    plans: () => [...queryKeys.emergency.all, 'plans'] as const,
+    plan: (beneficiaryId: string) => [...queryKeys.emergency.all, 'plan', beneficiaryId] as const,
+    equipment: () => [...queryKeys.emergency.all, 'equipment'] as const,
+  },
+  icf: {
+    all: ['icf'] as const,
+    assessments: () => [...queryKeys.icf.all, 'assessments'] as const,
+    byBeneficiary: (id: string) => [...queryKeys.icf.all, 'assessments', id] as const,
+  },
+  lifePlans: {
+    all: ['life-plans'] as const,
+    plans: () => [...queryKeys.lifePlans.all, 'plans'] as const,
+    plan: (beneficiaryId: string) => [...queryKeys.lifePlans.all, 'plan', beneficiaryId] as const,
+  },
+  rights: {
+    all: ['rights'] as const,
+    log: () => [...queryKeys.rights.all, 'log'] as const,
+    byBeneficiary: (id: string) => [...queryKeys.rights.all, 'log', id] as const,
+  },
+  staffWellbeing: {
+    all: ['staff-wellbeing'] as const,
+    scores: () => [...queryKeys.staffWellbeing.all, 'scores'] as const,
+  },
+  dental: {
+    all: ['dental'] as const,
+    records: () => [...queryKeys.dental.all, 'records'] as const,
+    hygieneLogs: () => [...queryKeys.dental.all, 'hygiene-logs'] as const,
+    sterilization: () => [...queryKeys.dental.all, 'sterilization'] as const,
   },
   auth: {
     session: ['auth', 'session'] as const,

@@ -1,3 +1,7 @@
 export { MedicalOverviewPage } from './pages/MedicalOverviewPage'
 export { useMedicalProfiles, useMedicalProfile, useMedicalStats } from './api/medical-queries'
+export { useExaminations, usePrescriptions, useLabOrders } from './api/examination-queries'
+export { useClinicalNotes, useMdtRounds } from './api/clinical-queries'
+export { useTransfers, useDiseaseNotifications } from './api/transfer-queries'
+export { useTherapySessions, usePsychAssessments } from './api/therapy-queries'
 export type * from './types'

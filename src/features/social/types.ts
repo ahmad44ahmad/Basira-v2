@@ -140,3 +140,113 @@ export const FOLLOW_UP_STATUS = [
   { value: 'achieved', label: 'تم', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
   { value: 'not_achieved', label: 'لم يتم', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
 ] as const
+
+// ─── Social Monitoring (المتابعة الاجتماعية) ────────────────────
+
+export const INDEPENDENCE_LEVELS = [
+  { value: 'self', label: 'ذاتي', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { value: 'partial', label: 'بمساعدة', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  { value: 'others', label: 'يعتمد على الآخرين', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+] as const
+
+export const MOBILITY_TYPES = [
+  { value: 'natural', label: 'طبيعي' },
+  { value: 'wheelchair_electric', label: 'كرسي كهربائي' },
+  { value: 'wheelchair_manual', label: 'كرسي يدوي' },
+  { value: 'bedridden', label: 'طريح الفراش' },
+  { value: 'with_help', label: 'بمساعدة' },
+] as const
+
+export const RELATION_LEVELS = [
+  { value: 'good', label: 'جيدة', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { value: 'partial', label: 'متوسطة', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  { value: 'unaware', label: 'غير مدرك', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+] as const
+
+export const SHIFT_TYPES = [
+  { value: 'morning', label: 'صباحي' },
+  { value: 'evening', label: 'مسائي' },
+  { value: 'night', label: 'ليلي' },
+] as const
+
+// ─── Referrals (التحويلات) ──────────────────────────────────────
+
+export const REFERRAL_TYPES = [
+  { value: 'internal', label: 'داخلي' },
+  { value: 'external', label: 'خارجي' },
+] as const
+
+export const REFERRAL_SPECIALTIES = [
+  { value: 'medical', label: 'طبي' },
+  { value: 'behavioral', label: 'سلوكي' },
+  { value: 'training', label: 'تدريبي' },
+] as const
+
+export const URGENCY_LEVELS = [
+  { value: 'urgent_critical', label: 'عاجل حرج', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  { value: 'urgent', label: 'عاجل', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
+  { value: 'important', label: 'مهم', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  { value: 'normal', label: 'عادي', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+  { value: 'info', label: 'إعلامي', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+] as const
+
+export const REFERRAL_STATUS_CONFIG = {
+  pending: { label: 'قيد الانتظار', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+  in_treatment: { label: 'قيد العلاج', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+  needs_plan: { label: 'يحتاج خطة', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  team_meeting: { label: 'اجتماع فريق', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
+  resolved: { label: 'تم الحل', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+} as const
+
+export const NOTIFICATION_TYPES = [
+  { value: 'injury', label: 'إصابة', emoji: '🤕' },
+  { value: 'hospitalization', label: 'تنويم', emoji: '🏥' },
+  { value: 'appointment', label: 'موعد', emoji: '📅' },
+  { value: 'death', label: 'وفاة', emoji: '🕊️' },
+  { value: 'other', label: 'أخرى', emoji: '📋' },
+] as const
+
+export const INCIDENT_TYPES = [
+  { value: 'approved', label: 'مأذون بها' },
+  { value: 'unapproved', label: 'غير مأذون بها' },
+  { value: 'negligence', label: 'إهمال' },
+  { value: 'other', label: 'أخرى' },
+] as const
+
+// ─── Clothing (الكسوة) ──────────────────────────────────────────
+
+export const SEASON_TYPES = [
+  { value: 'summer', label: 'صيفية' },
+  { value: 'winter', label: 'شتوية' },
+  { value: 'eid_fitr', label: 'عيد الفطر' },
+  { value: 'eid_adha', label: 'عيد الأضحى' },
+] as const
+
+export const CLOTHING_CONDITIONS = [
+  { value: 'good', label: 'جيدة', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { value: 'damaged', label: 'تالفة', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  { value: 'disposed', label: 'مُتلَفة', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+] as const
+
+export const TRANSACTION_TYPES = [
+  { value: 'purchase', label: 'شراء', emoji: '🛒' },
+  { value: 'issue', label: 'صرف', emoji: '📤' },
+  { value: 'additional_issue', label: 'صرف إضافي', emoji: '➕' },
+  { value: 'return_damaged', label: 'إرجاع تالف', emoji: '🔄' },
+  { value: 'disposal', label: 'إتلاف', emoji: '🗑️' },
+  { value: 'inventory_count', label: 'جرد', emoji: '📋' },
+] as const
+
+// ─── Activity Advance (السلفة) ──────────────────────────────────
+
+export const ADVANCE_TYPES = [
+  { value: 'imprest', label: 'سلفة مستديمة' },
+  { value: 'reimbursement', label: 'استرداد' },
+] as const
+
+export const ADVANCE_STATUS_CONFIG = {
+  pending: { label: 'قيد الانتظار', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+  approved: { label: 'معتمد', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  rejected: { label: 'مرفوض', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  settled: { label: 'تمت التسوية', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
+} as const

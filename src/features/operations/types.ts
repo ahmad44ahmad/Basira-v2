@@ -127,3 +127,39 @@ export const DISPOSAL_METHODS: { value: DisposalMethod; label: string }[] = [
   { value: 'special_treatment', label: 'معالجة خاصة' },
   { value: 'reuse', label: 'إعادة استخدام' },
 ]
+
+// ─── Maintenance Checklists (قوائم التدقيق) ─────────────────────
+
+export type ChecklistCategory = 'hvac' | 'electrical' | 'plumbing' | 'fire_safety' | 'elevators' | 'security' | 'cleaning' | 'pest_control' | 'waste' | 'gardens' | 'communications' | 'bms'
+
+export const CHECKLIST_CATEGORY_CONFIG: Record<ChecklistCategory, { label: string; emoji: string }> = {
+  hvac: { label: 'التكييف', emoji: '❄️' },
+  electrical: { label: 'الكهرباء', emoji: '⚡' },
+  plumbing: { label: 'السباكة', emoji: '🔧' },
+  fire_safety: { label: 'السلامة من الحريق', emoji: '🔥' },
+  elevators: { label: 'المصاعد', emoji: '🛗' },
+  security: { label: 'الأمن', emoji: '🔒' },
+  cleaning: { label: 'النظافة', emoji: '🧹' },
+  pest_control: { label: 'مكافحة الآفات', emoji: '🐛' },
+  waste: { label: 'النفايات', emoji: '🗑️' },
+  gardens: { label: 'الحدائق', emoji: '🌿' },
+  communications: { label: 'الاتصالات', emoji: '📡' },
+  bms: { label: 'إدارة المبنى', emoji: '🏢' },
+}
+
+export const CHECKLIST_STATUS_CONFIG = {
+  pending: { label: 'قيد الانتظار', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
+  in_progress: { label: 'قيد التنفيذ', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  completed: { label: 'مكتمل', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+} as const
+
+export const CHECKLIST_ITEM_STATUS = {
+  pass: { label: 'مطابق', color: 'text-emerald-600 dark:text-emerald-400' },
+  fail: { label: 'غير مطابق', color: 'text-red-600 dark:text-red-400' },
+  na: { label: 'لا ينطبق', color: 'text-slate-400 dark:text-slate-500' },
+} as const
+
+export const FACILITY_TYPES = [
+  { value: 'office', label: 'مكتبي' },
+  { value: 'healthcare', label: 'صحي' },
+] as const

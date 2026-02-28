@@ -1,0 +1,88 @@
+import type { VisualSurveyResponse, StressAlert } from '@/types/database'
+
+const now = new Date().toISOString()
+const today = new Date().toISOString().split('T')[0]
+
+export const DEMO_SURVEYS: VisualSurveyResponse[] = [
+  {
+    id: 'vs001',
+    beneficiary_id: 'b001',
+    survey_date: today,
+    food_rating: 3,
+    comfort_rating: 2,
+    staff_rating: 3,
+    activities_rating: 2,
+    overall_mood: 'happy',
+    notes: null,
+    recorded_by: 'أخصائي: محمد',
+    created_at: now,
+  },
+  {
+    id: 'vs002',
+    beneficiary_id: 'b002',
+    survey_date: today,
+    food_rating: 2,
+    comfort_rating: 3,
+    staff_rating: 3,
+    activities_rating: 1,
+    overall_mood: 'neutral',
+    notes: 'يرغب في المزيد من الأنشطة الترفيهية',
+    recorded_by: 'أخصائي: سارة',
+    created_at: now,
+  },
+  {
+    id: 'vs003',
+    beneficiary_id: 'b003',
+    survey_date: today,
+    food_rating: 1,
+    comfort_rating: 2,
+    staff_rating: 2,
+    activities_rating: 2,
+    overall_mood: 'sad',
+    notes: 'اشتكى من جودة الطعام',
+    recorded_by: 'أخصائي: فاطمة',
+    created_at: now,
+  },
+  {
+    id: 'vs004',
+    beneficiary_id: 'b004',
+    survey_date: '2026-02-27',
+    food_rating: 3,
+    comfort_rating: 3,
+    staff_rating: 2,
+    activities_rating: 3,
+    overall_mood: 'happy',
+    notes: null,
+    recorded_by: 'أخصائي: أحمد',
+    created_at: now,
+  },
+]
+
+export const DEMO_STRESS_ALERTS: StressAlert[] = [
+  {
+    id: 'sa001',
+    beneficiary_id: 'b002',
+    alert_type: 'combined_stress',
+    severity: 'high',
+    eda_value: 6.2,
+    hr_value: 112,
+    trigger_description: 'ارتفاع مشترك في EDA ومعدل ضربات القلب',
+    status: 'active',
+    acknowledged_by: null,
+    resolved_at: null,
+    created_at: now,
+  },
+  {
+    id: 'sa002',
+    beneficiary_id: 'b004',
+    alert_type: 'behavioral',
+    severity: 'medium',
+    eda_value: null,
+    hr_value: null,
+    trigger_description: 'تغيّر ملحوظ في نمط النوم',
+    status: 'acknowledged',
+    acknowledged_by: 'ممرض: عادل',
+    resolved_at: null,
+    created_at: now,
+  },
+]

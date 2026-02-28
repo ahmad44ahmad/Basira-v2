@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building2, Wrench, Trash2, Plus, Search, CheckCircle, AlertTriangle, Eye, Play, ChevronDown, ChevronUp } from 'lucide-react'
+import { Building2, Wrench, Trash2, Plus, Search, CheckCircle, AlertTriangle, Eye, Play, ChevronDown, ChevronUp, ClipboardCheck, CircleCheck, CircleX, CircleMinus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
@@ -11,11 +11,14 @@ import {
   ASSET_STATUS_CONFIG, ASSET_CONDITION_CONFIG,
   MAINTENANCE_TYPE_CONFIG, MAINTENANCE_PRIORITY_CONFIG, MAINTENANCE_STATUS_CONFIG,
   WASTE_TYPE_CONFIG, DISPOSAL_METHODS,
+  CHECKLIST_CATEGORY_CONFIG, CHECKLIST_STATUS_CONFIG, CHECKLIST_ITEM_STATUS,
   type Asset, type AssetStatus, type AssetCondition,
   type MaintenanceRequest, type MaintenanceStatus, type MaintenanceType, type MaintenancePriority,
   type WasteRecord, type WasteType,
+  type ChecklistCategory,
 } from '../types'
 import { useAssets, useMaintenanceRequests, useCreateMaintenanceRequest, useUpdateMaintenanceStatus, useWasteRecords } from '../api/operations-queries'
+import { useMaintenanceChecklists, useChecklistStats } from '../api/checklist-queries'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -26,6 +29,7 @@ export function OperationsPage() {
     { id: 'dashboard', label: 'لوحة التحكم' },
     { id: 'assets', label: 'الأصول' },
     { id: 'maintenance', label: 'الصيانة' },
+    { id: 'checklists', label: 'قوائم التدقيق' },
     { id: 'waste', label: 'النفايات' },
   ]
 
@@ -43,6 +47,7 @@ export function OperationsPage() {
         {activeTab === 'dashboard' && <DashboardSection />}
         {activeTab === 'assets' && <AssetsSection />}
         {activeTab === 'maintenance' && <MaintenanceSection />}
+        {activeTab === 'checklists' && <ChecklistsSection />}
         {activeTab === 'waste' && <WasteSection />}
       </div>
     </div>
@@ -335,6 +340,174 @@ function AddMaintenanceModal({ open, onClose, onAdd }: {
         </div>
       </div>
     </Modal>
+  )
+}
+
+// ─── Checklists Section ─────────────────────────────────────────
+
+function ChecklistsSection() {
+  const { data: checklists = [], isLoading, error } = useMaintenanceChecklists()
+  const stats = useChecklistStats()
+  const [filterCategory, setFilterCategory] = useState<ChecklistCategory | 'all'>('all')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all')
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (checklists.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد قوائم تدقيق صيانة مسجلة حاليا" />
+
+  const filtered = checklists.filter((c) =>
+    (filterCategory === 'all' || c.category === filterCategory) &&
+    (filterStatus === 'all' || c.status === filterStatus),
+  )
+
+  const getComplianceColor = (pct: number) => {
+    if (pct >= 80) return 'bg-emerald-500'
+    if (pct >= 50) return 'bg-amber-500'
+    return 'bg-red-500'
+  }
+
+  const getComplianceTextColor = (pct: number) => {
+    if (pct >= 80) return 'text-emerald-600 dark:text-emerald-400'
+    if (pct >= 50) return 'text-amber-600 dark:text-amber-400'
+    return 'text-red-600 dark:text-red-400'
+  }
+
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard title="إجمالي القوائم" value={stats.total} accent="navy" />
+        <StatCard title="مكتمل" value={stats.completed} accent="teal" />
+        <StatCard title="قيد التنفيذ" value={stats.inProgress} accent="gold" />
+        <StatCard title="متوسط الامتثال" value={`${stats.avgCompliance}%`} accent="teal" />
+      </div>
+
+      {/* Category filter chips */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <button onClick={() => setFilterCategory('all')} className={cn('rounded-full px-3 py-1 text-xs font-medium transition-colors', filterCategory === 'all' ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400')}>
+          الكل
+        </button>
+        {(Object.entries(CHECKLIST_CATEGORY_CONFIG) as [ChecklistCategory, { label: string; emoji: string }][]).map(([key, config]) => (
+          <button key={key} onClick={() => setFilterCategory(key)} className={cn('rounded-full px-3 py-1 text-xs font-medium transition-colors', filterCategory === key ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400')}>
+            {config.emoji} {config.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Status filter */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {(['all', 'pending', 'in_progress', 'completed'] as const).map((s) => (
+          <button key={s} onClick={() => setFilterStatus(s)} className={cn('rounded-full px-3 py-1 text-xs font-medium transition-colors', filterStatus === s ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400')}>
+            {s === 'all' ? 'كل الحالات' : CHECKLIST_STATUS_CONFIG[s].label}
+          </button>
+        ))}
+      </div>
+
+      {/* Checklist cards */}
+      <div className="space-y-3">
+        <AnimatePresence>
+          {filtered.map((checklist) => {
+            const categoryConfig = CHECKLIST_CATEGORY_CONFIG[checklist.category]
+            const statusConfig = CHECKLIST_STATUS_CONFIG[checklist.status]
+            const compliance = checklist.compliance_percentage ?? 0
+            const isExpanded = expandedId === checklist.id
+
+            return (
+              <motion.div key={checklist.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50 }}>
+                <Card>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-lg">{categoryConfig.emoji}</span>
+                        <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                        <Badge className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">{categoryConfig.label}</Badge>
+                        <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-600 dark:bg-slate-800 dark:text-slate-400">{checklist.checklist_code}</code>
+                      </div>
+                      <h3 className="mt-1 font-bold text-slate-900 dark:text-white">{checklist.title_ar}</h3>
+
+                      {/* Compliance bar */}
+                      <div className="mt-2 flex items-center gap-3">
+                        <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                          <div className={cn('h-full rounded-full transition-all', getComplianceColor(compliance))} style={{ width: `${compliance}%` }} />
+                        </div>
+                        <span className={cn('text-sm font-bold', getComplianceTextColor(compliance))}>{compliance}%</span>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        <span>👤 {checklist.inspector_name}</span>
+                        <span>📅 {checklist.inspection_date}</span>
+                        {checklist.notes && <span>📝 {checklist.notes}</span>}
+                      </div>
+                    </div>
+
+                    {/* Expand toggle */}
+                    <button onClick={() => setExpandedId(isExpanded ? null : checklist.id)} className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300">
+                      {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                    </button>
+                  </div>
+
+                  {/* Expanded checklist items */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+                        <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
+                          <h4 className="mb-3 text-sm font-bold text-slate-700 dark:text-slate-300">بنود الفحص</h4>
+                          <div className="space-y-2">
+                            {checklist.checklist_items.map((item, idx) => {
+                              const itemStatus = (item as Record<string, unknown>).status as string
+                              const itemConfig = CHECKLIST_ITEM_STATUS[itemStatus as keyof typeof CHECKLIST_ITEM_STATUS] ?? CHECKLIST_ITEM_STATUS.na
+                              const itemNotes = (item as Record<string, unknown>).notes as string
+                              const itemDesc = (item as Record<string, unknown>).description as string
+                              const itemFreq = (item as Record<string, unknown>).frequency as string
+                              const itemInspector = (item as Record<string, unknown>).inspector as string
+
+                              const itemBadgeColor = itemStatus === 'pass'
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                : itemStatus === 'fail'
+                                  ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                  : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+
+                              return (
+                                <div key={idx} className={cn('rounded-lg p-3', itemStatus === 'fail' ? 'bg-red-50 dark:bg-red-950/20' : 'bg-slate-50 dark:bg-slate-800/50')}>
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-start gap-2">
+                                      {itemStatus === 'pass' && <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />}
+                                      {itemStatus === 'fail' && <CircleX className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />}
+                                      {itemStatus === 'na' && <CircleMinus className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />}
+                                      <div>
+                                        <p className="text-sm font-medium text-slate-900 dark:text-white">{itemDesc}</p>
+                                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                                          <span>🔄 {itemFreq}</span>
+                                          <span>👤 {itemInspector}</span>
+                                        </div>
+                                        {itemStatus === 'fail' && itemNotes && (
+                                          <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">⚠️ {itemNotes}</p>
+                                        )}
+                                        {itemStatus === 'na' && itemNotes && (
+                                          <p className="mt-1 text-xs text-slate-400">{itemNotes}</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <Badge className={cn('shrink-0 text-xs', itemBadgeColor)}>
+                                      {itemConfig.label}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+        {filtered.length === 0 && <div className="py-12 text-center text-sm text-slate-400">لا توجد قوائم تدقيق</div>}
+      </div>
+    </>
   )
 }
 

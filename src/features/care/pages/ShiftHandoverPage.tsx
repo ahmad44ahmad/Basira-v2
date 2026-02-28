@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { FileText, Plus, Check, Clock, AlertTriangle } from 'lucide-react'
+import { FileText, Plus, Check, Clock, AlertTriangle, Activity, UserCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal } from '@/components/ui'
-import { FullPageSpinner, Spinner } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Spinner } from '@/components/ui'
 import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { SHIFT_CONFIG, CATEGORY_CONFIG, type Shift, type ShiftHandoverItem, type HandoverCategory, type HandoverPriority } from '../types'
 import { useHandoverItems } from '../api/care-queries'
+import { useStaffWellbeing, useWellbeingStats } from '../api/wellbeing-queries'
 
 function getCurrentShift(): Shift {
   const hour = new Date().getHours()
@@ -17,6 +17,13 @@ function getCurrentShift(): Shift {
   if (hour >= 15 && hour < 23) return 'مسائي'
   return 'ليلي'
 }
+
+const WELLBEING_RISK_CONFIG = {
+  green: { label: 'مراقبة روتينية', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', barColor: 'bg-emerald-500' },
+  yellow: { label: 'مقابلة شهرية', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', barColor: 'bg-amber-500' },
+  orange: { label: 'تنبيه المشرف', color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400', barColor: 'bg-orange-500' },
+  red: { label: 'تدخّل فوري', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', barColor: 'bg-red-500' },
+} as const
 
 export function ShiftHandoverPage() {
   const currentShift = getCurrentShift()
@@ -26,6 +33,7 @@ export function ShiftHandoverPage() {
   const items = [...localItems, ...fetchedItems]
   const [showAddModal, setShowAddModal] = useState(false)
   const [filterCategory, setFilterCategory] = useState<HandoverCategory | 'all'>('all')
+  const [activeTab, setActiveTab] = useState<'handover' | 'wellbeing'>('handover')
 
   const filtered = filterCategory === 'all' ? items.filter((i) => i.status === 'active') : items.filter((i) => i.status === 'active' && i.category === filterCategory)
 
@@ -62,8 +70,8 @@ export function ShiftHandoverPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="تسليم الورديات"
-        description="بنود التسليم والاستلام بين الورديات"
+        title="تسليم الورديات (I-PASS)"
+        description="نقل المناوبات بإطار I-PASS ومتابعة رفاهية الموظفين"
         icon={<FileText className="h-5 w-5" />}
         actions={
           <div className="flex items-center gap-2">
@@ -75,6 +83,36 @@ export function ShiftHandoverPage() {
         }
       />
 
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-700">
+        <button
+          onClick={() => setActiveTab('handover')}
+          className={cn(
+            'px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
+            activeTab === 'handover'
+              ? 'border-teal-600 text-teal-700 dark:text-teal-400'
+              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400'
+          )}
+        >
+          بنود التسليم
+        </button>
+        <button
+          onClick={() => setActiveTab('wellbeing')}
+          className={cn(
+            'px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
+            activeTab === 'wellbeing'
+              ? 'border-teal-600 text-teal-700 dark:text-teal-400'
+              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400'
+          )}
+        >
+          رفاهية الموظفين
+        </button>
+      </div>
+
+      {activeTab === 'wellbeing' ? (
+        <StaffWellbeingSection />
+      ) : (
+      <>
       {/* Stats */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard title="إجمالي البنود" value={stats.total} accent="navy" />
@@ -143,6 +181,125 @@ export function ShiftHandoverPage() {
 
       {/* Add Modal */}
       <AddHandoverModal open={showAddModal} onClose={() => setShowAddModal(false)} onAdd={handleAdd} />
+      </>
+      )}
+    </div>
+  )
+}
+
+function StaffWellbeingSection() {
+  const { data: scores = [], isLoading, error } = useStaffWellbeing()
+  const stats = useWellbeingStats()
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (scores.length === 0) return <EmptyState title="لا توجد تقييمات" description="لم يتم إجراء تقييمات رفاهية للموظفين بعد" />
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="إجمالي التقييمات" value={stats.totalAssessed} accent="teal" />
+        <StatCard title="متوسط النقاط" value={stats.avgScore} accent="navy" />
+        <StatCard title="تنبيه (برتقالي)" value={stats.orangeCount} accent="gold" />
+        <StatCard title="تدخّل فوري (أحمر)" value={stats.redCount} accent="danger" />
+      </div>
+
+      <div className="space-y-3">
+        {scores.map((score) => {
+          const config = WELLBEING_RISK_CONFIG[score.risk_level ?? 'green']
+          const compositeScore = score.composite_score ?? 0
+
+          return (
+            <Card key={score.id} className={cn(
+              score.risk_level === 'red' && 'border-r-4 border-r-red-500',
+              score.risk_level === 'orange' && 'border-r-4 border-r-orange-500',
+            )}>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      'flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold',
+                      config.color,
+                    )}>
+                      {compositeScore}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white">{score.employee_name}</h3>
+                      <p className="text-xs text-slate-500">{score.assessment_date}</p>
+                    </div>
+                  </div>
+                  <Badge className={config.color}>{config.label}</Badge>
+                </div>
+
+                {/* Composite score bar */}
+                <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                  <motion.div
+                    className={cn('h-full rounded-full', config.barColor)}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${compositeScore}%` }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                  />
+                  {/* Threshold markers */}
+                  <div className="absolute top-0 left-[40%] h-full w-px bg-amber-400" />
+                  <div className="absolute top-0 left-[60%] h-full w-px bg-orange-400" />
+                  <div className="absolute top-0 left-[80%] h-full w-px bg-red-400" />
+                </div>
+
+                {/* Component scores */}
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-2 text-xs">
+                  {score.mbi_ee_score != null && (
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-2 text-center">
+                      <span className="text-slate-500">MBI-EE</span>
+                      <p className={cn('font-bold', (score.mbi_ee_score ?? 0) >= 27 ? 'text-red-600' : 'text-slate-900 dark:text-white')}>
+                        {score.mbi_ee_score}
+                      </p>
+                    </div>
+                  )}
+                  {score.mbi_dp_score != null && (
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-2 text-center">
+                      <span className="text-slate-500">MBI-DP</span>
+                      <p className={cn('font-bold', (score.mbi_dp_score ?? 0) >= 10 ? 'text-red-600' : 'text-slate-900 dark:text-white')}>
+                        {score.mbi_dp_score}
+                      </p>
+                    </div>
+                  )}
+                  {score.overtime_ratio != null && (
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-2 text-center">
+                      <span className="text-slate-500">ساعات إضافية</span>
+                      <p className="font-bold text-slate-900 dark:text-white">{Math.round((score.overtime_ratio ?? 0) * 100)}%</p>
+                    </div>
+                  )}
+                  {score.consecutive_shifts != null && (
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-2 text-center">
+                      <span className="text-slate-500">ورديات متتالية</span>
+                      <p className={cn('font-bold', (score.consecutive_shifts ?? 0) >= 5 ? 'text-amber-600' : 'text-slate-900 dark:text-white')}>
+                        {score.consecutive_shifts}
+                      </p>
+                    </div>
+                  )}
+                  {score.sick_leave_count != null && (
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-2 text-center">
+                      <span className="text-slate-500">إجازات مرضية</span>
+                      <p className="font-bold text-slate-900 dark:text-white">{score.sick_leave_count}</p>
+                    </div>
+                  )}
+                </div>
+
+                {score.intervention_notes && (
+                  <div className={cn(
+                    'rounded-lg p-3 text-xs',
+                    score.risk_level === 'red' ? 'bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-300'
+                    : 'bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-300'
+                  )}>
+                    <AlertTriangle className="inline h-3.5 w-3.5 ml-1" />
+                    {score.intervention_notes}
+                  </div>
+                )}
+              </div>
+            </Card>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -30,7 +30,10 @@ export function useCreateIPCInspection() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: IpcInspectionInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `insp${Date.now()}`, created_at: new Date().toISOString() } as IpcInspection
+      }
       const { data: row, error } = await supabase
         .from('ipc_inspections')
         .insert(data)
@@ -70,7 +73,10 @@ export function useCreateIPCIncident() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: IpcIncidentInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `iinc${Date.now()}`, created_at: new Date().toISOString() } as IpcIncident
+      }
       const { data: row, error } = await supabase
         .from('ipc_incidents')
         .insert(data)

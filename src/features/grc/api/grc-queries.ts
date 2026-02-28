@@ -43,7 +43,10 @@ export function useCreateRisk() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: GrcRiskInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `risk${Date.now()}`, created_at: new Date().toISOString() } as GrcRisk
+      }
       const { data: row, error } = await supabase
         .from('grc_risks')
         .insert(data)

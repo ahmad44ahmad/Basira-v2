@@ -29,11 +29,14 @@ export function useIcfAssessments(beneficiaryId?: string) {
 export function useCreateIcfAssessment() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: IcfAssessmentInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+    mutationFn: async (input: IcfAssessmentInsert) => {
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...input, id: `icf${Date.now()}`, created_at: new Date().toISOString() } as IcfAssessment
+      }
       const { data: row, error } = await supabase
         .from('icf_assessments')
-        .insert(data)
+        .insert(input)
         .select()
         .single()
       if (error) throw error

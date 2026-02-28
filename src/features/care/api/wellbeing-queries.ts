@@ -97,7 +97,10 @@ export function useCreateWellbeingScore() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: StaffWellbeingScoreInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `sw${Date.now()}`, created_at: new Date().toISOString() } as StaffWellbeingScore
+      }
       const { data: row, error } = await supabase
         .from('staff_wellbeing_scores')
         .insert(data)

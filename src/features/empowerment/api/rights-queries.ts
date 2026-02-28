@@ -29,11 +29,14 @@ export function useRightsLog(beneficiaryId?: string) {
 export function useCreateRightsEntry() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: RightsRealizationLogInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+    mutationFn: async (input: RightsRealizationLogInsert) => {
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...input, id: `right${Date.now()}`, created_at: new Date().toISOString() } as RightsRealizationLog
+      }
       const { data: row, error } = await supabase
         .from('rights_realization_log')
-        .insert(data)
+        .insert(input)
         .select()
         .single()
       if (error) throw error

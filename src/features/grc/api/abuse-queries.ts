@@ -135,7 +135,10 @@ export function useCreateAbuseReport() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: AbuseReportInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `ab${Date.now()}`, created_at: new Date().toISOString() } as AbuseReport
+      }
       const { data: row, error } = await supabase
         .from('abuse_reports')
         .insert(data)

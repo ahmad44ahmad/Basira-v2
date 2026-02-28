@@ -56,7 +56,10 @@ export function useAdministerMedication() {
   return useMutation({
     mutationFn: async ({ id }: { id: string; status: MedicationStatus }) => {
       // In production: insert into medication_administration_log table
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return
+      }
       // Placeholder — no dedicated admin log table yet
       await new Promise((r) => setTimeout(r, 300))
       return { id }

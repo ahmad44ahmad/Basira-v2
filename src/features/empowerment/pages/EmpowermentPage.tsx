@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Sparkles, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award, Brain, ScrollText, Scale, GraduationCap, ClipboardList } from 'lucide-react'
+import { Sparkles, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award, Brain, ScrollText, Scale, GraduationCap, ClipboardList, Handshake, Wallet } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
@@ -21,6 +21,7 @@ import { useIcfAssessments, useIcfStats } from '../api/icf-queries'
 import { useLifePlans } from '../api/life-plan-queries'
 import { useRightsLog, useRightsStats } from '../api/rights-queries'
 import { useTrainingReferrals, useTrainingEvaluations } from '../api/training-queries'
+import { useCRPDAssessments, useIndependenceBudgets } from '../api/crpd-queries'
 import { DEMO_LOGS } from '../api/demo-data'
 
 // ─── Main Page ──────────────────────────────────────────────────
@@ -35,6 +36,7 @@ export function EmpowermentPage() {
     { id: 'lifePlans', label: 'خطة الحياة' },
     { id: 'rights', label: 'رصد الحقوق' },
     { id: 'training', label: 'البرامج التدريبية' },
+    { id: 'codesign', label: 'التصميم المشترك' },
   ]
 
   return (
@@ -58,6 +60,7 @@ export function EmpowermentPage() {
         {activeTab === 'lifePlans' && <LifePlansSection />}
         {activeTab === 'rights' && <RightsSection />}
         {activeTab === 'training' && <TrainingSection />}
+        {activeTab === 'codesign' && <CoDesignSection />}
       </div>
     </div>
   )
@@ -927,6 +930,188 @@ function TrainingSection() {
           })}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Co-Design (CRPD) Section ─────────────────────────────────
+
+function CoDesignSection() {
+  const { data: assessments = [], isLoading: loadingAssessments, error: errorAssessments } = useCRPDAssessments()
+  const { data: budgets = [], isLoading: loadingBudgets, error: errorBudgets } = useIndependenceBudgets()
+
+  const isLoading = loadingAssessments || loadingBudgets
+  const error = errorAssessments || errorBudgets
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (assessments.length === 0 && budgets.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم إنشاء أي تقييمات تصميم مشترك أو ميزانيات استقلالية بعد" />
+
+  const coDesignedCount = assessments.filter((a) => a.is_plan_codesigned).length
+  const totalBarriers = assessments.reduce(
+    (sum, a) => sum + a.environmental_barriers.length + a.attitudinal_barriers.length + a.institutional_barriers.length,
+    0,
+  )
+  const latestBudget = budgets[0]
+  const latestRatio = latestBudget ? Math.round(latestBudget.independence_ratio * 100) : 0
+
+  const barrierColor: Record<string, string> = {
+    environmental: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    attitudinal: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+    institutional: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400',
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard title="التقييمات" value={assessments.length} accent="navy" />
+        <StatCard title="مُصمّم مشتركاً" value={coDesignedCount} accent="teal" />
+        <StatCard title="عوائق محددة" value={totalBarriers} accent="gold" />
+        <StatCard title="نسبة الاستقلالية" value={`${latestRatio}%`} accent={latestRatio >= 50 ? 'teal' : latestRatio >= 30 ? 'gold' : 'danger'} />
+      </div>
+
+      {/* CRPD Assessments */}
+      <div>
+        <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
+          <Handshake className="h-5 w-5 text-teal" />
+          تقييمات التصميم المشترك (CRPD)
+        </h3>
+        <div className="space-y-3">
+          {assessments.map((assessment) => (
+            <motion.div key={assessment.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              <Card>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="font-bold text-slate-900 dark:text-white">{assessment.assessor_name}</span>
+                      <span className="text-xs text-slate-500">{assessment.assessment_date}</span>
+                    </div>
+                    <Badge className={assessment.is_plan_codesigned ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'}>
+                      {assessment.is_plan_codesigned ? 'تصميم مشترك' : 'غير مشترك'}
+                    </Badge>
+                  </div>
+
+                  {/* Barriers */}
+                  {(assessment.environmental_barriers.length > 0 || assessment.attitudinal_barriers.length > 0 || assessment.institutional_barriers.length > 0) && (
+                    <div>
+                      <p className="mb-1.5 text-xs font-medium text-slate-500">العوائق المحددة</p>
+                      <div className="flex flex-wrap gap-2">
+                        {assessment.environmental_barriers.map((b, i) => (
+                          <Badge key={`env-${i}`} className={barrierColor.environmental}>بيئي: {(b as Record<string, string>).description}</Badge>
+                        ))}
+                        {assessment.attitudinal_barriers.map((b, i) => (
+                          <Badge key={`att-${i}`} className={barrierColor.attitudinal}>سلوكي: {(b as Record<string, string>).description}</Badge>
+                        ))}
+                        {assessment.institutional_barriers.map((b, i) => (
+                          <Badge key={`inst-${i}`} className={barrierColor.institutional}>مؤسسي: {(b as Record<string, string>).description}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Aspirations & Support */}
+                  <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+                    {assessment.personal_aspirations && (
+                      <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                        <span className="text-slate-500">الطموحات: </span>
+                        <span className="font-medium text-slate-700 dark:text-slate-300">{assessment.personal_aspirations}</span>
+                      </div>
+                    )}
+                    {assessment.required_support_services && (
+                      <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                        <span className="text-slate-500">الخدمات المطلوبة: </span>
+                        <span className="font-medium text-slate-700 dark:text-slate-300">{assessment.required_support_services}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stakeholders */}
+                  {assessment.participating_stakeholders && (
+                    <p className="text-xs text-slate-500">المشاركون: {assessment.participating_stakeholders}</p>
+                  )}
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Independence Budget Comparison */}
+      {budgets.length > 0 && (
+        <div>
+          <h3 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
+            <Wallet className="h-5 w-5 text-gold" />
+            تحليل ميزانية الاستقلالية
+          </h3>
+          <div className="space-y-3">
+            {budgets.map((budget) => {
+              const ratio = Math.round(budget.independence_ratio * 100)
+              return (
+                <motion.div key={budget.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                  <Card className={cn(ratio >= 50 && 'border-r-4 border-r-emerald-500')}>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400">{budget.fiscal_year}</Badge>
+                          <span className="text-xs text-slate-500">{budget.analysis_date}</span>
+                        </div>
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                          {budget.total_budget.toLocaleString('ar-SA')} ر.س
+                        </span>
+                      </div>
+
+                      {/* Independence Ratio Progress */}
+                      <div className="flex items-center gap-3">
+                        <span className="min-w-[5rem] text-xs text-slate-500">نسبة الاستقلالية</span>
+                        <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                          <motion.div
+                            className={cn(
+                              'h-full rounded-full',
+                              ratio >= 50 ? 'bg-emerald-500' : ratio >= 30 ? 'bg-amber-500' : 'bg-red-500',
+                            )}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${ratio}%` }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                          />
+                        </div>
+                        <span className="min-w-[3rem] text-left text-sm font-bold text-slate-700 dark:text-slate-300">{ratio}%</span>
+                      </div>
+
+                      {/* Spending Breakdown */}
+                      <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                        <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                          <span className="text-slate-500">إنفاق الاعتماد</span>
+                          <p className="font-bold text-slate-700 dark:text-slate-300">{budget.dependency_spending.toLocaleString('ar-SA')}</p>
+                        </div>
+                        <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                          <span className="text-slate-500">إنفاق الاستقلالية</span>
+                          <p className="font-bold text-slate-700 dark:text-slate-300">{budget.independence_spending.toLocaleString('ar-SA')}</p>
+                        </div>
+                        <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                          <span className="text-slate-500">ميزانية التدريب</span>
+                          <p className="font-bold text-slate-700 dark:text-slate-300">{budget.training_budget.toLocaleString('ar-SA')}</p>
+                        </div>
+                        <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
+                          <span className="text-slate-500">الدمج المجتمعي</span>
+                          <p className="font-bold text-slate-700 dark:text-slate-300">{budget.community_integration_budget.toLocaleString('ar-SA')}</p>
+                        </div>
+                      </div>
+
+                      {/* Recommendations */}
+                      {budget.recommendations && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          التوصيات: {budget.recommendations}
+                        </p>
+                      )}
+                    </div>
+                  </Card>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

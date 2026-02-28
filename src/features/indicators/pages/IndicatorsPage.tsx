@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { BarChart, Bar, RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts'
 import {
   Activity, ArrowLeft, AlertTriangle, TrendingUp, TrendingDown, Minus, Eye,
   ChevronDown, ChevronUp, BarChart3, Users,
@@ -17,25 +18,28 @@ import { DEMO_INDICATORS, DEMO_BENCHMARKS, DEMO_HR_STATS, DEMO_ALERTS } from '..
 // ── Health Gauge Component ──────────────────────────────────────
 
 function HealthGauge({ score }: { score: number }) {
-  const circumference = 2 * Math.PI * 45
-  const progress = (score / 100) * circumference
-  const color = score >= 70 ? 'rgb(45, 180, 115)' : score >= 50 ? 'rgb(250, 180, 20)' : 'rgb(239, 68, 68)'
+  const color = score >= 70 ? '#2db473' : score >= 50 ? '#fab414' : '#ef4444'
+  const data = [{ value: score, fill: color }]
 
   return (
     <div className="flex flex-col items-center">
-      <svg width="120" height="120" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="45" fill="none" stroke="currentColor" strokeWidth="8" className="text-slate-200 dark:text-slate-700" />
-        <motion.circle
-          cx="60" cy="60" r="45" fill="none" stroke={color} strokeWidth="8"
-          strokeLinecap="round" strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: circumference - progress }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
-          transform="rotate(-90 60 60)"
-        />
-        <text x="60" y="55" textAnchor="middle" className="fill-slate-900 text-2xl font-bold dark:fill-white">{score}</text>
-        <text x="60" y="72" textAnchor="middle" className="fill-slate-500 text-xs">/100</text>
-      </svg>
+      <div className="relative" style={{ width: 120, height: 120 }}>
+        <ResponsiveContainer>
+          <RadialBarChart
+            innerRadius="70%"
+            outerRadius="100%"
+            data={data}
+            startAngle={90}
+            endAngle={-270}
+          >
+            <RadialBar dataKey="value" background={{ fill: 'var(--color-slate-200)' }} cornerRadius={8} />
+          </RadialBarChart>
+        </ResponsiveContainer>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-bold text-slate-900 dark:text-white">{score}</span>
+          <span className="text-xs text-slate-500">/100</span>
+        </div>
+      </div>
       <span className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">صحة المركز</span>
     </div>
   )
@@ -43,26 +47,14 @@ function HealthGauge({ score }: { score: number }) {
 
 // ── Sparkline Component ─────────────────────────────────────────
 
-function Sparkline({ data, color = 'bg-hrsd-teal' }: { data: number[]; color?: string }) {
-  const max = Math.max(...data)
-  const min = Math.min(...data)
-  const range = max - min || 1
-
+function Sparkline({ data, color = '#1E6B5C' }: { data: number[]; color?: string }) {
+  const chartData = data.map((v, i) => ({ v, i }))
   return (
-    <div className="flex items-end gap-px" style={{ height: 32 }}>
-      {data.map((v, i) => {
-        const h = ((v - min) / range) * 24 + 8
-        return (
-          <motion.div
-            key={i}
-            initial={{ height: 0 }}
-            animate={{ height: h }}
-            transition={{ duration: 0.3, delay: i * 0.03 }}
-            className={`flex-1 rounded-t ${i === data.length - 1 ? color : 'bg-slate-200 dark:bg-slate-600'}`}
-          />
-        )
-      })}
-    </div>
+    <ResponsiveContainer width="100%" height={32}>
+      <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+        <Bar dataKey="v" fill={color} radius={[2, 2, 0, 0]} animationDuration={300} />
+      </BarChart>
+    </ResponsiveContainer>
   )
 }
 
@@ -169,7 +161,7 @@ function IndicatorsGrid() {
                     {/* Sparkline */}
                     <Sparkline
                       data={ind.sparklineData}
-                      color={ind.status === 'critical' ? 'bg-red-500' : ind.status === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'}
+                      color={ind.status === 'critical' ? '#ef4444' : ind.status === 'warning' ? '#f59e0b' : '#10b981'}
                     />
                   </div>
                 </Card>

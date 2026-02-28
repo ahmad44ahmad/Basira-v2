@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { UtensilsCrossed, ClipboardCheck, Package, Plus, CheckCircle, XCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { UtensilsCrossed, ClipboardCheck, Package, Plus, CheckCircle, XCircle, AlertTriangle, ThumbsUp, ThumbsDown, Truck, Phone, Calendar, Users, ShieldAlert } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
@@ -15,6 +15,8 @@ import {
   type InventoryItem, type InventoryTransaction,
 } from '../types'
 import { useDailyMeals, useUpdateMealStatus, useInventory, useInventoryTransactions } from '../api/catering-queries'
+import { useCateringSuppliers } from '../api/supplier-queries'
+import type { CateringSupplier } from '@/types/database'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -25,6 +27,7 @@ export function CateringPage() {
     { id: 'daily', label: 'السجل اليومي' },
     { id: 'quality', label: 'مراقبة الجودة' },
     { id: 'inventory', label: 'المخزون' },
+    { id: 'suppliers', label: 'الموردون' },
   ]
 
   return (
@@ -41,6 +44,7 @@ export function CateringPage() {
         {activeTab === 'daily' && <DailyLogSection />}
         {activeTab === 'quality' && <QualitySection />}
         {activeTab === 'inventory' && <InventorySection />}
+        {activeTab === 'suppliers' && <SuppliersSection />}
       </div>
     </div>
   )
@@ -373,6 +377,128 @@ function InventorySection() {
           })}
         </div>
       )}
+    </>
+  )
+}
+
+// ─── Suppliers Section ─────────────────────────────────────────
+
+const SUPPLIER_STATUS_CONFIG: Record<CateringSupplier['status'], { label: string; color: string }> = {
+  active: { label: 'نشط', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  suspended: { label: 'معلّق', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
+  terminated: { label: 'منتهي', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+}
+
+function SuppliersSection() {
+  const { data: suppliers = [], isLoading, error } = useCateringSuppliers()
+
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
+  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (suppliers.length === 0) return <EmptyState title="لا يوجد موردون" description="لم يتم تسجيل أي موردين حتى الآن" />
+
+  const today = new Date().toISOString().split('T')[0]
+  const activeSuppliers = suppliers.filter((s) => s.status === 'active')
+  const emergencyBackups = suppliers.filter((s) => s.is_emergency_backup && s.status === 'active')
+  const totalCapacity = activeSuppliers.reduce((sum, s) => sum + (s.capacity_limit ?? 0), 0)
+  const expiringContracts = activeSuppliers.filter((s) => {
+    if (!s.contract_end) return false
+    const daysLeft = Math.ceil((new Date(s.contract_end).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
+    return daysLeft >= 0 && daysLeft <= 90
+  })
+
+  return (
+    <>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard title="موردون نشطون" value={activeSuppliers.length} accent="teal" />
+        <StatCard title="احتياطي طوارئ" value={emergencyBackups.length} accent="danger" />
+        <StatCard title="السعة الإجمالية" value={totalCapacity} accent="navy" />
+        <StatCard title="عقود قاربت الانتهاء" value={expiringContracts.length} accent="gold" />
+      </div>
+
+      <div className="space-y-3">
+        <AnimatePresence>
+          {suppliers.map((supplier) => {
+            const statusConfig = SUPPLIER_STATUS_CONFIG[supplier.status]
+            const daysLeft = supplier.contract_end
+              ? Math.ceil((new Date(supplier.contract_end).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24))
+              : null
+            const isExpiringSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 90
+
+            return (
+              <motion.div key={supplier.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <Card className={cn(supplier.is_emergency_backup && 'border-r-4 border-r-red-500')}>
+                  <div className="space-y-3">
+                    {/* Header row */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">{supplier.supplier_name}</h3>
+                          <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                          {supplier.is_emergency_backup && (
+                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                              <Truck className="ml-1 inline h-3 w-3" />
+                              احتياطي طوارئ
+                            </Badge>
+                          )}
+                          {isExpiringSoon && supplier.status === 'active' && (
+                            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                              <ShieldAlert className="ml-1 inline h-3 w-3" />
+                              ينتهي خلال {daysLeft} يوم
+                            </Badge>
+                          )}
+                        </div>
+                        {supplier.contract_number && (
+                          <p className="mt-0.5 text-xs text-slate-500">عقد رقم: {supplier.contract_number}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Details row */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                      {supplier.service_type && (
+                        <span className="flex items-center gap-1">
+                          <UtensilsCrossed className="h-3 w-3" />
+                          {supplier.service_type}
+                        </span>
+                      )}
+                      {supplier.capacity_limit != null && (
+                        <span className="flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          سعة: {supplier.capacity_limit} وجبة
+                        </span>
+                      )}
+                      {supplier.is_emergency_backup && supplier.mobilization_time_hours != null && (
+                        <span className="flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3 text-red-500" />
+                          جاهزية: {supplier.mobilization_time_hours} ساعات
+                        </span>
+                      )}
+                      {supplier.contact_name && (
+                        <span className="flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {supplier.contact_name}
+                          {supplier.contact_phone && ` — ${supplier.contact_phone}`}
+                        </span>
+                      )}
+                      {(supplier.contract_start || supplier.contract_end) && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {supplier.contract_start ?? '—'} → {supplier.contract_end ?? '—'}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Notes */}
+                    {supplier.notes && (
+                      <p className="text-xs text-slate-400 dark:text-slate-500">{supplier.notes}</p>
+                    )}
+                  </div>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+      </div>
     </>
   )
 }

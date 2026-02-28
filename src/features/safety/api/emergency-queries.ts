@@ -29,7 +29,10 @@ export function useCreatePeepPlan() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: EmergencyPeepPlanInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `peep${Date.now()}`, created_at: new Date().toISOString() } as EmergencyPeepPlan
+      }
       const { data: row, error } = await supabase
         .from('emergency_peep_plans')
         .insert(data)
@@ -69,7 +72,10 @@ export function useCreateEquipmentInspection() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: EmergencyEquipmentReadinessInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `eqp${Date.now()}`, created_at: new Date().toISOString() } as EmergencyEquipmentReadiness
+      }
       const { data: row, error } = await supabase
         .from('emergency_equipment_readiness')
         .insert(data)

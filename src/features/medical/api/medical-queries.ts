@@ -54,7 +54,10 @@ export function useUpdateMedicalProfile() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<MedicalProfileInsert> }) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return
+      }
       const { error } = await supabase
         .from('medical_profiles')
         .update(updates)

@@ -90,6 +90,8 @@ export const queryKeys = {
     templates: () => [...queryKeys.empowerment.all, 'templates'] as const,
     trainingReferrals: () => [...queryKeys.empowerment.all, 'training-referrals'] as const,
     trainingEvaluations: () => [...queryKeys.empowerment.all, 'training-evaluations'] as const,
+    crpdAssessments: () => [...queryKeys.empowerment.all, 'crpd-assessments'] as const,
+    independenceBudget: () => [...queryKeys.empowerment.all, 'independence-budget'] as const,
   },
   family: {
     all: ['family'] as const,
@@ -107,6 +109,7 @@ export const queryKeys = {
     meals: (date?: string) => [...queryKeys.catering.all, 'meals', date] as const,
     inventory: () => [...queryKeys.catering.all, 'inventory'] as const,
     evaluations: () => [...queryKeys.catering.all, 'evaluations'] as const,
+    suppliers: () => [...queryKeys.catering.all, 'suppliers'] as const,
   },
   operations: {
     all: ['operations'] as const,
@@ -140,6 +143,7 @@ export const queryKeys = {
     surveysByBeneficiary: (id: string) => [...queryKeys.feedback.all, 'surveys', id] as const,
     mood: () => [...queryKeys.feedback.all, 'mood'] as const,
     stressAlerts: () => [...queryKeys.feedback.all, 'stress-alerts'] as const,
+    moodTelemetry: () => [...queryKeys.feedback.all, 'mood-telemetry'] as const,
   },
   emergency: {
     all: ['emergency'] as const,

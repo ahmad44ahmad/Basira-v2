@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import {
   Users, HeartPulse, AlertTriangle, TrendingUp, Target, FileCheck, Activity,
   Clock, Database, Cloud, Shield, ChevronLeft,
@@ -12,6 +13,8 @@ import { useBeneficiaryStats } from '@/features/beneficiaries'
 import { useRehabGoals } from '@/features/empowerment/api/empowerment-queries'
 import { useRisks } from '@/features/grc/api/grc-queries'
 import { useMaintenanceRequests } from '@/features/operations/api/operations-queries'
+
+const DEPT_COLORS = ['#1E6B5C', '#14415A', '#F59601', '#3b82f6', '#8b5cf6']
 
 // ── Quick Links ─────────────────────────────────────────────────
 
@@ -102,27 +105,18 @@ export function DashboardPage() {
                 أداء الأقسام (معدل إنجاز الأهداف)
               </CardTitle>
             </CardHeader>
-            <div className="space-y-4">
-              {DEPARTMENT_PERFORMANCE.map((dept, i) => (
-                <div key={dept.type}>
-                  <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{dept.label}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500">{dept.total} هدف</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{dept.progress}%</span>
-                    </div>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${dept.progress}%` }}
-                      transition={{ duration: 0.8, delay: i * 0.1 }}
-                      className={`h-full rounded-full ${dept.color}`}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={DEPARTMENT_PERFORMANCE.length * 50}>
+              <BarChart data={DEPARTMENT_PERFORMANCE} layout="vertical" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
+                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                <YAxis type="category" dataKey="label" tick={{ fontSize: 12, fill: '#94a3b8' }} width={80} />
+                <Tooltip formatter={(value: number) => [`${value}%`, 'الإنجاز']} />
+                <Bar dataKey="progress" radius={[0, 4, 4, 0]} animationDuration={800}>
+                  {DEPARTMENT_PERFORMANCE.map((entry, index) => (
+                    <Cell key={index} fill={DEPT_COLORS[index % DEPT_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </Card>
 
           {/* Recent Activity */}
@@ -165,21 +159,14 @@ export function DashboardPage() {
             <CardHeader>
               <CardTitle>اتجاه الامتثال الأسبوعي</CardTitle>
             </CardHeader>
-            <div className="flex items-end gap-3" style={{ height: 120 }}>
-              {COMPLIANCE_TREND.map((week, i) => (
-                <div key={i} className="flex flex-1 flex-col items-center gap-1">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">{week.value}%</span>
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${week.value}%` }}
-                    transition={{ duration: 0.6, delay: i * 0.1 }}
-                    className="w-full rounded-t-lg bg-gradient-to-t from-hrsd-teal to-emerald-400"
-                    style={{ maxHeight: 100 }}
-                  />
-                  <span className="text-[10px] text-slate-500">{week.label}</span>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={140}>
+              <BarChart data={COMPLIANCE_TREND} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} width={30} />
+                <Tooltip formatter={(value: number) => [`${value}%`, 'الامتثال']} />
+                <Bar dataKey="value" fill="#1E6B5C" radius={[4, 4, 0, 0]} animationDuration={600} />
+              </BarChart>
+            </ResponsiveContainer>
           </Card>
         </div>
 

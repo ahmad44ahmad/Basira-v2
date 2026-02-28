@@ -373,6 +373,26 @@ export type Database = {
         Insert: DentalSterilizationInsert
         Update: Partial<DentalSterilizationInsert>
       }
+      crpd_support_assessments: {
+        Row: CRPDSupportAssessment
+        Insert: CRPDSupportAssessmentInsert
+        Update: Partial<CRPDSupportAssessmentInsert>
+      }
+      independence_budget_analysis: {
+        Row: IndependenceBudgetAnalysis
+        Insert: IndependenceBudgetAnalysisInsert
+        Update: Partial<IndependenceBudgetAnalysisInsert>
+      }
+      mood_bracelet_telemetry: {
+        Row: MoodBraceletTelemetry
+        Insert: MoodBraceletTelemetryInsert
+        Update: Partial<MoodBraceletTelemetryInsert>
+      }
+      catering_suppliers: {
+        Row: CateringSupplier
+        Insert: CateringSupplierInsert
+        Update: Partial<CateringSupplierInsert>
+      }
     }
     Functions: Record<string, unknown>
     Enums: Record<string, unknown>
@@ -1823,3 +1843,72 @@ export interface DentalSterilization {
   created_at: string
 }
 export type DentalSterilizationInsert = Omit<DentalSterilization, 'id' | 'created_at'>
+
+// ===== CRPD Support Assessments (Chapter 2) =====
+export interface CRPDSupportAssessment {
+  id: string
+  beneficiary_id: string
+  assessment_date: string
+  assessor_name: string
+  environmental_barriers: Record<string, unknown>[]
+  attitudinal_barriers: Record<string, unknown>[]
+  institutional_barriers: Record<string, unknown>[]
+  personal_aspirations: string | null
+  required_support_services: string | null
+  is_plan_codesigned: boolean
+  participating_stakeholders: string | null
+  created_at: string
+}
+export type CRPDSupportAssessmentInsert = Omit<CRPDSupportAssessment, 'id' | 'created_at'>
+
+// ===== Independence Budget Analysis (Chapter 2) =====
+export interface IndependenceBudgetAnalysis {
+  id: string
+  beneficiary_id: string
+  fiscal_year: string
+  analysis_date: string
+  dependency_spending: number
+  independence_spending: number
+  training_budget: number
+  community_integration_budget: number
+  total_budget: number
+  independence_ratio: number
+  recommendations: string | null
+  created_at: string
+}
+export type IndependenceBudgetAnalysisInsert = Omit<IndependenceBudgetAnalysis, 'id' | 'created_at' | 'total_budget' | 'independence_ratio'>
+
+// ===== Mood Bracelet Telemetry (Chapter 3) =====
+export interface MoodBraceletTelemetry {
+  id: string
+  beneficiary_id: string
+  recorded_timestamp: string
+  voluntary_button_press: 'green' | 'yellow' | 'red' | 'blue' | 'none' | null
+  heart_rate_bpm: number | null
+  skin_conductance: number | null
+  calculated_stress_anomaly: 'normal' | 'elevated' | 'critical_warning' | null
+  emotional_valence: 'positive' | 'neutral' | 'negative' | null
+  current_activity_context: string | null
+  location_context: string | null
+  created_at: string
+}
+export type MoodBraceletTelemetryInsert = Omit<MoodBraceletTelemetry, 'id' | 'created_at'>
+
+// ===== Catering Suppliers (Chapter 6) =====
+export interface CateringSupplier {
+  id: string
+  supplier_name: string
+  contract_number: string | null
+  service_type: string | null
+  contract_start: string | null
+  contract_end: string | null
+  is_emergency_backup: boolean
+  mobilization_time_hours: number | null
+  capacity_limit: number | null
+  status: 'active' | 'suspended' | 'terminated'
+  contact_name: string | null
+  contact_phone: string | null
+  notes: string | null
+  created_at: string
+}
+export type CateringSupplierInsert = Omit<CateringSupplier, 'id' | 'created_at'>

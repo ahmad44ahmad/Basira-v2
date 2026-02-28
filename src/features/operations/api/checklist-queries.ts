@@ -111,7 +111,10 @@ export function useCreateMaintenanceChecklist() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: MaintenanceChecklistInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `mc${Date.now()}`, created_at: new Date().toISOString() } as MaintenanceChecklist
+      }
       const { data: row, error } = await supabase
         .from('maintenance_checklists')
         .insert(data)

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import {
   Target, TrendingUp, TrendingDown, ArrowLeft, Shield, HeartPulse, Smile, Settings,
   Calculator, Leaf, BarChart3, ChevronDown, ChevronUp, FileText, Minus,
@@ -155,25 +156,15 @@ function StrategicSection() {
                         {/* Mini trend */}
                         <div>
                           <h4 className="mb-2 text-xs font-medium text-slate-500">الاتجاه (آخر 6 أشهر)</h4>
-                          <div className="flex items-end gap-1" style={{ height: 48 }}>
-                            {kpi.monthlyTrend.map((val, i) => {
-                              const max = Math.max(...kpi.monthlyTrend)
-                              const min = Math.min(...kpi.monthlyTrend)
-                              const range = max - min || 1
-                              const h = ((val - min) / range) * 40 + 8
-                              return (
-                                <div key={i} className="flex flex-1 flex-col items-center gap-0.5">
-                                  <motion.div
-                                    initial={{ height: 0 }}
-                                    animate={{ height: h }}
-                                    transition={{ duration: 0.5, delay: i * 0.05 }}
-                                    className={`w-full rounded-t ${i === kpi.monthlyTrend.length - 1 ? 'bg-hrsd-teal' : 'bg-slate-200 dark:bg-slate-600'}`}
-                                  />
-                                  <span className="text-[9px] text-slate-400">{TREND_MONTHS[i]?.slice(0, 3)}</span>
-                                </div>
-                              )
-                            })}
-                          </div>
+                          <ResponsiveContainer width="100%" height={48}>
+                            <BarChart data={kpi.monthlyTrend.map((v, i) => ({ value: v, month: TREND_MONTHS[i]?.slice(0, 3) ?? '' }))} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                              <Bar dataKey="value" radius={[2, 2, 0, 0]} animationDuration={500}>
+                                {kpi.monthlyTrend.map((_, i) => (
+                                  <Cell key={i} fill={i === kpi.monthlyTrend.length - 1 ? '#1E6B5C' : '#e2e8f0'} />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
                         </div>
 
                         {/* Thresholds */}
@@ -293,43 +284,21 @@ function SroiSection() {
         <CardHeader>
           <CardTitle>الإسقاط المالي لـ 12 شهراً</CardTitle>
         </CardHeader>
-        <div className="space-y-2">
-          {result.projections.filter((_, i) => i % 3 === 0).map((p, i) => {
-            const maxVal = Math.max(p.traditionalCost, p.empowermentCost, p.economicValue)
-            return (
-              <div key={i} className="space-y-1">
-                <div className="text-xs font-medium text-slate-600 dark:text-slate-400">{p.month}</div>
-                <div className="flex gap-1">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(p.traditionalCost / maxVal) * 100}%` }}
-                    className="h-4 rounded bg-red-400 dark:bg-red-500"
-                    title={`تكلفة تقليدية: ${(p.traditionalCost / 1000).toFixed(0)}K`}
-                  />
-                </div>
-                <div className="flex gap-1">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(p.empowermentCost / maxVal) * 100}%` }}
-                    className="h-4 rounded bg-teal-400 dark:bg-teal-500"
-                    title={`نموذج التمكين: ${(p.empowermentCost / 1000).toFixed(0)}K`}
-                  />
-                </div>
-                <div className="flex gap-1">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(p.economicValue / maxVal) * 100}%` }}
-                    className="h-4 rounded bg-amber-400 dark:bg-amber-500"
-                    title={`قيمة اقتصادية: ${(p.economicValue / 1000).toFixed(0)}K`}
-                  />
-                </div>
-              </div>
-            )
-          })}
+        <div>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={result.projections.filter((_, i) => i % 3 === 0)} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+              <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} width={40} />
+              <Tooltip formatter={(value: number) => [`${(value / 1000).toFixed(0)}K ريال`, '']} />
+              <Bar dataKey="traditionalCost" name="التكلفة التقليدية" fill="#f87171" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="empowermentCost" name="نموذج التمكين" fill="#2dd4bf" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="economicValue" name="القيمة الاقتصادية" fill="#fbbf24" radius={[2, 2, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
           <div className="mt-3 flex gap-4 text-xs text-slate-500">
-            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded bg-red-400" /> التكلفة التقليدية</span>
-            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded bg-teal-400" /> نموذج التمكين</span>
-            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded bg-amber-400" /> القيمة الاقتصادية</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: '#f87171' }} /> التكلفة التقليدية</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: '#2dd4bf' }} /> نموذج التمكين</span>
+            <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: '#fbbf24' }} /> القيمة الاقتصادية</span>
           </div>
         </div>
       </Card>

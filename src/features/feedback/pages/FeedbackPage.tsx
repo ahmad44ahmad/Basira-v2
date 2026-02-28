@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { useVisualSurveys } from '../api/feedback-queries'
 import { VisualSurvey } from '../components/VisualSurvey'
 import { MoodCurveDashboard } from '../components/MoodCurveDashboard'
+import { MoodTelemetrySection } from '../components/MoodTelemetrySection'
 
 export function FeedbackPage() {
   const [activeTab, setActiveTab] = useState('survey')
@@ -18,6 +19,7 @@ export function FeedbackPage() {
   const tabs = [
     { id: 'survey', label: 'الاستبيان البصري' },
     { id: 'mood', label: 'لوحة المزاج' },
+    { id: 'telemetry', label: 'القياس الحيوي' },
   ]
 
   return (
@@ -55,6 +57,7 @@ export function FeedbackPage() {
         >
           {activeTab === 'survey' && <VisualSurvey />}
           {activeTab === 'mood' && <MoodCurveDashboard />}
+          {activeTab === 'telemetry' && <MoodTelemetrySection />}
         </motion.div>
       </AnimatePresence>
     </div>

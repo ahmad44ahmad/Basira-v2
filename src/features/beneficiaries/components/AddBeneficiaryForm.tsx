@@ -8,6 +8,7 @@ import { Button, Input, Select, Modal } from '@/components/ui'
 import { beneficiarySchema, vitalSignsSchema } from '@/utils/validation'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
+import { useCreateBeneficiary } from '../api/beneficiary-queries'
 
 // Step 1: Personal
 const step1Schema = beneficiarySchema
@@ -56,6 +57,7 @@ export function AddBeneficiaryForm({ open, onClose, onSuccess }: AddBeneficiaryF
   const [currentStep, setCurrentStep] = useState(1)
   const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
   const [step2Data, setStep2Data] = useState<Step2Data | null>(null)
+  const createMutation = useCreateBeneficiary()
 
   const form1 = useForm<Step1Data>({ resolver: zodResolver(step1Schema) })
   const form2 = useForm<Step2Data>({ resolver: zodResolver(step2Schema) })
@@ -71,11 +73,50 @@ export function AddBeneficiaryForm({ open, onClose, onSuccess }: AddBeneficiaryF
     setCurrentStep(3)
   })
 
-  const handleStep3 = form3.handleSubmit((_data) => {
-    // In production: combine all steps and call useCreateBeneficiary
-    toast.success('تم إضافة المستفيد بنجاح')
-    onSuccess()
-    handleClose()
+  const handleStep3 = form3.handleSubmit(async (data) => {
+    if (!step1Data || !step2Data) return
+
+    // Build medical notes from step 2 diagnosis + step 3 history
+    const diagnosisLabel = diagnosisOptions.find((d) => d.value === step2Data.primaryDiagnosis)?.label ?? step2Data.primaryDiagnosis
+    const medicalParts = [diagnosisLabel]
+    if (step2Data.isEpileptic) medicalParts.push('صرع')
+    if (data.chronicDiseases) medicalParts.push(data.chronicDiseases)
+
+    const notesParts: string[] = []
+    if (data.surgeries) notesParts.push(`العمليات: ${data.surgeries}`)
+    if (data.allergies) notesParts.push(`الحساسيات: ${data.allergies}`)
+    if (data.lastSeizureDate) notesParts.push(`آخر نوبة: ${data.lastSeizureDate}`)
+    if (data.seizureFrequency) notesParts.push(`تكرار النوبات: ${data.seizureFrequency}`)
+
+    const insertData = {
+      file_number: `BEN-${Date.now()}`,
+      full_name: step1Data.fullName,
+      national_id: step1Data.nationalId,
+      gender: step1Data.gender,
+      date_of_birth: step1Data.dateOfBirth,
+      nationality: step1Data.nationality,
+      section: step1Data.section,
+      room_number: step1Data.roomNumber ?? null,
+      bed_number: step1Data.bedNumber ?? null,
+      admission_date: new Date().toISOString().split('T')[0],
+      discharge_date: null,
+      status: 'نشط' as const,
+      evacuation_category: null,
+      guardian_name: step1Data.guardianName ?? null,
+      guardian_phone: step1Data.guardianPhone ?? null,
+      guardian_relation: step1Data.guardianRelation ?? null,
+      medical_diagnosis: medicalParts.join(' | '),
+      notes: notesParts.length > 0 ? notesParts.join('\n') : null,
+    }
+
+    try {
+      await createMutation.mutateAsync(insertData)
+      toast.success('تم إضافة المستفيد بنجاح')
+      onSuccess()
+      handleClose()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'حدث خطأ أثناء إضافة المستفيد')
+    }
   })
 
   const handleClose = () => {
@@ -243,7 +284,7 @@ export function AddBeneficiaryForm({ open, onClose, onSuccess }: AddBeneficiaryF
 
               <div className="flex justify-between">
                 <Button type="button" variant="outline" onClick={() => setCurrentStep(2)} icon={<ChevronRight className="h-4 w-4" />}>السابق</Button>
-                <Button type="submit" variant="gold" icon={<Check className="h-4 w-4" />}>حفظ المستفيد</Button>
+                <Button type="submit" variant="gold" icon={<Check className="h-4 w-4" />} disabled={createMutation.isPending} loading={createMutation.isPending}>حفظ المستفيد</Button>
               </div>
             </form>
           )}

@@ -39,7 +39,10 @@ export function useUpdateMealStatus() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return
+      }
       const { error } = await supabase
         .from('daily_meals')
         .update({ status, delivered_at: status === 'delivered' ? new Date().toISOString() : null })

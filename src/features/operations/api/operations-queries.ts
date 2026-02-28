@@ -76,7 +76,10 @@ export function useCreateMaintenanceRequest() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: OmMaintenanceRequestInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `maint${Date.now()}`, created_at: new Date().toISOString() } as OmMaintenanceRequest
+      }
       const { data: row, error } = await supabase
         .from('om_maintenance_requests')
         .insert(data)
@@ -95,7 +98,10 @@ export function useUpdateMaintenanceStatus() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return
+      }
       const { error } = await supabase
         .from('om_maintenance_requests')
         .update({ status })

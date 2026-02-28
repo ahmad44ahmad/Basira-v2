@@ -29,7 +29,10 @@ export function useCreateFallRiskAssessment() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (data: FallRiskAssessmentInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...data, id: `fra${Date.now()}`, created_at: new Date().toISOString() } as FallRiskAssessment
+      }
       const { data: row, error } = await supabase
         .from('fall_risk_assessments')
         .insert(data)
@@ -70,7 +73,10 @@ export function useResolveRiskAlert() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, acknowledgedBy }: { id: string; acknowledgedBy: string }) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return
+      }
       const { error } = await supabase
         .from('risk_alerts')
         .update({ status: 'resolved', acknowledged_by: acknowledgedBy, resolved_at: new Date().toISOString() })

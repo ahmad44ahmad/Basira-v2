@@ -29,11 +29,14 @@ export function useLifePlans(beneficiaryId?: string) {
 export function useCreateLifePlan() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: IndividualLifePlanInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+    mutationFn: async (input: IndividualLifePlanInsert) => {
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...input, id: `lp${Date.now()}`, created_at: new Date().toISOString() } as IndividualLifePlan
+      }
       const { data: row, error } = await supabase
         .from('individual_life_plans')
-        .insert(data)
+        .insert(input)
         .select()
         .single()
       if (error) throw error

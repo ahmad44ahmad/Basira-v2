@@ -37,7 +37,6 @@ const navSections: NavSection[] = [
     icon: <LayoutDashboard className="h-5 w-5" />,
     items: [
       { to: '/dashboard', label: 'لوحة القيادة' },
-      { to: '/pulse', label: 'النبض اليومي' },
     ],
   },
   {

@@ -86,11 +86,14 @@ export function useBeneficiary(id: string | undefined) {
 export function useCreateBeneficiary() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: BeneficiaryInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+    mutationFn: async (input: BeneficiaryInsert) => {
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...input, id: `ben${Date.now()}`, created_at: new Date().toISOString() } as Beneficiary
+      }
       const { data: row, error } = await supabase
         .from('beneficiaries')
-        .insert(data)
+        .insert(input)
         .select()
         .single()
       if (error) throw error
@@ -106,7 +109,10 @@ export function useUpdateBeneficiary() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<BeneficiaryInsert> }) => {
-      if (!supabase) throw new Error('Supabase not configured')
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return
+      }
       const { error } = await supabase
         .from('beneficiaries')
         .update(updates)

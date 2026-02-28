@@ -147,11 +147,14 @@ export function useTrainingReferrals() {
 export function useCreateTrainingReferral() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: TrainingReferralInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+    mutationFn: async (input: TrainingReferralInsert) => {
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...input, id: `tr${Date.now()}`, created_at: new Date().toISOString() } as TrainingReferral
+      }
       const { data: row, error } = await supabase
         .from('training_referrals')
-        .insert(data)
+        .insert(input)
         .select()
         .single()
       if (error) throw error
@@ -187,11 +190,14 @@ export function useTrainingEvaluations() {
 export function useCreateTrainingEvaluation() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: TrainingEvaluationInsert) => {
-      if (!supabase) throw new Error('Supabase not configured')
+    mutationFn: async (input: TrainingEvaluationInsert) => {
+      if (isDemoMode || !supabase) {
+        await new Promise((r) => setTimeout(r, 300))
+        return { ...input, id: `te${Date.now()}`, created_at: new Date().toISOString() } as TrainingEvaluation
+      }
       const { data: row, error } = await supabase
         .from('training_evaluations')
-        .insert(data)
+        .insert(input)
         .select()
         .single()
       if (error) throw error

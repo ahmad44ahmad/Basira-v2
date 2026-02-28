@@ -19,12 +19,7 @@ export const useUIStore = create<UIState>()(
       commandMenuOpen: false,
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
-      toggleDarkMode: () =>
-        set((s) => {
-          const next = !s.darkMode
-          document.body.parentElement?.classList.toggle('dark', next)
-          return { darkMode: next }
-        }),
+      toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
       setCommandMenuOpen: (open) => set({ commandMenuOpen: open }),
     }),
     {

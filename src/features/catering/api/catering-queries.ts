@@ -92,7 +92,7 @@ export function useInventory() {
 
 export function useInventoryTransactions() {
   return useQuery({
-    queryKey: [...queryKeys.catering.all, 'transactions'] as const,
+    queryKey: queryKeys.catering.transactions(),
     queryFn: async (): Promise<InventoryTransaction[]> => DEMO_TRANSACTIONS,
   })
 }

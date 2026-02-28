@@ -96,7 +96,7 @@ export function useComplianceRequirements() {
 
 export function useSafetyIncidents() {
   return useQuery({
-    queryKey: [...queryKeys.grc.all, 'safety'] as const,
+    queryKey: queryKeys.grc.safety(),
     queryFn: async (): Promise<SafetyIncident[]> => DEMO_SAFETY,
   })
 }

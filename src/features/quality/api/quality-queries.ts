@@ -74,7 +74,7 @@ export function useAuditCycles() {
 
 export function useOVRReports() {
   return useQuery({
-    queryKey: [...queryKeys.quality.all, 'ovrs'] as const,
+    queryKey: queryKeys.quality.ovrs(),
     queryFn: async (): Promise<OvrReport[]> => DEMO_OVRS,
   })
 }

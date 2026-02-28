@@ -36,7 +36,8 @@ export function LoginPage() {
       await signIn(data.email, data.password)
       toast.success('تم تسجيل الدخول بنجاح')
       navigate('/dashboard')
-    } catch {
+    } catch (err) {
+      console.error('Login failed:', err)
       toast.error('خطأ في البريد الإلكتروني أو كلمة المرور')
     } finally {
       setLoading(false)
@@ -93,6 +94,7 @@ export function LoginPage() {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>

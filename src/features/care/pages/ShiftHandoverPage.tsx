@@ -3,7 +3,7 @@ import { FileText, Plus, Check, Clock, AlertTriangle, Activity, UserCheck } from
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Spinner } from '@/components/ui'
+import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal, Spinner, Tabs } from '@/components/ui'
 import { EmptyState } from '@/components/feedback'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
@@ -83,31 +83,15 @@ export function ShiftHandoverPage() {
         }
       />
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-6 border-b border-slate-200 dark:border-slate-700">
-        <button
-          onClick={() => setActiveTab('handover')}
-          className={cn(
-            'px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
-            activeTab === 'handover'
-              ? 'border-teal-600 text-teal-700 dark:text-teal-400'
-              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400'
-          )}
-        >
-          بنود التسليم
-        </button>
-        <button
-          onClick={() => setActiveTab('wellbeing')}
-          className={cn(
-            'px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
-            activeTab === 'wellbeing'
-              ? 'border-teal-600 text-teal-700 dark:text-teal-400'
-              : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400'
-          )}
-        >
-          رفاهية الموظفين
-        </button>
-      </div>
+      <Tabs
+        tabs={[
+          { id: 'handover', label: 'بنود التسليم' },
+          { id: 'wellbeing', label: 'رفاهية الموظفين' },
+        ]}
+        activeTab={activeTab}
+        onChange={(id) => setActiveTab(id as 'handover' | 'wellbeing')}
+        className="mb-6"
+      />
 
       {activeTab === 'wellbeing' ? (
         <StaffWellbeingSection />

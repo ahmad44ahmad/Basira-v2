@@ -53,6 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         loading: false,
       }))
+    }).catch(() => {
+      setState((s) => ({ ...s, loading: false }))
     })
 
     const {

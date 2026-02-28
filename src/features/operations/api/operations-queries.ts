@@ -118,7 +118,7 @@ export function useUpdateMaintenanceStatus() {
 
 export function useWasteRecords() {
   return useQuery({
-    queryKey: [...queryKeys.operations.all, 'waste'] as const,
+    queryKey: queryKeys.operations.waste(),
     queryFn: async (): Promise<WasteRecord[]> => DEMO_WASTE,
   })
 }

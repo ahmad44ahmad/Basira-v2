@@ -43,6 +43,7 @@ export function Header() {
         <button
           onClick={toggleSidebar}
           className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden dark:hover:bg-slate-800"
+          aria-label="القائمة الجانبية"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -68,11 +69,12 @@ export function Header() {
           onClick={toggleDarkMode}
           className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
           title={darkMode ? 'الوضع الفاتح' : 'الوضع الداكن'}
+          aria-label={darkMode ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
         >
           {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </button>
 
-        <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button className="relative rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="الإشعارات">
           <Bell className="h-5 w-5" />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-danger" />
         </button>

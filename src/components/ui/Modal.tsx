@@ -54,6 +54,9 @@ export function Modal({ open, onClose, title, size = 'md', children, className }
 
           {/* Content */}
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -72,6 +75,7 @@ export function Modal({ open, onClose, title, size = 'md', children, className }
                 <button
                   onClick={onClose}
                   className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+                  aria-label="إغلاق"
                 >
                   <X className="h-5 w-5" />
                 </button>

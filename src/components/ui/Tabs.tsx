@@ -33,10 +33,13 @@ export function Tabs({ tabs, defaultTab, activeTab: controlledTab, onChange, cla
   return (
     <div className={className}>
       {/* Tab Headers */}
-      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700" role="tablist">
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            id={`tab-${tab.id}`}
+            role="tab"
+            aria-selected={tab.id === currentTab}
             onClick={() => handleChange(tab.id)}
             className={cn(
               'relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors',
@@ -60,7 +63,7 @@ export function Tabs({ tabs, defaultTab, activeTab: controlledTab, onChange, cla
 
       {/* Tab Content — only rendered when using uncontrolled mode with content */}
       {active?.content && (
-        <div className="pt-4">
+        <div className="pt-4" role="tabpanel" aria-labelledby={`tab-${currentTab}`}>
           {active.content}
         </div>
       )}

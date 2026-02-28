@@ -110,6 +110,7 @@ export const queryKeys = {
     inventory: () => [...queryKeys.catering.all, 'inventory'] as const,
     evaluations: () => [...queryKeys.catering.all, 'evaluations'] as const,
     suppliers: () => [...queryKeys.catering.all, 'suppliers'] as const,
+    transactions: () => [...queryKeys.catering.all, 'transactions'] as const,
   },
   operations: {
     all: ['operations'] as const,
@@ -118,6 +119,7 @@ export const queryKeys = {
     preventive: () => [...queryKeys.operations.all, 'preventive'] as const,
     categories: () => [...queryKeys.operations.all, 'categories'] as const,
     checklists: () => [...queryKeys.operations.all, 'checklists'] as const,
+    waste: () => [...queryKeys.operations.all, 'waste'] as const,
   },
   quality: {
     all: ['quality'] as const,
@@ -125,12 +127,14 @@ export const queryKeys = {
     audits: () => [...queryKeys.quality.all, 'audits'] as const,
     cycles: () => [...queryKeys.quality.all, 'cycles'] as const,
     findings: () => [...queryKeys.quality.all, 'findings'] as const,
+    ovrs: () => [...queryKeys.quality.all, 'ovrs'] as const,
   },
   grc: {
     all: ['grc'] as const,
     risks: () => [...queryKeys.grc.all, 'risks'] as const,
     compliance: () => [...queryKeys.grc.all, 'compliance'] as const,
     abuseReports: () => [...queryKeys.grc.all, 'abuse-reports'] as const,
+    safety: () => [...queryKeys.grc.all, 'safety'] as const,
   },
   stats: {
     all: ['stats'] as const,
@@ -175,6 +179,13 @@ export const queryKeys = {
     records: () => [...queryKeys.dental.all, 'records'] as const,
     hygieneLogs: () => [...queryKeys.dental.all, 'hygiene-logs'] as const,
     sterilization: () => [...queryKeys.dental.all, 'sterilization'] as const,
+  },
+  indicators: {
+    all: ['indicators'] as const,
+    smart: () => [...queryKeys.indicators.all, 'smart'] as const,
+    benchmarks: () => [...queryKeys.indicators.all, 'benchmarks'] as const,
+    hrImpact: () => [...queryKeys.indicators.all, 'hr-impact'] as const,
+    alerts: () => [...queryKeys.indicators.all, 'alerts'] as const,
   },
   auth: {
     session: ['auth', 'session'] as const,

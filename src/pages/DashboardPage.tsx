@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/layout'
 import { DEPARTMENT_PERFORMANCE, RECENT_ACTIVITY, PENDING_TASKS, COMPLIANCE_TREND } from './dashboard-demo-data'
 import { StatCard } from '@/components/data'
 import { Card, CardHeader, CardTitle, Badge } from '@/components/ui'
+import { BaseeraIntelligenceHub } from '@/features/stats'
 import { useBeneficiaryStats } from '@/features/beneficiaries'
 import { useRehabGoals } from '@/features/empowerment'
 import { useRisks } from '@/features/grc'
@@ -60,6 +61,16 @@ export function DashboardPage() {
         title="لوحة القيادة التنفيذية"
         description="نظرة شاملة على الأداء التشغيلي للمركز"
       />
+
+      {/* Intelligence Hub */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+        className="mb-6"
+      >
+        <BaseeraIntelligenceHub />
+      </motion.div>
 
       {/* KPI Grid — "The Pulse" */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

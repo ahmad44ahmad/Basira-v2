@@ -1,6 +1,8 @@
 import type { DailyMeal, InventoryItem, InventoryTransaction } from '../types'
 
 const today = new Date().toISOString().slice(0, 10)
+const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 const beneficiaries = [
   { id: 'b001', name: 'أحمد محمد السالم' },
   { id: 'b002', name: 'فاطمة عبدالله الزهراني' },
@@ -11,18 +13,25 @@ const beneficiaries = [
 ]
 const mealTypes: DailyMeal['mealType'][] = ['breakfast', 'lunch', 'dinner']
 
-export const DEMO_MEALS: DailyMeal[] = beneficiaries.flatMap((b, bi) =>
-  mealTypes.map((type, mi) => ({
-    id: `meal-${bi}-${mi}`,
-    beneficiaryId: b.id,
-    beneficiaryName: b.name,
-    mealType: type,
-    status: (mi < 2 ? 'delivered' : 'pending') as DailyMeal['status'],
-    dietaryPlan: bi === 3 ? 'نظام غذائي لمرضى السكري' : 'عادي',
-    mealDate: today,
-    deliveredAt: mi < 2 ? `${today}T${mi === 0 ? '07:30' : '12:30'}:00` : undefined,
-  })),
-)
+export const DEMO_MEALS: DailyMeal[] = [
+  // Today's meals for all beneficiaries
+  ...beneficiaries.flatMap((b, bi) =>
+    mealTypes.map((type, mi) => ({
+      id: `meal-${bi}-${mi}`,
+      beneficiaryId: b.id,
+      beneficiaryName: b.name,
+      mealType: type,
+      status: (mi < 2 ? 'delivered' : 'pending') as DailyMeal['status'],
+      dietaryPlan: bi === 3 ? 'نظام غذائي لمرضى السكري' : 'عادي',
+      mealDate: today,
+      deliveredAt: mi < 2 ? `${today}T${mi === 0 ? '07:30' : '12:30'}:00` : undefined,
+    })),
+  ),
+  // Refused meals for b001 (triggers Silent Pain Detector with dental OHIS + mood stress)
+  { id: 'meal-ref-1', beneficiaryId: 'b001', beneficiaryName: 'أحمد محمد السالم', mealType: 'lunch', status: 'refused', dietaryPlan: 'عادي', mealDate: yesterday },
+  { id: 'meal-ref-2', beneficiaryId: 'b001', beneficiaryName: 'أحمد محمد السالم', mealType: 'dinner', status: 'refused', dietaryPlan: 'عادي', mealDate: yesterday },
+  { id: 'meal-ref-3', beneficiaryId: 'b001', beneficiaryName: 'أحمد محمد السالم', mealType: 'breakfast', status: 'refused', dietaryPlan: 'عادي', mealDate: twoDaysAgo },
+]
 
 export const DEMO_INVENTORY: InventoryItem[] = [
   { id: 'inv1', code: 'RM-001', nameAr: 'أرز بسمتي', category: 'حبوب', unit: 'كغ', currentStock: 45, minStock: 20, maxStock: 100, dailyQuota: 5, lastUpdated: today },

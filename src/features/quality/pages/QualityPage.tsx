@@ -88,7 +88,7 @@ function NcrSection() {
           const capaProgress = ncr.capas.length > 0 ? Math.round((ncr.capas.filter((c) => c.status === 'completed' || c.status === 'verified').length / ncr.capas.length) * 100) : 0
 
           return (
-            <Card key={ncr.id} className={cn(ncr.severity === 'critical' && 'border-r-4 border-r-red-500')}>
+            <Card key={ncr.id} className={cn(ncr.severity === 'critical' && 'border-e-4 border-e-red-500')}>
               <div className="cursor-pointer" onClick={() => setExpandedNcr(isExpanded ? null : ncr.id)}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
@@ -293,7 +293,7 @@ function OvrSection() {
           const catConfig = OVR_CATEGORY_CONFIG[report.category]
           const sevConfig = OVR_SEVERITY_CONFIG[report.severity]
           return (
-            <Card key={report.id} className={cn(report.severity === 'sentinel' && 'border-r-4 border-r-red-500', report.severity === 'major' && 'border-r-4 border-r-orange-500')}>
+            <Card key={report.id} className={cn(report.severity === 'sentinel' && 'border-e-4 border-e-red-500', report.severity === 'major' && 'border-e-4 border-e-orange-500')}>
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 text-xl">{catConfig.emoji}</span>
                 <div className="min-w-0 flex-1">

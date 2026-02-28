@@ -37,7 +37,7 @@ export function BeneficiaryFilters({ filters, onChange, totalCount, filteredCoun
             placeholder="ابحث بالاسم أو رقم الملف أو الهوية..."
             className={cn(
               'h-10 w-full rounded-lg border bg-white pe-10 ps-3 text-sm',
-              'border-slate-200 placeholder:text-slate-400',
+              'border-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500',
               'focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold',
               'dark:bg-slate-800 dark:border-slate-600',
             )}

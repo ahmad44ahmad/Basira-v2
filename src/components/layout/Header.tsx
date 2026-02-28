@@ -62,7 +62,7 @@ export function Header() {
             placeholder="بحث سريع..."
             className={cn(
               'h-9 w-64 rounded-lg border bg-slate-50 pe-9 ps-3 text-sm',
-              'border-slate-200 placeholder:text-slate-400',
+              'border-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500',
               'focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold',
               'dark:bg-slate-800 dark:border-slate-600',
             )}

@@ -417,7 +417,7 @@ function BiologicalAuditSection() {
               key={alert.id}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className={`rounded-lg border-r-4 p-4 ${alert.severity === 'critical' ? 'border-r-red-500 bg-red-50 dark:bg-red-900/10' : alert.severity === 'high' ? 'border-r-orange-500 bg-orange-50 dark:bg-orange-900/10' : 'border-r-amber-500 bg-amber-50 dark:bg-amber-900/10'}`}
+              className={`rounded-lg border-e-4 p-4 ${alert.severity === 'critical' ? 'border-e-red-500 bg-red-50 dark:bg-red-900/10' : alert.severity === 'high' ? 'border-e-orange-500 bg-orange-50 dark:bg-orange-900/10' : 'border-e-amber-500 bg-amber-50 dark:bg-amber-900/10'}`}
             >
               <div className="mb-1 flex items-center justify-between">
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">{alert.issue}</h4>

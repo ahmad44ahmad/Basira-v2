@@ -198,7 +198,7 @@ function IncidentsSection() {
           const immediateText = Array.isArray(inc.immediate_actions) ? inc.immediate_actions.join(' — ') : ''
           return (
             <motion.div key={inc.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <Card className={`border-r-4 ${inc.severity_level === 'critical' ? 'border-r-red-500' : inc.severity_level === 'high' || inc.severity_level === 'severe' ? 'border-r-orange-500' : inc.severity_level === 'medium' || inc.severity_level === 'moderate' ? 'border-r-amber-500' : 'border-r-green-500'}`}>
+              <Card className={`border-e-4 ${inc.severity_level === 'critical' ? 'border-e-red-500' : inc.severity_level === 'high' || inc.severity_level === 'severe' ? 'border-e-orange-500' : inc.severity_level === 'medium' || inc.severity_level === 'moderate' ? 'border-e-amber-500' : 'border-e-green-500'}`}>
                 <div className="p-4">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -360,7 +360,7 @@ function OutbreaksSection() {
           const statusCfg = CONTAINMENT_STATUS_CONFIG[ob.containmentStatus]
           return (
             <motion.div key={ob.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className={`border-r-4 ${ob.containmentStatus === 'active' ? 'border-r-red-500' : ob.containmentStatus === 'contained' ? 'border-r-amber-500' : 'border-r-emerald-500'}`}>
+              <Card className={`border-e-4 ${ob.containmentStatus === 'active' ? 'border-e-red-500' : ob.containmentStatus === 'contained' ? 'border-e-amber-500' : 'border-e-emerald-500'}`}>
                 <div className="p-4">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">

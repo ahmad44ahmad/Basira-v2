@@ -533,11 +533,14 @@ function LifePlansSection() {
                         <span>{domain.emoji}</span>
                         <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{domain.label}</span>
                       </div>
-                      {goals.map((g, i) => (
-                        <p key={i} className="text-xs text-slate-600 dark:text-slate-400 mb-1">
-                          {(g as Record<string, string>).goal ?? JSON.stringify(g)}
+                      {goals.map((g) => {
+                        const goalText = (g as Record<string, string>).goal ?? JSON.stringify(g)
+                        return (
+                        <p key={goalText} className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                          {goalText}
                         </p>
-                      ))}
+                        )
+                      })}
                     </div>
                   )
                 })}
@@ -912,12 +915,12 @@ function TrainingSection() {
 
                   {/* Sections Breakdown */}
                   <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-                    {(eval_item.sections as Array<{ section_name: string; max_score: number; items: Array<{ name: string; score: number; max: number }> }>).map((section, idx) => {
+                    {(eval_item.sections as Array<{ section_name: string; max_score: number; items: Array<{ name: string; score: number; max: number }> }>).map((section) => {
                       const sectionTotal = section.items.reduce((s, item) => s + item.score, 0)
                       const sectionPct = section.max_score > 0 ? Math.round((sectionTotal / section.max_score) * 100) : 0
 
                       return (
-                        <div key={idx} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
+                        <div key={section.section_name} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
                           <div className="mb-2 flex items-center justify-between">
                             <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{section.section_name}</span>
                             <span className="text-xs font-bold text-slate-600 dark:text-slate-400">{sectionTotal}/{section.max_score}</span>
@@ -929,8 +932,8 @@ function TrainingSection() {
                             />
                           </div>
                           <div className="space-y-1">
-                            {section.items.map((item, iIdx) => (
-                              <div key={iIdx} className="flex items-center justify-between text-xs">
+                            {section.items.map((item) => (
+                              <div key={item.name} className="flex items-center justify-between text-xs">
                                 <span className="text-slate-500">{item.name}</span>
                                 <span className="font-medium text-slate-700 dark:text-slate-300">{item.score}/{item.max}</span>
                               </div>
@@ -1020,14 +1023,14 @@ function CoDesignSection() {
                     <div>
                       <p className="mb-1.5 text-xs font-medium text-slate-500">العوائق المحددة</p>
                       <div className="flex flex-wrap gap-2">
-                        {assessment.environmental_barriers.map((b, i) => (
-                          <Badge key={`env-${i}`} className={barrierColor.environmental}>بيئي: {(b as Record<string, string>).description}</Badge>
+                        {assessment.environmental_barriers.map((b) => (
+                          <Badge key={`env-${(b as Record<string, string>).description}`} className={barrierColor.environmental}>بيئي: {(b as Record<string, string>).description}</Badge>
                         ))}
-                        {assessment.attitudinal_barriers.map((b, i) => (
-                          <Badge key={`att-${i}`} className={barrierColor.attitudinal}>سلوكي: {(b as Record<string, string>).description}</Badge>
+                        {assessment.attitudinal_barriers.map((b) => (
+                          <Badge key={`att-${(b as Record<string, string>).description}`} className={barrierColor.attitudinal}>سلوكي: {(b as Record<string, string>).description}</Badge>
                         ))}
-                        {assessment.institutional_barriers.map((b, i) => (
-                          <Badge key={`inst-${i}`} className={barrierColor.institutional}>مؤسسي: {(b as Record<string, string>).description}</Badge>
+                        {assessment.institutional_barriers.map((b) => (
+                          <Badge key={`inst-${(b as Record<string, string>).description}`} className={barrierColor.institutional}>مؤسسي: {(b as Record<string, string>).description}</Badge>
                         ))}
                       </div>
                     </div>

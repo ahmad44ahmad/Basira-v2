@@ -520,9 +520,10 @@ function CounselingCaseCard({ counselingCase }: { counselingCase: FamilyCounseli
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {counselingCase.plan_phases.map((phase, idx) => {
                   const p = phase as { phase?: string; description?: string }
+                  const phaseKey = p.phase ?? `phase-${idx}`
                   return (
                     <div
-                      key={idx}
+                      key={phaseKey}
                       className="flex min-w-[140px] items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 dark:border-slate-700 dark:bg-slate-800/50"
                     >
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal/10 text-[10px] font-bold text-teal">

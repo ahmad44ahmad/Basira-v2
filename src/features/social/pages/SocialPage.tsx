@@ -79,6 +79,7 @@ function LeavesSection() {
   const [filterStatus, setFilterStatus] = useState<LeaveStatus | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null)
+  const [rejectConfirmId, setRejectConfirmId] = useState<string | null>(null)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
   if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
@@ -171,17 +172,17 @@ function LeavesSection() {
                       {leave.status === 'pending_medical' && (
                         <>
                           <Button variant="primary" size="sm" icon={<CheckCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleApprove(leave.id, 'medical') }}>طبي</Button>
-                          <Button variant="danger" size="sm" icon={<XCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleReject(leave.id) }} />
+                          <Button variant="danger" size="sm" aria-label="رفض الطلب" icon={<XCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setRejectConfirmId(leave.id) }} />
                         </>
                       )}
                       {leave.status === 'pending_director' && (
                         <>
                           <Button variant="primary" size="sm" icon={<CheckCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleApprove(leave.id, 'director') }}>اعتماد</Button>
-                          <Button variant="danger" size="sm" icon={<XCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); handleReject(leave.id) }} />
+                          <Button variant="danger" size="sm" aria-label="رفض الطلب" icon={<XCircle className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setRejectConfirmId(leave.id) }} />
                         </>
                       )}
                       {(leave.status !== 'pending_medical' && leave.status !== 'pending_director') && (
-                        <Button variant="outline" size="sm" icon={<Eye className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setSelectedLeave(leave) }} />
+                        <Button variant="outline" size="sm" aria-label="عرض التفاصيل" icon={<Eye className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setSelectedLeave(leave) }} />
                       )}
                     </div>
                   </div>
@@ -247,6 +248,17 @@ function LeavesSection() {
         toast.success('تم إنشاء طلب الإجازة')
         setShowAddModal(false)
       }} />
+
+      {/* Reject Confirmation */}
+      <Modal open={!!rejectConfirmId} onClose={() => setRejectConfirmId(null)} title="تأكيد الرفض" size="sm">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">هل أنت متأكد من رفض هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.</p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={() => setRejectConfirmId(null)}>إلغاء</Button>
+            <Button variant="danger" size="sm" onClick={() => { if (rejectConfirmId) { handleReject(rejectConfirmId); setRejectConfirmId(null) } }}>رفض الطلب</Button>
+          </div>
+        </div>
+      </Modal>
     </>
   )
 }

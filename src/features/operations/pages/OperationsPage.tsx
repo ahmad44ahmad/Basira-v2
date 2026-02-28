@@ -477,7 +477,7 @@ function ChecklistsSection() {
                         <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
                           <h4 className="mb-3 text-sm font-bold text-slate-700 dark:text-slate-300">بنود الفحص</h4>
                           <div className="space-y-2">
-                            {checklist.checklist_items.map((item, idx) => {
+                            {checklist.checklist_items.map((item) => {
                               const itemStatus = (item as Record<string, unknown>).status as string
                               const itemConfig = CHECKLIST_ITEM_STATUS[itemStatus as keyof typeof CHECKLIST_ITEM_STATUS] ?? CHECKLIST_ITEM_STATUS.na
                               const itemNotes = (item as Record<string, unknown>).notes as string
@@ -492,7 +492,7 @@ function ChecklistsSection() {
                                   : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
 
                               return (
-                                <div key={idx} className={cn('rounded-lg p-3', itemStatus === 'fail' ? 'bg-red-50 dark:bg-red-950/20' : 'bg-slate-50 dark:bg-slate-800/50')}>
+                                <div key={itemDesc} className={cn('rounded-lg p-3', itemStatus === 'fail' ? 'bg-red-50 dark:bg-red-950/20' : 'bg-slate-50 dark:bg-slate-800/50')}>
                                   <div className="flex items-start justify-between gap-3">
                                     <div className="flex items-start gap-2">
                                       {itemStatus === 'pass' && <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />}

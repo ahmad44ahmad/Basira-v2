@@ -113,8 +113,8 @@ export function BeneficiaryDetail({ beneficiary: b, onClose }: BeneficiaryDetail
   const tabs = [
     { id: 'overview', label: 'نظرة عامة', icon: <User className="h-4 w-4" />, content: <OverviewTab b={b} /> },
     { id: 'timeline', label: 'الخط الزمني', icon: <Activity className="h-4 w-4" />, content: <TimelineTab /> },
-    { id: 'medical', label: 'الملف الطبي', icon: <Heart className="h-4 w-4" />, content: <PlaceholderTab label="الملف الطبي قيد التطوير" /> },
-    { id: 'quality', label: 'الجودة والمخاطر', icon: <Shield className="h-4 w-4" />, content: <PlaceholderTab label="الجودة والمخاطر قيد التطوير" /> },
+    { id: 'medical', label: 'الملف الطبي', icon: <Heart className="h-4 w-4" />, content: <PlaceholderTab label="الملف الطبي" /> },
+    { id: 'quality', label: 'الجودة والمخاطر', icon: <Shield className="h-4 w-4" />, content: <PlaceholderTab label="الجودة والمخاطر" /> },
   ]
 
   return (
@@ -197,8 +197,10 @@ export function BeneficiaryDetail({ beneficiary: b, onClose }: BeneficiaryDetail
 
 function PlaceholderTab({ label }: { label: string }) {
   return (
-    <div className="flex h-48 items-center justify-center text-sm text-slate-400">
-      {label}
+    <div className="flex h-48 flex-col items-center justify-center gap-2 text-sm text-slate-400">
+      <Shield className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+      <span>{label}</span>
+      <span className="text-xs text-slate-300 dark:text-slate-600">سيتم إضافة المحتوى قريباً</span>
     </div>
   )
 }

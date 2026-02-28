@@ -531,9 +531,9 @@ function HealthChartsSection() {
                     </thead>
                     <tbody>
                       {c.readings.map((reading, idx) => (
-                        <tr key={idx} className="border-b border-slate-100 dark:border-slate-800">
-                          {Object.values(reading).map((val, vIdx) => (
-                            <td key={vIdx} className="px-2 py-1.5 text-slate-700 dark:text-slate-300">{String(val)}</td>
+                        <tr key={`reading-${idx}-${Object.values(reading).join('-')}`} className="border-b border-slate-100 dark:border-slate-800">
+                          {Object.entries(reading).map(([colKey, val]) => (
+                            <td key={colKey} className="px-2 py-1.5 text-slate-700 dark:text-slate-300">{String(val)}</td>
                           ))}
                         </tr>
                       ))}
@@ -576,7 +576,7 @@ function HealthChartsSection() {
                       <div className="sm:col-span-2">
                         <span className="font-medium">الإجراءات التمريضية:</span>
                         <ul className="mt-1 list-disc list-inside me-2">
-                          {e.nursing_actions.map((a, i) => <li key={i}>{a}</li>)}
+                          {e.nursing_actions.map((a) => <li key={a}>{a}</li>)}
                         </ul>
                       </div>
                     )}
@@ -868,8 +868,8 @@ function IsolationSection() {
                             <div>
                               <span className="font-medium">الاحتياطات:</span>
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {iso.precautions.map((p, i) => (
-                                  <Badge key={i} className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs">{p}</Badge>
+                                {iso.precautions.map((p) => (
+                                  <Badge key={p} className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs">{p}</Badge>
                                 ))}
                               </div>
                             </div>
@@ -885,12 +885,16 @@ function IsolationSection() {
                             <div>
                               <span className="font-medium">الملاحظات:</span>
                               <div className="mt-2 space-y-1.5 border-s-2 border-teal/30 ps-3">
-                                {iso.observations.map((obs, i) => (
-                                  <div key={i} className="flex items-start gap-2">
-                                    <span className="text-slate-400 whitespace-nowrap">{String((obs as Record<string, unknown>).date ?? '')} {String((obs as Record<string, unknown>).time ?? '')}</span>
-                                    <span>{String((obs as Record<string, unknown>).note ?? '')}</span>
+                                {iso.observations.map((obs) => {
+                                  const obsR = obs as Record<string, unknown>
+                                  const obsKey = `${String(obsR.date ?? '')}-${String(obsR.time ?? '')}-${String(obsR.note ?? '').slice(0, 20)}`
+                                  return (
+                                  <div key={obsKey} className="flex items-start gap-2">
+                                    <span className="text-slate-400 whitespace-nowrap">{String(obsR.date ?? '')} {String(obsR.time ?? '')}</span>
+                                    <span>{String(obsR.note ?? '')}</span>
                                   </div>
-                                ))}
+                                  )
+                                })}
                               </div>
                             </div>
                           )}
@@ -948,11 +952,11 @@ function IsolationSection() {
                     </tr>
                   </thead>
                   <tbody>
-                    {amb.equipment_status.map((eq, idx) => {
+                    {amb.equipment_status.map((eq) => {
                       const eqObj = eq as Record<string, unknown>
                       const isOk = eqObj.status === 'يعمل' || eqObj.status === 'مكتمل'
                       return (
-                        <tr key={idx} className="border-b border-slate-100 dark:border-slate-800">
+                        <tr key={String(eqObj.item ?? '')} className="border-b border-slate-100 dark:border-slate-800">
                           <td className="px-2 py-1.5 text-slate-700 dark:text-slate-300">{String(eqObj.item ?? '')}</td>
                           <td className={cn('px-2 py-1.5 font-medium', isOk ? 'text-green-600' : 'text-red-600')}>{String(eqObj.status ?? '')}</td>
                           <td className="px-2 py-1.5 text-slate-500">

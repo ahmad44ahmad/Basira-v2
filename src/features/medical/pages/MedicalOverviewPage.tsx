@@ -180,8 +180,8 @@ function OverviewSection() {
               </tr>
             </thead>
             <tbody>
-              {recentExams.map((exam, i) => (
-                <tr key={i} className="border-b border-slate-100 dark:border-slate-800">
+              {recentExams.map((exam) => (
+                <tr key={`${exam.name}-${exam.date}`} className="border-b border-slate-100 dark:border-slate-800">
                   <td className="px-3 py-3 font-medium text-slate-800 dark:text-slate-200">{exam.name}</td>
                   <td className="px-3 py-3 text-slate-600 dark:text-slate-400">{exam.type}</td>
                   <td className="px-3 py-3 text-slate-600 dark:text-slate-400">{exam.date}</td>

@@ -443,8 +443,8 @@ function AbuseSection() {
                   <div>
                     <p className="mb-1 text-xs font-medium text-slate-500">الإجراءات الفورية:</p>
                     <div className="space-y-0.5">
-                      {report.immediate_actions.map((action, idx) => (
-                        <p key={idx} className="text-xs text-slate-600 dark:text-slate-400">• {action}</p>
+                      {report.immediate_actions.map((action) => (
+                        <p key={action} className="text-xs text-slate-600 dark:text-slate-400">• {action}</p>
                       ))}
                     </div>
                   </div>
@@ -455,8 +455,8 @@ function AbuseSection() {
                   <div>
                     <p className="mb-1 text-xs font-medium text-slate-500">إجراءات المتابعة:</p>
                     <div className="space-y-1">
-                      {(report.follow_up_actions as Array<{ action: string; status: string; date: string | null }>).map((fa, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-xs">
+                      {(report.follow_up_actions as Array<{ action: string; status: string; date: string | null }>).map((fa) => (
+                        <div key={`${fa.action}-${fa.status}`} className="flex items-center gap-2 text-xs">
                           <span className={cn(
                             'inline-block h-2 w-2 rounded-full',
                             fa.status === 'completed' ? 'bg-emerald-500' : fa.status === 'in_progress' ? 'bg-amber-500' : 'bg-slate-400',

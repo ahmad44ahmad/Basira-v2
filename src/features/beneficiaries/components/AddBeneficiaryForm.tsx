@@ -176,7 +176,7 @@ export function AddBeneficiaryForm({ open, onClose, onSuccess }: AddBeneficiaryF
           {currentStep === 1 && (
             <form onSubmit={handleStep1} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Input label="الاسم الكامل" {...form1.register('fullName')} error={form1.formState.errors.fullName?.message} />
+                <Input label="الاسم الكامل" autoFocus {...form1.register('fullName')} error={form1.formState.errors.fullName?.message} />
                 <Input label="رقم الهوية" {...form1.register('nationalId')} error={form1.formState.errors.nationalId?.message} dir="ltr" />
                 <Select
                   label="الجنس"

@@ -113,7 +113,7 @@ export type Database = {
         Insert: IpcChecklistTemplateInsert
         Update: Partial<IpcChecklistTemplateInsert>
       }
-      ipc_immunizations: {
+      immunizations: {
         Row: IpcImmunization
         Insert: IpcImmunizationInsert
         Update: Partial<IpcImmunizationInsert>
@@ -138,20 +138,15 @@ export type Database = {
         Insert: BeneficiaryPreferencesInsert
         Update: Partial<BeneficiaryPreferencesInsert>
       }
-      internal_audit_cycles: {
-        Row: InternalAuditCycle
-        Insert: InternalAuditCycleInsert
-        Update: Partial<InternalAuditCycleInsert>
+      grc_audits: {
+        Row: GrcAudit
+        Insert: GrcAuditInsert
+        Update: Partial<GrcAuditInsert>
       }
-      internal_audits: {
-        Row: InternalAudit
-        Insert: InternalAuditInsert
-        Update: Partial<InternalAuditInsert>
-      }
-      audit_findings: {
-        Row: AuditFinding
-        Insert: AuditFindingInsert
-        Update: Partial<AuditFindingInsert>
+      grc_ncrs: {
+        Row: GrcNcr
+        Insert: GrcNcrInsert
+        Update: Partial<GrcNcrInsert>
       }
       social_research: {
         Row: SocialResearch
@@ -317,18 +312,15 @@ export type RiskAlertInsert = Omit<RiskAlert, 'id' | 'created_at'>
 // ===== Strategic KPIs =====
 export interface StrategicKPI {
   id: string
-  date: string
+  kpi_date: string
   occupancy_rate: number | null
+  critical_cases: number | null
   fall_incidents_count: number | null
-  care_logs_completion_rate: number | null
-  medication_compliance_rate: number | null
-  staff_hours_saved: number | null
-  paper_forms_eliminated: number | null
-  cost_savings: number | null
-  created_at: string
+  staff_compliance: number | null
+  calculated_at: string
 }
 
-export type StrategicKPIInsert = Omit<StrategicKPI, 'id' | 'created_at'>
+export type StrategicKPIInsert = Omit<StrategicKPI, 'id' | 'calculated_at'>
 
 // ===== Audit Logs =====
 export interface AuditLog {
@@ -673,66 +665,45 @@ export interface BeneficiaryPreferences {
 export type BeneficiaryPreferencesInsert = Omit<BeneficiaryPreferences, 'id' | 'created_at' | 'updated_at'>
 
 // ===== Quality — Internal Audit Cycles =====
-export interface InternalAuditCycle {
+export interface GrcAudit {
   id: string
-  cycle_name: string
-  cycle_year: number
-  cycle_quarter: number | null
-  planned_start_date: string | null
-  planned_end_date: string | null
-  actual_start_date: string | null
-  actual_end_date: string | null
-  lead_auditor: string | null
-  status: 'planned' | 'in_progress' | 'completed' | 'cancelled'
-  scope: string | null
-  created_at: string
-}
-
-export type InternalAuditCycleInsert = Omit<InternalAuditCycle, 'id' | 'created_at'>
-
-// ===== Quality — Internal Audits =====
-export interface InternalAudit {
-  id: string
-  cycle_id: string | null
   audit_code: string | null
-  iso_clause: string | null
-  department: string | null
+  standard_id: string | null
+  audit_type: string | null
+  audit_date: string | null
+  scope: string | null
+  findings: string | null
+  non_conformities: number | null
+  observations: number | null
+  opportunities_for_improvement: number | null
+  overall_score: number | null
   auditor_name: string | null
-  auditee_name: string | null
-  planned_date: string | null
-  actual_date: string | null
-  status: 'planned' | 'in_progress' | 'completed' | 'cancelled'
-  overall_result: string | null
-  checklist_data: Record<string, unknown> | null
-  summary: string | null
-  strengths: string | null
-  ncr_ids: string[] | null
+  auditor_organization: string | null
+  report_url: string | null
+  next_audit_date: string | null
   created_at: string
 }
 
-export type InternalAuditInsert = Omit<InternalAudit, 'id' | 'created_at'>
+export type GrcAuditInsert = Omit<GrcAudit, 'id' | 'created_at'>
 
-// ===== Quality — Audit Findings =====
-export interface AuditFinding {
+// ===== Quality — GRC NCRs =====
+export interface GrcNcr {
   id: string
-  audit_id: string
-  finding_code: string | null
-  finding_type: 'major_nc' | 'minor_nc' | 'observation' | 'opportunity'
-  iso_clause: string | null
-  description: string
-  evidence: string | null
+  title: string
+  description: string | null
+  category: string | null
+  severity: string | null
+  status: string | null
+  progress: number | null
   root_cause: string | null
   corrective_action: string | null
-  responsible_person: string | null
   due_date: string | null
-  completion_date: string | null
-  verification_date: string | null
-  verification_result: string | null
-  status: 'open' | 'in_progress' | 'closed' | 'verified'
+  assigned_to: string | null
   created_at: string
+  closed_at: string | null
 }
 
-export type AuditFindingInsert = Omit<AuditFinding, 'id' | 'created_at'>
+export type GrcNcrInsert = Omit<GrcNcr, 'id' | 'created_at'>
 
 // ===== Social Research =====
 export interface SocialResearch {

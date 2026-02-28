@@ -11,7 +11,7 @@ async function fetchStrategicKPISnapshots(): Promise<StrategicKPIRow[]> {
   const { data, error } = await supabase
     .from('strategic_kpis')
     .select('*')
-    .order('date', { ascending: false })
+    .order('kpi_date', { ascending: false })
     .limit(12)
   if (error) throw error
   return data ?? []

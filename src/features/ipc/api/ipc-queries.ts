@@ -91,7 +91,7 @@ async function fetchImmunizations(): Promise<IpcImmunization[]> {
   if (isDemoMode || !supabase) return DEMO_IMMUNIZATIONS
 
   const { data, error } = await supabase
-    .from('ipc_immunizations')
+    .from('immunizations')
     .select('*')
     .order('date_administered', { ascending: false })
 

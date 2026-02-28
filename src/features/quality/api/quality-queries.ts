@@ -1,34 +1,32 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase, isDemoMode } from '@/lib/supabase'
 import { queryKeys } from '@/lib/query-keys'
-import type { InternalAuditCycle, AuditFinding } from '@/types/database'
+import type { GrcNcr, GrcAudit } from '@/types/database'
 import type { NCR, AuditCycle, OvrReport } from '../types'
 import { DEMO_NCRS, DEMO_AUDITS, DEMO_OVRS } from './demo-data'
 
 // ===== NCRs =====
-// NCRs come from audit_findings with finding_type = 'major_nc' or 'minor_nc'
 
 async function fetchNCRs(): Promise<NCR[]> {
   if (isDemoMode || !supabase) return DEMO_NCRS
 
   const { data, error } = await supabase
-    .from('audit_findings')
+    .from('grc_ncrs')
     .select('*')
-    .in('finding_type', ['major_nc', 'minor_nc'])
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return (data ?? []).map((f: AuditFinding) => ({
+  return (data ?? []).map((f: GrcNcr) => ({
     id: f.id,
-    code: f.finding_code ?? f.id.slice(0, 8),
-    title: f.description,
-    department: f.iso_clause ?? '',
-    severity: f.finding_type === 'major_nc' ? 'major' : 'minor',
+    code: f.id.slice(0, 8).toUpperCase(),
+    title: f.title,
+    department: f.category ?? '',
+    severity: f.severity === 'major' ? 'major' : 'minor',
     status: f.status === 'open' ? 'open' : f.status === 'in_progress' ? 'in_progress' : f.status === 'verified' ? 'verified' : 'closed',
-    isoClause: f.iso_clause ?? '',
+    isoClause: f.category ?? '',
     identifiedDate: f.created_at,
     dueDate: f.due_date ?? '',
-    assignedTo: f.responsible_person ?? '',
+    assignedTo: f.assigned_to ?? '',
     rootCause: f.root_cause ?? '',
     capas: f.corrective_action ? [{ id: `capa-${f.id}`, description: f.corrective_action, type: 'corrective' as const, status: f.status === 'verified' ? 'verified' as const : 'open' as const, dueDate: f.due_date ?? '' }] : [],
   }))
@@ -47,31 +45,23 @@ async function fetchAuditCycles(): Promise<AuditCycle[]> {
   if (isDemoMode || !supabase) return DEMO_AUDITS
 
   const { data, error } = await supabase
-    .from('internal_audit_cycles')
-    .select('*, internal_audits(*, audit_findings(*))')
+    .from('grc_audits')
+    .select('*')
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return (data ?? []).map((c: InternalAuditCycle & { internal_audits?: Array<{ audit_findings?: AuditFinding[] }> }) => ({
-    id: c.id,
-    cycleName: c.cycle_name,
-    year: c.cycle_year,
-    quarter: c.cycle_quarter ?? 1,
-    status: c.status,
-    startDate: c.planned_start_date ?? '',
-    endDate: c.planned_end_date ?? '',
-    leadAuditor: c.lead_auditor ?? '',
-    totalAudits: c.internal_audits?.length ?? 0,
-    completedAudits: c.internal_audits?.filter((a: { status?: string }) => a.status === 'completed').length ?? 0,
-    findings: (c.internal_audits ?? []).flatMap((a: { audit_findings?: AuditFinding[] }) =>
-      (a.audit_findings ?? []).map((f) => ({
-        id: f.id,
-        type: f.finding_type,
-        description: f.description,
-        isoClause: f.iso_clause ?? '',
-        status: f.status,
-      })),
-    ),
+  return (data ?? []).map((a: GrcAudit) => ({
+    id: a.id,
+    cycleName: a.audit_code ?? `تدقيق ${a.audit_type ?? ''}`,
+    year: a.audit_date ? new Date(a.audit_date).getFullYear() : new Date().getFullYear(),
+    quarter: a.audit_date ? Math.ceil((new Date(a.audit_date).getMonth() + 1) / 3) : 1,
+    status: 'completed' as const,
+    startDate: a.audit_date ?? '',
+    endDate: a.audit_date ?? '',
+    leadAuditor: a.auditor_name ?? '',
+    totalAudits: 1,
+    completedAudits: 1,
+    findings: [],
   }))
 }
 

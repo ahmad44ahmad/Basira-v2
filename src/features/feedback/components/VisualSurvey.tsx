@@ -92,7 +92,8 @@ export function VisualSurvey() {
       })
       toast.success('تم حفظ الاستبيان بنجاح')
       reset()
-    } catch {
+    } catch (err) {
+      console.error(err)
       toast.error('حدث خطأ أثناء الحفظ')
     }
   }

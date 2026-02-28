@@ -71,7 +71,6 @@ export function useBeneficiaries() {
   return useQuery({
     queryKey: queryKeys.beneficiaries.all,
     queryFn: fetchBeneficiaries,
-    staleTime: 5 * 60 * 1000,
   })
 }
 

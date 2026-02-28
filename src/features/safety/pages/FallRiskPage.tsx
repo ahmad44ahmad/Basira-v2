@@ -68,7 +68,8 @@ export function FallRiskPage() {
         assessed_by: 'المستخدم الحالي',
       })
       toast.success('تم حفظ تقييم مخاطر السقوط')
-    } catch {
+    } catch (err) {
+      console.error(err)
       toast.error('فشل حفظ التقييم')
     }
   }

@@ -148,7 +148,8 @@ function DailyCareFormSection() {
         recorded_by: 'المستخدم الحالي',
       })
       toast.success('تم حفظ سجل الرعاية بنجاح')
-    } catch {
+    } catch (err) {
+      console.error(err)
       toast.error('فشل حفظ سجل الرعاية')
     }
   }

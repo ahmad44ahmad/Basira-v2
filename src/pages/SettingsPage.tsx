@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Settings, Sun, Moon, Monitor, Bell, BellOff, Globe, LayoutGrid, LayoutList, Save, User, Shield } from 'lucide-react'
+import { z } from 'zod'
 import { PageHeader } from '@/components/layout'
 import { Card, CardHeader, CardTitle, Button } from '@/components/ui'
 import { useUIStore } from '@/stores/useUIStore'
@@ -8,19 +9,23 @@ import { useUIStore } from '@/stores/useUIStore'
 type ThemeOption = 'light' | 'dark' | 'auto'
 type LayoutOption = 'compact' | 'comfortable'
 
-interface SettingsState {
-  theme: ThemeOption
-  notifications: boolean
-  language: 'ar' | 'en'
-  layout: LayoutOption
-}
+const settingsSchema = z.object({
+  theme: z.enum(['light', 'dark', 'auto']),
+  notifications: z.boolean(),
+  language: z.enum(['ar', 'en']),
+  layout: z.enum(['compact', 'comfortable']),
+})
+
+type SettingsState = z.infer<typeof settingsSchema>
+
+const DEFAULT_SETTINGS: SettingsState = { theme: 'dark', notifications: true, language: 'ar', layout: 'comfortable' }
 
 function loadSettings(): SettingsState {
   try {
     const saved = localStorage.getItem('basira_settings')
-    if (saved) return JSON.parse(saved)
+    if (saved) return settingsSchema.parse(JSON.parse(saved))
   } catch { /* ignore */ }
-  return { theme: 'dark', notifications: true, language: 'ar', layout: 'comfortable' }
+  return DEFAULT_SETTINGS
 }
 
 export function SettingsPage() {

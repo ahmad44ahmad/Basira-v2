@@ -91,7 +91,7 @@ export function SupportPage() {
           </CardHeader>
           <div className="space-y-3">
             {[
-              { icon: Phone, label: 'هاتف الدعم', value: '920-XXXXX', sublabel: 'أيام العمل 8ص - 4م' },
+              { icon: Phone, label: 'هاتف الدعم', value: '920-00-1234', sublabel: 'أيام العمل 8ص - 4م' },
               { icon: Mail, label: 'البريد الإلكتروني', value: 'support@basira.gov.sa', sublabel: 'رد خلال 24 ساعة' },
               { icon: Clock, label: 'ساعات العمل', value: 'الأحد - الخميس', sublabel: '8:00 ص - 4:00 م' },
             ].map((item) => {

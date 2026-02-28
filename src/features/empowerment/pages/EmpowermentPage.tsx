@@ -338,9 +338,11 @@ function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void })
       {step === 2 && domain && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex items-center gap-2">
-            <Badge className={REHAB_DOMAINS.find((d) => d.value === domain)!.color}>
-              {REHAB_DOMAINS.find((d) => d.value === domain)!.emoji} {REHAB_DOMAINS.find((d) => d.value === domain)!.label}
+            {(() => { const dc = REHAB_DOMAINS.find((d) => d.value === domain); return dc ? (
+            <Badge className={dc.color}>
+              {dc.emoji} {dc.label}
             </Badge>
+            ) : null })()}
             <button type="button" onClick={() => setStep(1)} className="text-xs text-teal hover:underline">تغيير</button>
           </div>
 

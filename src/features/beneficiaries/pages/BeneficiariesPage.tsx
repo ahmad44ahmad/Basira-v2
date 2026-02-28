@@ -114,7 +114,7 @@ export function BeneficiariesPage() {
       {/* Main Content: List + Detail */}
       <div className="flex gap-6">
         {/* List Panel */}
-        <div className={selectedBeneficiary ? 'w-[380px] shrink-0' : 'w-full'}>
+        <div className={selectedBeneficiary ? 'hidden w-full shrink-0 sm:block sm:w-[380px]' : 'w-full'}>
           <BeneficiaryFilters
             filters={filters}
             onChange={(f) => { setFilters(f); setPage(1) }}

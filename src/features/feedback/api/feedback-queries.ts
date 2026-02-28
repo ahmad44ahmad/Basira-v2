@@ -77,7 +77,7 @@ export function useFeedbackStats() {
   const totalSurveys = surveys?.length ?? 0
   const happyCount = surveys?.filter((s) => s.overall_mood === 'happy').length ?? 0
   const avgFood = totalSurveys
-    ? +(surveys!.reduce((s, v) => s + (v.food_rating ?? 0), 0) / totalSurveys).toFixed(1)
+    ? +((surveys?.reduce((s, v) => s + (v.food_rating ?? 0), 0) ?? 0) / totalSurveys).toFixed(1)
     : 0
   const activeAlerts = alerts?.filter((a) => a.status === 'active').length ?? 0
 

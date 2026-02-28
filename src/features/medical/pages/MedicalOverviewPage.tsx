@@ -419,7 +419,7 @@ function ClinicalSection() {
           {/* Filters */}
           <div className="mb-4 flex flex-wrap gap-2">
             <div className="flex flex-wrap gap-1">
-              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ml-1">النوع:</span>
+              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ms-1">النوع:</span>
               {(['all', 'progress', 'consultation', 'follow_up', 'soap'] as const).map((t) => (
                 <button
                   key={t}
@@ -434,7 +434,7 @@ function ClinicalSection() {
               ))}
             </div>
             <div className="flex flex-wrap gap-1">
-              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ml-1">التخصص:</span>
+              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ms-1">التخصص:</span>
               {(['all', 'doctor', 'nursing', 'pt', 'ot', 'speech', 'psychology', 'social'] as const).map((d) => (
                 <button
                   key={d}
@@ -834,7 +834,7 @@ function PsychSection() {
         <>
           <div className="mb-4 flex flex-wrap gap-4">
             <div className="flex flex-wrap gap-1">
-              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ml-1">النوع:</span>
+              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ms-1">النوع:</span>
               {(['all', 'comprehensive_exam', 'treatment_plan', 'behavior_observation', 'behavior_modification', 'progress_review'] as const).map((t) => (
                 <button
                   key={t}
@@ -849,7 +849,7 @@ function PsychSection() {
               ))}
             </div>
             <div className="flex flex-wrap gap-1">
-              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ml-1">الحالة:</span>
+              <span className="self-center text-xs font-medium text-slate-500 dark:text-slate-400 ms-1">الحالة:</span>
               {(['all', 'active', 'completed', 'reviewed'] as const).map((s) => (
                 <button
                   key={s}

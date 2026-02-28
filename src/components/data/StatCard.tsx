@@ -12,11 +12,11 @@ interface StatCardProps {
 }
 
 const accentBorders = {
-  teal: 'border-r-teal',
-  navy: 'border-r-navy',
-  gold: 'border-r-gold',
-  danger: 'border-r-danger',
-  success: 'border-r-success',
+  teal: 'border-s-teal',
+  navy: 'border-s-navy',
+  gold: 'border-s-gold',
+  danger: 'border-s-danger',
+  success: 'border-s-success',
 }
 
 const accentBg = {
@@ -39,7 +39,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'rounded-xl border border-slate-200 border-r-4 bg-white p-4 shadow-soft transition-all duration-200 hover:shadow-card',
+        'rounded-xl border border-slate-200 border-s-4 bg-white p-4 shadow-soft transition-all duration-200 hover:shadow-card',
         'dark:border-slate-700 dark:bg-slate-800',
         accentBorders[accent],
         className,

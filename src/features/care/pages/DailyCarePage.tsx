@@ -575,7 +575,7 @@ function HealthChartsSection() {
                     {e.nursing_actions && e.nursing_actions.length > 0 && (
                       <div className="sm:col-span-2">
                         <span className="font-medium">الإجراءات التمريضية:</span>
-                        <ul className="mt-1 list-disc list-inside mr-2">
+                        <ul className="mt-1 list-disc list-inside me-2">
                           {e.nursing_actions.map((a, i) => <li key={i}>{a}</li>)}
                         </ul>
                       </div>
@@ -884,7 +884,7 @@ function IsolationSection() {
                           {iso.observations.length > 0 && (
                             <div>
                               <span className="font-medium">الملاحظات:</span>
-                              <div className="mt-2 space-y-1.5 border-r-2 border-teal/30 pr-3">
+                              <div className="mt-2 space-y-1.5 border-s-2 border-teal/30 ps-3">
                                 {iso.observations.map((obs, i) => (
                                   <div key={i} className="flex items-start gap-2">
                                     <span className="text-slate-400 whitespace-nowrap">{String((obs as Record<string, unknown>).date ?? '')} {String((obs as Record<string, unknown>).time ?? '')}</span>

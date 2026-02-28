@@ -189,7 +189,7 @@ function SidebarSection({ section }: { section: NavSection }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mr-4 mt-1 space-y-0.5 border-r-2 border-slate-200 pr-3 dark:border-slate-700">
+            <div className="ms-4 mt-1 space-y-0.5 border-s-2 border-slate-200 ps-3 dark:border-slate-700">
               {section.items.map((item) => (
                 <NavLink
                   key={item.to}
@@ -235,7 +235,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 right-0 z-50 flex h-full w-[280px] flex-col border-l border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0',
+          'fixed top-0 start-0 z-50 flex h-full w-[280px] flex-col border-e border-slate-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0',
           'dark:border-slate-700 dark:bg-slate-900',
           sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0',
         )}
@@ -249,6 +249,7 @@ export function Sidebar() {
           <button
             onClick={() => setSidebarOpen(false)}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 lg:hidden dark:hover:bg-slate-800"
+            aria-label="إغلاق القائمة"
           >
             <X className="h-5 w-5" />
           </button>

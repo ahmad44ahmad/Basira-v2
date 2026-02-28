@@ -137,7 +137,7 @@ export function ShiftHandoverPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -50 }}
               >
-                <Card className={cn(item.priority === 'high' && 'border-r-4 border-r-danger')}>
+                <Card className={cn(item.priority === 'high' && 'border-s-4 border-s-danger')}>
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -198,8 +198,8 @@ function StaffWellbeingSection() {
 
           return (
             <Card key={score.id} className={cn(
-              score.risk_level === 'red' && 'border-r-4 border-r-red-500',
-              score.risk_level === 'orange' && 'border-r-4 border-r-orange-500',
+              score.risk_level === 'red' && 'border-s-4 border-s-red-500',
+              score.risk_level === 'orange' && 'border-s-4 border-s-orange-500',
             )}>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -227,9 +227,9 @@ function StaffWellbeingSection() {
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                   />
                   {/* Threshold markers */}
-                  <div className="absolute top-0 left-[40%] h-full w-px bg-amber-400" />
-                  <div className="absolute top-0 left-[60%] h-full w-px bg-orange-400" />
-                  <div className="absolute top-0 left-[80%] h-full w-px bg-red-400" />
+                  <div className="absolute top-0 start-[40%] h-full w-px bg-amber-400" />
+                  <div className="absolute top-0 start-[60%] h-full w-px bg-orange-400" />
+                  <div className="absolute top-0 start-[80%] h-full w-px bg-red-400" />
                 </div>
 
                 {/* Component scores */}
@@ -278,7 +278,7 @@ function StaffWellbeingSection() {
                     score.risk_level === 'red' ? 'bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-300'
                     : 'bg-amber-50 dark:bg-amber-900/10 text-amber-700 dark:text-amber-300'
                   )}>
-                    <AlertTriangle className="inline h-3.5 w-3.5 ml-1" />
+                    <AlertTriangle className="inline h-3.5 w-3.5 ms-1" />
                     {score.intervention_notes}
                   </div>
                 )}

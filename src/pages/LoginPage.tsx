@@ -86,14 +86,14 @@ export function LoginPage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 {...register('password')}
-                className="h-11 w-full rounded-lg border border-white/20 bg-white/10 px-4 pl-11 text-sm text-white placeholder:text-slate-400 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30"
+                className="h-11 w-full rounded-lg border border-white/20 bg-white/10 px-4 pe-11 text-sm text-white placeholder:text-slate-400 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30"
                 placeholder="••••••"
                 dir="ltr"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
                 aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

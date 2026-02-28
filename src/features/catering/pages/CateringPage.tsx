@@ -134,10 +134,10 @@ function DailyLogSection() {
                     <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
                     {meal.status === 'pending' && (
                       <div className="flex gap-1">
-                        <button onClick={() => updateMealStatus(meal.id, 'consumed')} className="rounded-lg bg-emerald-100 p-1.5 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400" title="تم الاستهلاك">
+                        <button onClick={() => updateMealStatus(meal.id, 'consumed')} className="rounded-lg bg-emerald-100 p-1.5 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400" title="تم الاستهلاك" aria-label="تم الاستهلاك">
                           <CheckCircle className="h-4 w-4" />
                         </button>
-                        <button onClick={() => updateMealStatus(meal.id, 'refused')} className="rounded-lg bg-red-100 p-1.5 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400" title="رفض">
+                        <button onClick={() => updateMealStatus(meal.id, 'refused')} className="rounded-lg bg-red-100 p-1.5 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400" title="رفض" aria-label="رفض">
                           <XCircle className="h-4 w-4" />
                         </button>
                       </div>
@@ -338,7 +338,7 @@ function InventorySection() {
             const stockRatio = item.currentStock / item.maxStock
             const isLow = item.currentStock <= item.minStock
             return (
-              <Card key={item.id} className={cn(isLow && 'border-r-4 border-r-red-500')}>
+              <Card key={item.id} className={cn(isLow && 'border-s-4 border-s-red-500')}>
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -447,7 +447,7 @@ function SuppliersSection() {
 
             return (
               <motion.div key={supplier.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <Card className={cn(supplier.is_emergency_backup && 'border-r-4 border-r-red-500')}>
+                <Card className={cn(supplier.is_emergency_backup && 'border-s-4 border-s-red-500')}>
                   <div className="space-y-3">
                     {/* Header row */}
                     <div className="flex items-start justify-between gap-3">
@@ -457,13 +457,13 @@ function SuppliersSection() {
                           <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
                           {supplier.is_emergency_backup && (
                             <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                              <Truck className="ml-1 inline h-3 w-3" />
+                              <Truck className="ms-1 inline h-3 w-3" />
                               احتياطي طوارئ
                             </Badge>
                           )}
                           {isExpiringSoon && supplier.status === 'active' && (
                             <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                              <ShieldAlert className="ml-1 inline h-3 w-3" />
+                              <ShieldAlert className="ms-1 inline h-3 w-3" />
                               ينتهي خلال {daysLeft} يوم
                             </Badge>
                           )}

@@ -151,7 +151,7 @@ function GoalsSection() {
 
             return (
               <motion.div key={goal.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50 }}>
-                <Card className={cn(goal.status === 'achieved' && 'border-r-4 border-r-emerald-500')}>
+                <Card className={cn(goal.status === 'achieved' && 'border-s-4 border-s-emerald-500')}>
                   <div className="cursor-pointer" onClick={() => setExpandedGoal(isExpanded ? null : goal.id)}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
@@ -185,7 +185,7 @@ function GoalsSection() {
                           </div>
                         )}
                       </div>
-                      <button className="mt-1 text-slate-400">
+                      <button className="mt-1 text-slate-400" aria-label="عرض التفاصيل">
                         {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                       </button>
                     </div>
@@ -420,7 +420,7 @@ function IcfSection() {
           const hasGap = a.component === 'd' && a.capacity_qualifier != null && a.performance_qualifier != null && a.capacity_qualifier !== a.performance_qualifier
 
           return (
-            <Card key={a.id} className={cn(hasGap && 'border-r-4 border-r-amber-500')}>
+            <Card key={a.id} className={cn(hasGap && 'border-s-4 border-s-amber-500')}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -574,8 +574,8 @@ function RightsSection() {
 
           return (
             <Card key={entry.id} className={cn(
-              entry.status === 'barrier_identified' && 'border-r-4 border-r-red-500',
-              entry.status === 'realized' && 'border-r-4 border-r-emerald-500',
+              entry.status === 'barrier_identified' && 'border-s-4 border-s-red-500',
+              entry.status === 'realized' && 'border-s-4 border-s-emerald-500',
             )}>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -629,7 +629,7 @@ function DignitySection() {
   return (
     <div className="space-y-6">
       {/* Header card */}
-      <Card className="border-r-4 border-r-gold">
+      <Card className="border-s-4 border-s-gold">
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 text-3xl">
             <Heart className="h-8 w-8 text-gold" />
@@ -878,7 +878,7 @@ function TrainingSection() {
             const pct = eval_item.percentage ?? 0
 
             return (
-              <Card key={eval_item.id} className={cn(pct >= 70 && 'border-r-4 border-r-emerald-500')}>
+              <Card key={eval_item.id} className={cn(pct >= 70 && 'border-s-4 border-s-emerald-500')}>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -1070,7 +1070,7 @@ function CoDesignSection() {
               const ratio = Math.round(budget.independence_ratio * 100)
               return (
                 <motion.div key={budget.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                  <Card className={cn(ratio >= 50 && 'border-r-4 border-r-emerald-500')}>
+                  <Card className={cn(ratio >= 50 && 'border-s-4 border-s-emerald-500')}>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">

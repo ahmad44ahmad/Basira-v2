@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 
 interface PageHeaderProps {
@@ -10,6 +10,11 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, description, icon, actions, className }: PageHeaderProps) {
+  useEffect(() => {
+    document.title = `${title} | بصيرة`
+    return () => { document.title = 'بصيرة' }
+  }, [title])
+
   return (
     <div className={cn('mb-6 flex items-start justify-between', className)}>
       <div className="flex items-center gap-3">

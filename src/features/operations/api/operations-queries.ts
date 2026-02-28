@@ -18,15 +18,18 @@ async function fetchAssets(): Promise<Asset[]> {
   if (error) throw error
   return (data ?? []).map((a: OmAsset) => ({
     id: a.id,
-    code: a.asset_code,
-    name: a.name_ar,
+    assetCode: a.asset_code,
+    nameAr: a.name_ar,
     category: 'general',
-    location: a.location ?? '',
-    status: a.status === 'operational' ? 'operational' : a.status === 'maintenance' ? 'maintenance' : 'retired',
+    assetType: 'fixed' as const,
+    building: a.location ?? '',
+    status: a.status === 'operational' ? 'active' as const : a.status === 'maintenance' ? 'under_maintenance' as const : 'disposed' as const,
     condition: 'good' as const,
-    purchaseDate: a.purchase_date ?? '',
-    warrantyExpiry: a.warranty_expiry ?? '',
-    lastMaintenance: '',
+    acquisitionDate: a.purchase_date ?? '',
+    acquisitionCost: 0,
+    currentBookValue: 0,
+    depreciationRate: 10,
+    warrantyEnd: a.warranty_expiry ?? '',
   }))
 }
 
@@ -53,15 +56,14 @@ async function fetchMaintenanceRequests(): Promise<MaintenanceRequest[]> {
     requestNumber: r.request_number,
     title: r.title,
     description: r.description ?? '',
-    location: '',
-    type: 'corrective' as const,
-    priority: r.priority,
-    status: r.status,
-    requestedBy: r.requested_by ?? '',
+    requestType: 'corrective' as const,
+    priority: r.priority as MaintenanceRequest['priority'],
+    status: r.status as MaintenanceRequest['status'],
+    reportedBy: r.requested_by ?? '',
     assignedTo: r.assigned_to ?? '',
-    createdAt: r.created_at,
-    completedAt: r.completed_at ?? '',
-    cost: r.cost ?? 0,
+    reportedDate: r.created_at,
+    actualCompletion: r.completed_at ?? '',
+    estimatedCost: r.cost ?? 0,
   }))
 }
 
@@ -131,8 +133,8 @@ export function useOperationsStats() {
 
   return {
     totalAssets: assets?.length ?? 0,
-    operationalAssets: assets?.filter((a) => a.status === 'operational').length ?? 0,
-    openRequests: maintenance?.filter((m) => m.status === 'open' || m.status === 'in_progress').length ?? 0,
-    totalMaintenanceCost: maintenance?.reduce((s, m) => s + (m.cost ?? 0), 0) ?? 0,
+    operationalAssets: assets?.filter((a) => a.status === 'active').length ?? 0,
+    openRequests: maintenance?.filter((m) => m.status === 'pending' || m.status === 'in_progress').length ?? 0,
+    totalMaintenanceCost: maintenance?.reduce((s, m) => s + (m.estimatedCost ?? 0), 0) ?? 0,
   }
 }

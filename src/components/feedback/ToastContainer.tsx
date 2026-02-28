@@ -21,14 +21,14 @@ export function ToastContainer() {
   const { toasts, removeToast } = useToastStore()
 
   return (
-    <div className="fixed bottom-4 left-4 z-[100] flex flex-col gap-2">
+    <div className="fixed bottom-4 end-4 z-[100] flex flex-col gap-2">
       <AnimatePresence>
         {toasts.map((t) => (
           <motion.div
             key={t.id}
-            initial={{ opacity: 0, x: -100, scale: 0.9 }}
+            initial={{ opacity: 0, x: 100, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -100, scale: 0.9 }}
+            exit={{ opacity: 0, x: 100, scale: 0.9 }}
             className={cn(
               'flex items-center gap-3 rounded-xl border bg-white px-4 py-3 shadow-elevated',
               'dark:bg-slate-800',
@@ -41,7 +41,8 @@ export function ToastContainer() {
             </span>
             <button
               onClick={() => removeToast(t.id)}
-              className="mr-auto rounded-lg p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="ms-auto rounded-lg p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              aria-label="إغلاق"
             >
               <X className="h-4 w-4" />
             </button>

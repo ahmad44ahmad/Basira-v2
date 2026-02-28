@@ -54,7 +54,7 @@ function InspectionsSection() {
 
       <div className="flex justify-end">
         <Button onClick={() => setShowNewInspection(true)}>
-          <Plus className="ml-1.5 h-4 w-4" /> جولة تفتيش جديدة
+          <Plus className="ms-1.5 h-4 w-4" /> جولة تفتيش جديدة
         </Button>
       </div>
 

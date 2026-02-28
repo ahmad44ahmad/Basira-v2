@@ -138,7 +138,7 @@ function RiskSection() {
           const statusConfig = RISK_STATUS_CONFIG[risk.status]
           const responseConfig = RISK_RESPONSE_CONFIG[risk.responseStrategy]
           return (
-            <Card key={risk.id} className={cn(risk.riskLevel === 'critical' && 'border-r-4 border-r-red-500', risk.riskLevel === 'high' && 'border-r-4 border-r-orange-500')}>
+            <Card key={risk.id} className={cn(risk.riskLevel === 'critical' && 'border-s-4 border-s-red-500', risk.riskLevel === 'high' && 'border-s-4 border-s-orange-500')}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -211,7 +211,7 @@ function ComplianceSection() {
         {filtered.map((req) => {
           const statusConfig = COMPLIANCE_STATUS_CONFIG[req.complianceStatus]
           return (
-            <Card key={req.id} className={cn(req.complianceStatus === 'non_compliant' && 'border-r-4 border-r-red-500')}>
+            <Card key={req.id} className={cn(req.complianceStatus === 'non_compliant' && 'border-s-4 border-s-red-500')}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -293,7 +293,7 @@ function SafetySection() {
           const sevConfig = SAFETY_SEVERITY_CONFIG[incident.severity]
           const statusConfig = SAFETY_STATUS_CONFIG[incident.status]
           return (
-            <Card key={incident.id} className={cn(incident.severity === 'critical' && 'border-r-4 border-r-red-500', incident.severity === 'major' && 'border-r-4 border-r-orange-500')}>
+            <Card key={incident.id} className={cn(incident.severity === 'critical' && 'border-s-4 border-s-red-500', incident.severity === 'major' && 'border-s-4 border-s-orange-500')}>
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 text-xl">{typeConfig.emoji}</span>
                 <div className="min-w-0 flex-1">
@@ -388,9 +388,9 @@ function AbuseSection() {
             <Card
               key={report.id}
               className={cn(
-                report.severity === 'severe' && 'border-r-4 border-r-orange-500',
-                report.severity === 'critical' && 'border-r-4 border-r-red-500',
-                report.investigation_status === 'referred_to_authorities' && 'border-r-4 border-r-red-600',
+                report.severity === 'severe' && 'border-s-4 border-s-orange-500',
+                report.severity === 'critical' && 'border-s-4 border-s-red-500',
+                report.investigation_status === 'referred_to_authorities' && 'border-s-4 border-s-red-600',
               )}
             >
               <div className="space-y-3">

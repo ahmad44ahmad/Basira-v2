@@ -76,7 +76,7 @@ export function TrainingPage() {
           ))}
         </div>
         <Button onClick={() => setShowAdd(true)}>
-          <Plus className="ml-1.5 h-4 w-4" /> إحالة جديدة
+          <Plus className="ms-1.5 h-4 w-4" /> إحالة جديدة
         </Button>
       </div>
 

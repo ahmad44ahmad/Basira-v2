@@ -18,17 +18,20 @@ async function fetchRisks(): Promise<Risk[]> {
   if (error) throw error
   return (data ?? []).map((r: GrcRisk) => ({
     id: r.id,
-    title: r.title,
+    riskCode: r.id,
+    titleAr: r.title,
     description: r.description,
     category: r.category as Risk['category'],
     likelihood: r.likelihood,
     impact: r.impact,
     riskScore: r.risk_score,
     riskLevel: r.risk_level as Risk['riskLevel'],
-    response: r.response_strategy,
-    mitigationPlan: r.mitigation_plan ?? '',
-    owner: r.owner ?? '',
-    status: r.status,
+    riskOwner: r.owner ?? '',
+    department: '',
+    responseStrategy: r.response_strategy as Risk['responseStrategy'],
+    mitigationAction: r.mitigation_plan ?? '',
+    status: r.status as Risk['status'],
+    reviewFrequency: 'quarterly' as const,
   }))
 }
 
@@ -74,12 +77,15 @@ async function fetchCompliance(): Promise<ComplianceRequirement[]> {
   if (error) throw error
   return (data ?? []).map((c: GrcComplianceRequirement) => ({
     id: c.id,
-    standard: c.standard,
-    clause: c.clause,
-    requirement: c.requirement,
-    status: c.status,
-    evidence: c.evidence ?? '',
-    gapAnalysis: c.gap_analysis ?? '',
+    requirementCode: c.id,
+    titleAr: c.requirement,
+    standardName: c.standard,
+    section: c.clause,
+    complianceStatus: c.status as ComplianceRequirement['complianceStatus'],
+    complianceScore: c.status === 'compliant' ? 100 : c.status === 'partial' ? 60 : 0,
+    responsibleDepartment: '',
+    evidenceNotes: c.evidence ?? '',
+    gapDescription: c.gap_analysis ?? '',
     remediationPlan: c.remediation_plan ?? '',
     dueDate: c.due_date ?? '',
   }))
@@ -110,10 +116,10 @@ export function useGRCStats() {
   return {
     totalRisks: risks?.length ?? 0,
     highRisks: risks?.filter((r) => r.riskLevel === 'critical' || r.riskLevel === 'high').length ?? 0,
-    compliantCount: compliance?.filter((c) => c.status === 'compliant').length ?? 0,
+    compliantCount: compliance?.filter((c) => c.complianceStatus === 'compliant').length ?? 0,
     totalCompliance: compliance?.length ?? 0,
     complianceRate: compliance?.length
-      ? Math.round((compliance.filter((c) => c.status === 'compliant').length / compliance.length) * 100)
+      ? Math.round((compliance.filter((c) => c.complianceStatus === 'compliant').length / compliance.length) * 100)
       : 0,
   }
 }

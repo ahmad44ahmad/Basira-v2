@@ -177,7 +177,7 @@ export function SettingsPage() {
 
         {/* Save */}
         <Button onClick={handleSave} className="w-full">
-          <Save className="ml-1.5 h-4 w-4" />
+          <Save className="ms-1.5 h-4 w-4" />
           {saved ? 'تم الحفظ ✓' : 'حفظ الإعدادات'}
         </Button>
       </div>

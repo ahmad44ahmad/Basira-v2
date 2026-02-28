@@ -29,14 +29,14 @@ export function BeneficiaryFilters({ filters, onChange, totalCount, filteredCoun
       {/* Search + Filter Toggle */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={filters.search}
             onChange={(e) => onChange({ ...filters, search: e.target.value })}
             placeholder="ابحث بالاسم أو رقم الملف أو الهوية..."
             className={cn(
-              'h-10 w-full rounded-lg border bg-white pr-10 pl-3 text-sm',
+              'h-10 w-full rounded-lg border bg-white pe-10 ps-3 text-sm',
               'border-slate-200 placeholder:text-slate-400',
               'focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold',
               'dark:bg-slate-800 dark:border-slate-600',
@@ -51,7 +51,7 @@ export function BeneficiaryFilters({ filters, onChange, totalCount, filteredCoun
         >
           <SlidersHorizontal className="h-4 w-4" />
           {activeFilterCount > 0 && (
-            <span className="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
+            <span className="absolute -top-1 -start-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
               {activeFilterCount}
             </span>
           )}

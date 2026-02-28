@@ -12,9 +12,9 @@ interface BeneficiaryCardProps {
 
 const riskColors = {
   low: '',
-  medium: 'border-r-warning',
-  high: 'border-r-danger',
-  critical: 'border-r-red-600',
+  medium: 'border-s-warning',
+  high: 'border-s-danger',
+  critical: 'border-s-red-600',
 }
 
 export function BeneficiaryCard({ beneficiary, selected, onClick }: BeneficiaryCardProps) {
@@ -26,7 +26,7 @@ export function BeneficiaryCard({ beneficiary, selected, onClick }: BeneficiaryC
     <button
       onClick={onClick}
       className={cn(
-        'w-full rounded-xl border border-r-4 p-4 text-right transition-all duration-200',
+        'w-full rounded-xl border border-s-4 p-4 text-right transition-all duration-200',
         'hover:shadow-card',
         selected
           ? 'border-gold bg-gold/5 shadow-card dark:bg-gold/10'

@@ -485,7 +485,7 @@ function CounselingCaseCard({ counselingCase }: { counselingCase: FamilyCounseli
             )}
             {durationConfig && (
               <Badge variant="outline">
-                <Clock className="ml-1 inline h-3 w-3" />
+                <Clock className="ms-1 inline h-3 w-3" />
                 {durationConfig.label}
               </Badge>
             )}
@@ -643,7 +643,7 @@ function FeedSection() {
             {post.mediaColor && post.type !== 'milestone' && (
               <div className={cn('mt-3 flex h-48 items-center justify-center rounded-xl', post.mediaColor)}>
                 {post.type === 'video' ? (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/80 shadow-lg">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 shadow-lg">
                     <Video className="h-6 w-6 text-slate-700" />
                   </div>
                 ) : (
@@ -689,7 +689,7 @@ function GoalsSection() {
             <h3 className="font-bold text-slate-900 dark:text-white">متوسط التقدم الإجمالي</h3>
             <p className="text-sm text-slate-500">{GOALS_PROGRESS.length} أهداف نشطة</p>
           </div>
-          <div className="mr-auto text-3xl font-bold text-teal">
+          <div className="ms-auto text-3xl font-bold text-teal">
             {Math.round(GOALS_PROGRESS.reduce((s, g) => s + g.progress, 0) / GOALS_PROGRESS.length)}%
           </div>
         </div>

@@ -36,7 +36,7 @@ function EmojiSelector({
   return (
     <div className="text-center">
       <div className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-        <span className="ml-1">{icon}</span>
+        <span className="ms-1">{icon}</span>
         {label}
       </div>
       <div className="flex justify-center gap-3">
@@ -173,7 +173,7 @@ export function VisualSurvey() {
         </div>
 
         <Button type="submit" loading={createMutation.isPending} className="w-full">
-          <Save className="h-4 w-4 ml-2" />
+          <Save className="h-4 w-4 ms-2" />
           حفظ الاستبيان
         </Button>
       </form>

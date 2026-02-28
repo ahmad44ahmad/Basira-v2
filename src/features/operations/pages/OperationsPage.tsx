@@ -260,7 +260,7 @@ function MaintenanceSection() {
             const statusConfig = MAINTENANCE_STATUS_CONFIG[req.status]
             return (
               <motion.div key={req.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50 }}>
-                <Card className={cn(req.priority === 'critical' && 'border-r-4 border-r-red-500')}>
+                <Card className={cn(req.priority === 'critical' && 'border-s-4 border-s-red-500')}>
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">

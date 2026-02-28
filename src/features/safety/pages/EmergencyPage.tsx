@@ -173,7 +173,7 @@ function EquipmentSection({ equipment }: { equipment: import('@/types/database')
                 <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                <MapPin className="inline h-3 w-3 ml-1" />{eq.location}
+                <MapPin className="inline h-3 w-3 ms-1" />{eq.location}
               </p>
               <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>آخر فحص: {eq.last_inspection_date ?? '—'}</span>

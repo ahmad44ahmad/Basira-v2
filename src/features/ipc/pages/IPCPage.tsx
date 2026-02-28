@@ -13,38 +13,13 @@ import {
   IPC_INCIDENT_CATEGORY_CONFIG, IPC_SEVERITY_CONFIG, IPC_STATUS_CONFIG,
   IMMUNITY_STATUS_CONFIG, VACCINE_TYPES,
   OUTBREAK_SEVERITY_CONFIG, CONTAINMENT_STATUS_CONFIG,
-  type IPCInspection, type IPCIncident, type ImmunizationRecord, type Outbreak,
+  type Outbreak,
   type IPCIncidentCategory, type IPCIncidentStatus, type ImmunityStatus,
   type ChecklistItem, type InspectionShift,
 } from '../types'
+import { useIPCInspections, useIPCIncidents, useIPCImmunizations } from '../api/ipc-queries'
 
-// ── Demo Data ───────────────────────────────────────────────────
-
-const DEMO_INSPECTIONS: IPCInspection[] = [
-  { id: '1', date: '2026-02-28', shift: 'morning', inspector: 'أ. نورة الشمري', location: 'جناح الذكور أ', complianceScore: 87, items: [], notes: 'ملاحظة بسيطة على نظافة الأسطح', followUpRequired: false },
-  { id: '2', date: '2026-02-28', shift: 'morning', inspector: 'أ. ريم العتيبي', location: 'العيادة الطبية', complianceScore: 95, items: [], followUpRequired: false },
-  { id: '3', date: '2026-02-27', shift: 'evening', inspector: 'أ. فهد المالكي', location: 'جناح الإناث أ', complianceScore: 72, items: [], notes: 'نقص في المعقمات', followUpRequired: true },
-  { id: '4', date: '2026-02-27', shift: 'night', inspector: 'أ. سارة المحمد', location: 'المطبخ', complianceScore: 91, items: [], followUpRequired: false },
-  { id: '5', date: '2026-02-26', shift: 'morning', inspector: 'أ. نورة الشمري', location: 'الصيدلية', complianceScore: 68, items: [], notes: 'عدم فصل النفايات بشكل صحيح', followUpRequired: true },
-]
-
-const DEMO_INCIDENTS: IPCIncident[] = [
-  { id: '1', category: 'infection_confirmed', detectionDate: '2026-02-25', affectedType: 'beneficiary', reportedBy: 'د. خالد العمري', location: 'جناح الذكور أ', infectionSite: 'تنفسي', severity: 'moderate', status: 'investigating', isolationRequired: true, description: 'إصابة تنفسية مؤكدة - تم عزل المستفيد', immediateActions: 'عزل + أخذ عينات + إبلاغ الطبيب' },
-  { id: '2', category: 'needle_stick', detectionDate: '2026-02-24', affectedType: 'staff', reportedBy: 'أ. ريم العتيبي', location: 'العيادة الطبية', severity: 'mild', status: 'resolved', isolationRequired: false, description: 'وخز إبرة أثناء سحب الدم', immediateActions: 'غسل + تطهير + إبلاغ المشرف' },
-  { id: '3', category: 'outbreak_alert', detectionDate: '2026-02-20', affectedType: 'beneficiary', reportedBy: 'د. سارة المحمد', location: 'جناح الإناث أ', severity: 'severe', status: 'containment', isolationRequired: true, description: 'اشتباه تفشي نوروفيروس - 3 حالات', immediateActions: 'عزل الحالات + تنظيف شامل + إبلاغ الوزارة' },
-  { id: '4', category: 'colonization', detectionDate: '2026-02-18', affectedType: 'beneficiary', reportedBy: 'أ. فهد المالكي', location: 'جناح الذكور ب', severity: 'mild', status: 'closed', isolationRequired: false, description: 'استعمار MRSA - نتيجة مسحة روتينية', immediateActions: 'احتياطات تلامسية + مراقبة' },
-]
-
-const DEMO_IMMUNIZATIONS: ImmunizationRecord[] = [
-  { id: '1', personType: 'staff', personName: 'أ. نورة الشمري', vaccineCode: 'HBV', vaccineName: 'التهاب الكبد B', doseNumber: 3, totalDoses: 3, dateAdministered: '2025-11-15', immunityStatus: 'immune', adverseReaction: false },
-  { id: '2', personType: 'staff', personName: 'أ. ريم العتيبي', vaccineCode: 'FLU', vaccineName: 'الإنفلونزا', doseNumber: 1, totalDoses: 1, dateAdministered: '2025-10-01', immunityStatus: 'immune', adverseReaction: false },
-  { id: '3', personType: 'staff', personName: 'أ. فهد المالكي', vaccineCode: 'HBV', vaccineName: 'التهاب الكبد B', doseNumber: 2, totalDoses: 3, dateAdministered: '2026-01-10', nextDueDate: '2026-07-10', immunityStatus: 'pending', adverseReaction: false },
-  { id: '4', personType: 'beneficiary', personName: 'أحمد محمد السالم', vaccineCode: 'FLU', vaccineName: 'الإنفلونزا', doseNumber: 1, totalDoses: 1, dateAdministered: '2025-10-15', immunityStatus: 'immune', adverseReaction: false },
-  { id: '5', personType: 'staff', personName: 'د. خالد العمري', vaccineCode: 'COVID', vaccineName: 'كوفيد-19', doseNumber: 2, totalDoses: 2, dateAdministered: '2025-09-20', immunityStatus: 'expired', adverseReaction: false },
-  { id: '6', personType: 'beneficiary', personName: 'فاطمة عبدالله', vaccineCode: 'TDAP', vaccineName: 'الكزاز والدفتيريا', doseNumber: 1, totalDoses: 1, dateAdministered: '2026-02-01', immunityStatus: 'immune', adverseReaction: false },
-  { id: '7', personType: 'staff', personName: 'أ. سارة المحمد', vaccineCode: 'HBV', vaccineName: 'التهاب الكبد B', doseNumber: 3, totalDoses: 3, dateAdministered: '2025-08-20', immunityStatus: 'immune', adverseReaction: true },
-]
-
+// ── Outbreaks demo data (no dedicated query yet) ────────────────
 const DEMO_OUTBREAKS: Outbreak[] = [
   { id: '1', code: 'OB-2026-001', pathogen: 'Norovirus', severity: 'high', location: 'جناح الإناث أ', staffAffected: 1, beneficiariesAffected: 3, containmentStatus: 'contained', mohNotified: true, detectionDate: '2026-02-20', description: 'تفشي نوروفيروس مع أعراض هضمية' },
   { id: '2', code: 'OB-2026-002', pathogen: 'Influenza A', severity: 'moderate', location: 'جناح الذكور أ', staffAffected: 0, beneficiariesAffected: 2, containmentStatus: 'active', mohNotified: false, detectionDate: '2026-02-26', description: 'حالتان مؤكدتان من إنفلونزا A' },
@@ -53,13 +28,14 @@ const DEMO_OUTBREAKS: Outbreak[] = [
 // ── Inspections Tab ─────────────────────────────────────────────
 
 function InspectionsSection() {
+  const { data: inspections = [] } = useIPCInspections()
   const [showNewInspection, setShowNewInspection] = useState(false)
   const [checklist, setChecklist] = useState<ChecklistItem[]>(DEFAULT_CHECKLIST.map((i) => ({ ...i })))
   const [newLocation, setNewLocation] = useState(IPC_LOCATIONS[0])
   const [newShift, setNewShift] = useState<InspectionShift>('morning')
 
-  const avgCompliance = Math.round(DEMO_INSPECTIONS.reduce((a, i) => a + i.complianceScore, 0) / DEMO_INSPECTIONS.length)
-  const followUps = DEMO_INSPECTIONS.filter((i) => i.followUpRequired).length
+  const avgCompliance = inspections.length > 0 ? Math.round(inspections.reduce((a, i) => a + i.compliance_score, 0) / inspections.length) : 0
+  const followUps = inspections.filter((i) => i.follow_up_required).length
   const score = calculateComplianceScore(checklist)
 
   const toggleItem = (id: string, val: boolean) => {
@@ -72,9 +48,9 @@ function InspectionsSection() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard title="معدل الامتثال" value={`${avgCompliance}%`} subtitle="هذا الأسبوع" icon={<ShieldCheck className="h-6 w-6" />} accent="teal" />
-        <StatCard title="جولات اليوم" value={String(DEMO_INSPECTIONS.filter((i) => i.date === '2026-02-28').length)} subtitle="جولة تفتيش" icon={<ClipboardCheck className="h-6 w-6" />} accent="success" />
+        <StatCard title="جولات اليوم" value={String(inspections.filter((i) => i.inspection_date === new Date().toISOString().slice(0, 10)).length)} subtitle="جولة تفتيش" icon={<ClipboardCheck className="h-6 w-6" />} accent="success" />
         <StatCard title="متابعات معلقة" value={String(followUps)} subtitle="تحتاج إجراء" icon={<AlertTriangle className="h-6 w-6" />} accent="gold" />
-        <StatCard title="إجمالي الجولات" value={String(DEMO_INSPECTIONS.length)} subtitle="هذا الشهر" icon={<Eye className="h-6 w-6" />} accent="teal" />
+        <StatCard title="إجمالي الجولات" value={String(inspections.length)} subtitle="هذا الشهر" icon={<Eye className="h-6 w-6" />} accent="teal" />
       </div>
 
       <div className="flex justify-end">
@@ -85,28 +61,28 @@ function InspectionsSection() {
 
       {/* Inspection History */}
       <AnimatePresence mode="popLayout">
-        {DEMO_INSPECTIONS.map((insp) => (
+        {inspections.map((insp) => (
           <motion.div key={insp.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
             <Card>
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl text-lg font-bold text-white ${insp.complianceScore >= 90 ? 'bg-emerald-500' : insp.complianceScore >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}>
-                    {insp.complianceScore}%
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl text-lg font-bold text-white ${insp.compliance_score >= 90 ? 'bg-emerald-500' : insp.compliance_score >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}>
+                    {insp.compliance_score}%
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-white">{insp.location}</h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">{insp.location_name}</h3>
                     <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <span>{insp.date}</span>
+                      <span>{insp.inspection_date}</span>
                       <Badge className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                        {SHIFT_CONFIG[insp.shift].emoji} {SHIFT_CONFIG[insp.shift].label}
+                        {insp.shift}
                       </Badge>
-                      <span>{insp.inspector}</span>
+                      <span>{insp.inspector_name}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {insp.followUpRequired && <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">متابعة مطلوبة</Badge>}
-                  {insp.notes && <span className="text-xs text-slate-500" title={insp.notes}>📝</span>}
+                  {insp.follow_up_required && <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">متابعة مطلوبة</Badge>}
+                  {insp.non_compliance_details && <span className="text-xs text-slate-500" title={insp.non_compliance_details}>📝</span>}
                 </div>
               </div>
             </Card>
@@ -180,20 +156,21 @@ function InspectionsSection() {
 // ── Incidents Tab ───────────────────────────────────────────────
 
 function IncidentsSection() {
-  const [catFilter, setCatFilter] = useState<IPCIncidentCategory | 'all'>('all')
+  const { data: incidents = [] } = useIPCIncidents()
+  const [catFilter, setCatFilter] = useState<string | 'all'>('all')
   const filtered = useMemo(
-    () => catFilter === 'all' ? DEMO_INCIDENTS : DEMO_INCIDENTS.filter((i) => i.category === catFilter),
-    [catFilter],
+    () => catFilter === 'all' ? incidents : incidents.filter((i) => i.incident_category === catFilter),
+    [catFilter, incidents],
   )
-  const openCount = DEMO_INCIDENTS.filter((i) => i.status !== 'closed' && i.status !== 'resolved').length
+  const openCount = incidents.filter((i) => i.status !== 'closed' && i.status !== 'resolved').length
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard title="حوادث نشطة" value={String(openCount)} subtitle="تحتاج متابعة" icon={<Bug className="h-6 w-6" />} accent="danger" />
-        <StatCard title="إجمالي الحوادث" value={String(DEMO_INCIDENTS.length)} subtitle="هذا الشهر" icon={<AlertTriangle className="h-6 w-6" />} accent="gold" />
-        <StatCard title="حالات عزل" value={String(DEMO_INCIDENTS.filter((i) => i.isolationRequired).length)} subtitle="نشطة حالياً" icon={<ShieldCheck className="h-6 w-6" />} accent="teal" />
-        <StatCard title="مغلقة" value={String(DEMO_INCIDENTS.filter((i) => i.status === 'closed' || i.status === 'resolved').length)} subtitle="تم الحل" icon={<CheckCircle className="h-6 w-6" />} accent="success" />
+        <StatCard title="إجمالي الحوادث" value={String(incidents.length)} subtitle="هذا الشهر" icon={<AlertTriangle className="h-6 w-6" />} accent="gold" />
+        <StatCard title="حالات عزل" value={String(incidents.filter((i) => i.isolation_required).length)} subtitle="نشطة حالياً" icon={<ShieldCheck className="h-6 w-6" />} accent="teal" />
+        <StatCard title="مغلقة" value={String(incidents.filter((i) => i.status === 'closed' || i.status === 'resolved').length)} subtitle="تم الحل" icon={<CheckCircle className="h-6 w-6" />} accent="success" />
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -211,34 +188,40 @@ function IncidentsSection() {
       </div>
 
       <AnimatePresence mode="popLayout">
-        {filtered.map((inc) => (
-          <motion.div key={inc.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <Card className={`border-r-4 ${inc.severity === 'critical' ? 'border-r-red-500' : inc.severity === 'severe' ? 'border-r-orange-500' : inc.severity === 'moderate' ? 'border-r-amber-500' : 'border-r-green-500'}`}>
-              <div className="p-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{IPC_INCIDENT_CATEGORY_CONFIG[inc.category].emoji}</span>
-                    <h3 className="font-semibold text-slate-900 dark:text-white">{IPC_INCIDENT_CATEGORY_CONFIG[inc.category].label}</h3>
-                    <Badge className={IPC_SEVERITY_CONFIG[inc.severity].color}>{IPC_SEVERITY_CONFIG[inc.severity].label}</Badge>
+        {filtered.map((inc) => {
+          const catCfg = IPC_INCIDENT_CATEGORY_CONFIG[inc.incident_category as IPCIncidentCategory]
+          const sevCfg = IPC_SEVERITY_CONFIG[inc.severity_level as keyof typeof IPC_SEVERITY_CONFIG]
+          const stsCfg = IPC_STATUS_CONFIG[inc.status as IPCIncidentStatus]
+          const immediateText = Array.isArray(inc.immediate_actions) ? inc.immediate_actions.join(' — ') : ''
+          return (
+            <motion.div key={inc.id} layout initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <Card className={`border-r-4 ${inc.severity_level === 'critical' ? 'border-r-red-500' : inc.severity_level === 'high' || inc.severity_level === 'severe' ? 'border-r-orange-500' : inc.severity_level === 'medium' || inc.severity_level === 'moderate' ? 'border-r-amber-500' : 'border-r-green-500'}`}>
+                <div className="p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{catCfg?.emoji ?? '🦠'}</span>
+                      <h3 className="font-semibold text-slate-900 dark:text-white">{catCfg?.label ?? inc.incident_category}</h3>
+                      {sevCfg && <Badge className={sevCfg.color}>{sevCfg.label}</Badge>}
+                    </div>
+                    {stsCfg && <Badge className={stsCfg.color}>{stsCfg.label}</Badge>}
                   </div>
-                  <Badge className={IPC_STATUS_CONFIG[inc.status].color}>{IPC_STATUS_CONFIG[inc.status].label}</Badge>
-                </div>
-                <p className="mb-2 text-sm text-slate-600 dark:text-slate-400">{inc.description}</p>
-                <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                  <span>{inc.detectionDate}</span>
-                  <span>{inc.location}</span>
-                  <span>{inc.affectedType === 'beneficiary' ? 'مستفيد' : inc.affectedType === 'staff' ? 'موظف' : 'زائر'}</span>
-                  {inc.isolationRequired && <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">عزل مطلوب</Badge>}
-                </div>
-                {inc.immediateActions && (
-                  <div className="mt-2 rounded bg-slate-50 p-2 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                    <span className="font-medium">الإجراءات الفورية:</span> {inc.immediateActions}
+                  {inc.investigation_notes && <p className="mb-2 text-sm text-slate-600 dark:text-slate-400">{inc.investigation_notes}</p>}
+                  <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                    <span>{inc.detection_date}</span>
+                    <span>{inc.infection_site}</span>
+                    <span>{inc.affected_type === 'beneficiary' ? 'مستفيد' : inc.affected_type === 'staff' ? 'موظف' : 'زائر'}</span>
+                    {inc.isolation_required && <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">عزل مطلوب</Badge>}
                   </div>
-                )}
-              </div>
-            </Card>
-          </motion.div>
-        ))}
+                  {immediateText && (
+                    <div className="mt-2 rounded bg-slate-50 p-2 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                      <span className="font-medium">الإجراءات الفورية:</span> {immediateText}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </motion.div>
+          )
+        })}
       </AnimatePresence>
     </div>
   )
@@ -247,16 +230,17 @@ function IncidentsSection() {
 // ── Immunizations Tab ───────────────────────────────────────────
 
 function ImmunizationsSection() {
+  const { data: immunizations = [] } = useIPCImmunizations()
   const [typeFilter, setTypeFilter] = useState<'all' | 'staff' | 'beneficiary'>('all')
   const filtered = useMemo(
-    () => typeFilter === 'all' ? DEMO_IMMUNIZATIONS : DEMO_IMMUNIZATIONS.filter((i) => i.personType === typeFilter),
-    [typeFilter],
+    () => typeFilter === 'all' ? immunizations : immunizations.filter((i) => i.person_type === typeFilter),
+    [typeFilter, immunizations],
   )
 
-  const immuneCount = DEMO_IMMUNIZATIONS.filter((i) => i.immunityStatus === 'immune').length
-  const pendingCount = DEMO_IMMUNIZATIONS.filter((i) => i.immunityStatus === 'pending').length
-  const expiredCount = DEMO_IMMUNIZATIONS.filter((i) => i.immunityStatus === 'expired').length
-  const immunityRate = Math.round((immuneCount / DEMO_IMMUNIZATIONS.length) * 100)
+  const immuneCount = immunizations.filter((i) => i.immunity_status === 'complete').length
+  const pendingCount = immunizations.filter((i) => i.immunity_status === 'incomplete').length
+  const expiredCount = immunizations.filter((i) => i.immunity_status === 'expired').length
+  const immunityRate = immunizations.length > 0 ? Math.round((immuneCount / immunizations.length) * 100) : 0
 
   return (
     <div className="space-y-6">
@@ -289,16 +273,18 @@ function ImmunizationsSection() {
             </thead>
             <tbody>
               {filtered.map((rec) => {
-                const statusCfg = IMMUNITY_STATUS_CONFIG[rec.immunityStatus]
+                const statusKey = rec.immunity_status === 'complete' ? 'immune' : rec.immunity_status === 'incomplete' ? 'pending' : (rec.immunity_status as ImmunityStatus)
+                const statusCfg = IMMUNITY_STATUS_CONFIG[statusKey] ?? IMMUNITY_STATUS_CONFIG.pending
+                const displayName = rec.person_type === 'staff' ? (rec.staff_name ?? '') : (rec.beneficiary_id ?? '')
                 return (
                   <tr key={rec.id} className="border-b border-slate-100 dark:border-slate-800">
                     <td className="px-3 py-2">
-                      <div className="font-medium text-slate-700 dark:text-slate-300">{rec.personName}</div>
-                      <div className="text-xs text-slate-400">{rec.personType === 'staff' ? 'موظف' : 'مستفيد'}</div>
+                      <div className="font-medium text-slate-700 dark:text-slate-300">{displayName}</div>
+                      <div className="text-xs text-slate-400">{rec.person_type === 'staff' ? 'موظف' : 'مستفيد'}</div>
                     </td>
-                    <td className="px-3 py-2 text-slate-600 dark:text-slate-400">{rec.vaccineName}</td>
-                    <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{rec.doseNumber}/{rec.totalDoses}</td>
-                    <td className="px-3 py-2 text-center text-xs text-slate-500">{rec.dateAdministered}</td>
+                    <td className="px-3 py-2 text-slate-600 dark:text-slate-400">{rec.vaccine_name_ar ?? rec.vaccine_name}</td>
+                    <td className="px-3 py-2 text-center text-slate-600 dark:text-slate-400">{rec.dose_number}/{rec.total_doses}</td>
+                    <td className="px-3 py-2 text-center text-xs text-slate-500">{rec.date_administered}</td>
                     <td className="px-3 py-2 text-center">
                       <Badge className={statusCfg.color}>{statusCfg.emoji} {statusCfg.label}</Badge>
                     </td>
@@ -315,8 +301,8 @@ function ImmunizationsSection() {
         <CardHeader><CardTitle>تغطية اللقاحات</CardTitle></CardHeader>
         <div className="space-y-3">
           {VACCINE_TYPES.map((vac) => {
-            const records = DEMO_IMMUNIZATIONS.filter((r) => r.vaccineCode === vac.code)
-            const complete = records.filter((r) => r.immunityStatus === 'immune').length
+            const records = immunizations.filter((r) => r.vaccine_code === vac.code)
+            const complete = records.filter((r) => r.immunity_status === 'complete').length
             return (
               <div key={vac.code} className="flex items-center gap-3">
                 <span className="w-36 text-sm font-medium text-slate-700 dark:text-slate-300">{vac.name}</span>

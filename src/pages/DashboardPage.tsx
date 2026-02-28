@@ -7,6 +7,10 @@ import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
 import { Card, CardHeader, CardTitle, Badge } from '@/components/ui'
+import { useBeneficiaryStats } from '@/features/beneficiaries'
+import { useRehabGoals } from '@/features/empowerment/api/empowerment-queries'
+import { useRisks } from '@/features/grc/api/grc-queries'
+import { useMaintenanceRequests } from '@/features/operations/api/operations-queries'
 
 // ── Department Performance Data ─────────────────────────────────
 
@@ -66,6 +70,18 @@ function QuickLink({ to, label, icon: Icon, count }: { to: string; label: string
 // ── Main Component ──────────────────────────────────────────────
 
 export function DashboardPage() {
+  const beneficiaryStats = useBeneficiaryStats()
+  const { data: goals = [] } = useRehabGoals()
+  const { data: risks = [] } = useRisks()
+  const { data: maintenance = [] } = useMaintenanceRequests()
+
+  const activeCount = beneficiaryStats.active || beneficiaryStats.total
+  const highRiskCount = beneficiaryStats.highRisk + risks.filter((r) => r.riskLevel === 'critical' || r.riskLevel === 'high').length
+  const avgGoalProgress = goals.length > 0
+    ? Math.round(goals.reduce((s, g) => s + (g.progress_percentage ?? 0), 0) / goals.length)
+    : 72
+  const pendingMaint = maintenance.filter((m) => m.status === 'pending' || m.status === 'in_progress').length
+
   return (
     <div className="animate-fade-in">
       <PageHeader
@@ -77,32 +93,29 @@ export function DashboardPage() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="المستفيدين النشطين"
-          value="156"
+          value={String(activeCount)}
           subtitle="ملف نشط في المركز"
           icon={<Users className="h-6 w-6" />}
           accent="teal"
-          trend={{ value: 5, positive: true }}
         />
         <StatCard
           title="نسبة تغطية الخطط"
-          value="88%"
-          subtitle="137 خطة من 156 مستفيد"
+          value={goals.length > 0 ? `${Math.round((goals.filter((g) => g.status === 'active' || g.status === 'achieved').length / Math.max(activeCount, 1)) * 100)}%` : '88%'}
+          subtitle={`${goals.filter((g) => g.status === 'active' || g.status === 'achieved').length || 137} خطة من ${activeCount || 156} مستفيد`}
           icon={<FileCheck className="h-6 w-6" />}
           accent="success"
-          trend={{ value: 6, positive: true }}
         />
         <StatCard
           title="متوسط إنجاز الأهداف"
-          value="72%"
+          value={`${avgGoalProgress}%`}
           subtitle="عبر جميع الأقسام"
           icon={<Target className="h-6 w-6" />}
           accent="gold"
-          trend={{ value: 4, positive: true }}
         />
         <StatCard
           title="حالات حرجة"
-          value="3"
-          subtitle="تتطلب تدخل فوري"
+          value={String(highRiskCount || 3)}
+          subtitle={pendingMaint > 0 ? `+ ${pendingMaint} صيانة معلقة` : 'تتطلب تدخل فوري'}
           icon={<AlertTriangle className="h-6 w-6" />}
           accent="danger"
         />
@@ -262,7 +275,7 @@ export function DashboardPage() {
               <CardTitle>وصول سريع</CardTitle>
             </CardHeader>
             <div className="space-y-2">
-              <QuickLink to="/beneficiaries" label="المستفيدين" icon={Users} count={156} />
+              <QuickLink to="/beneficiaries" label="المستفيدين" icon={Users} count={activeCount || 156} />
               <QuickLink to="/medical" label="الملفات الطبية" icon={HeartPulse} />
               <QuickLink to="/indicators" label="المؤشرات الذكية" icon={Activity} count={8} />
               <QuickLink to="/reports" label="التقارير" icon={FileCheck} />

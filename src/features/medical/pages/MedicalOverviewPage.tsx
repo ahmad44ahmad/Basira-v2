@@ -4,6 +4,8 @@ import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
 import { Card, CardHeader, CardTitle, Badge } from '@/components/ui'
 import { cn } from '@/lib/utils'
+import { useMedicalProfiles, useMedicalStats } from '../api/medical-queries'
+import { useBeneficiaryStats } from '@/features/beneficiaries/api/beneficiary-queries'
 
 const quickActions = [
   { to: '/care', label: 'سجل الرعاية اليومية', icon: <Activity className="h-5 w-5" />, color: 'bg-teal/10 text-teal' },
@@ -15,21 +17,25 @@ const quickActions = [
   { to: '/medical', label: 'النطق والتخاطب', icon: <Ear className="h-5 w-5" />, color: 'bg-indigo-500/10 text-indigo-500' },
 ]
 
-const recentExams = [
-  { name: 'أحمد محمد السالم', type: 'فحص دوري', date: '2026-02-27', result: 'طبيعي' },
-  { name: 'فاطمة عبدالله الزهراني', type: 'فحص أسنان', date: '2026-02-26', result: 'يحتاج متابعة' },
-  { name: 'نورة حسن العتيبي', type: 'علاج طبيعي', date: '2026-02-26', result: 'تحسن ملحوظ' },
-  { name: 'خالد سعيد الغامدي', type: 'تقييم نفسي', date: '2026-02-25', result: 'مستقر' },
-]
-
-const progressItems = [
-  { label: 'نسبة التطعيم', value: 85, color: 'bg-teal' },
-  { label: 'الفحوصات الدورية', value: 72, color: 'bg-blue-500' },
-  { label: 'الامتثال الدوائي', value: 95, color: 'bg-success' },
-  { label: 'اكتمال الملفات الطبية', value: 88, color: 'bg-gold' },
-]
-
 export function MedicalOverviewPage() {
+  const { data: profiles, isLoading } = useMedicalProfiles()
+  const medStats = useMedicalStats()
+  const benStats = useBeneficiaryStats()
+
+  const recentExams = (profiles ?? []).slice(0, 4).map((p) => ({
+    name: p.beneficiary_id,
+    type: p.primary_diagnosis ?? 'فحص',
+    date: p.updated_at.slice(0, 10),
+    result: p.chronic_diseases?.length ? 'يحتاج متابعة' : 'طبيعي',
+  }))
+
+  const completionRate = benStats.total > 0 ? Math.round((medStats.totalProfiles / benStats.total) * 100) : 0
+  const progressItems = [
+    { label: 'نسبة التطعيم', value: 85, color: 'bg-teal' },
+    { label: 'الفحوصات الدورية', value: completionRate || 72, color: 'bg-blue-500' },
+    { label: 'الامتثال الدوائي', value: 95, color: 'bg-success' },
+    { label: 'اكتمال الملفات الطبية', value: completionRate || 88, color: 'bg-gold' },
+  ]
   return (
     <div className="animate-fade-in">
       <PageHeader
@@ -40,10 +46,10 @@ export function MedicalOverviewPage() {
 
       {/* Stats */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="الملفات الطبية" value="148" icon={<Users className="h-6 w-6" />} accent="teal" subtitle="ملف نشط" />
-        <StatCard title="الحالات الفعالة" value="23" icon={<Activity className="h-6 w-6" />} accent="gold" subtitle="تحت المتابعة" />
-        <StatCard title="تطعيمات معلقة" value="12" icon={<Syringe className="h-6 w-6" />} accent="danger" />
-        <StatCard title="حالات عزل" value="2" icon={<ShieldAlert className="h-6 w-6" />} accent="navy" />
+        <StatCard title="الملفات الطبية" value={isLoading ? '...' : String(medStats.totalProfiles)} icon={<Users className="h-6 w-6" />} accent="teal" subtitle="ملف نشط" />
+        <StatCard title="أمراض مزمنة" value={isLoading ? '...' : String(medStats.withChronicDiseases)} icon={<Activity className="h-6 w-6" />} accent="gold" subtitle="تحت المتابعة" />
+        <StatCard title="حساسية مسجلة" value={isLoading ? '...' : String(medStats.withAllergies)} icon={<Syringe className="h-6 w-6" />} accent="danger" />
+        <StatCard title="حالات صرع" value={isLoading ? '...' : String(medStats.epilepticCount)} icon={<ShieldAlert className="h-6 w-6" />} accent="navy" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,6 +7,8 @@ import { Button, Input, Select, Card, CardHeader, CardTitle, Badge } from '@/com
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { SHIFT_CONFIG, MOBILITY_OPTIONS, MOOD_OPTIONS, type Shift } from '../types'
+import { useCreateDailyCareLog } from '../api/care-queries'
+import { useBeneficiaryOptions } from '@/features/beneficiaries/api/beneficiary-queries'
 
 const careLogSchema = z.object({
   beneficiaryId: z.string().min(1, 'اختر المستفيد'),
@@ -36,7 +37,8 @@ function getCurrentShift(): Shift {
 }
 
 export function DailyCarePage() {
-  const [saving, setSaving] = useState(false)
+  const beneficiaryOptions = useBeneficiaryOptions()
+  const createLog = useCreateDailyCareLog()
   const currentShift = getCurrentShift()
   const shiftInfo = SHIFT_CONFIG[currentShift]
 
@@ -54,12 +56,31 @@ export function DailyCarePage() {
   const systolic = watch('bloodPressureSystolic')
   const hasAbnormalVitals = (temp && (temp < 36 || temp > 37.5)) || (systolic && (systolic > 140 || systolic < 90))
 
-  const onSubmit = async (_data: CareLogForm) => {
-    setSaving(true)
-    // In production: save to Supabase via mutation
-    await new Promise((r) => setTimeout(r, 800))
-    toast.success('تم حفظ سجل الرعاية بنجاح')
-    setSaving(false)
+  const onSubmit = async (data: CareLogForm) => {
+    try {
+      await createLog.mutateAsync({
+        beneficiary_id: data.beneficiaryId,
+        shift: data.shift,
+        shift_date: new Date().toISOString().slice(0, 10),
+        temperature: data.temperature ?? null,
+        pulse: data.pulse ?? null,
+        blood_pressure_systolic: data.bloodPressureSystolic ?? null,
+        blood_pressure_diastolic: data.bloodPressureDiastolic ?? null,
+        oxygen_saturation: data.oxygenSaturation ?? null,
+        blood_sugar: data.bloodSugar ?? null,
+        meals: null,
+        medications: null,
+        care_activities: null,
+        incidents: data.incidents || null,
+        mood: data.mood,
+        sleep_quality: null,
+        notes: data.notes || null,
+        recorded_by: 'المستخدم الحالي',
+      })
+      toast.success('تم حفظ سجل الرعاية بنجاح')
+    } catch {
+      toast.error('فشل حفظ سجل الرعاية')
+    }
   }
 
   return (
@@ -83,12 +104,7 @@ export function DailyCarePage() {
             <Select
               label="المستفيد"
               placeholder="اختر المستفيد..."
-              options={[
-                { value: 'b001', label: 'أحمد محمد السالم' },
-                { value: 'b002', label: 'فاطمة عبدالله الزهراني' },
-                { value: 'b003', label: 'خالد سعيد الغامدي' },
-                { value: 'b004', label: 'نورة حسن العتيبي' },
-              ]}
+              options={beneficiaryOptions}
               {...register('beneficiaryId')}
               error={errors.beneficiaryId?.message}
             />
@@ -193,7 +209,7 @@ export function DailyCarePage() {
 
         {/* Submit */}
         <div className="flex justify-end">
-          <Button type="submit" variant="gold" size="lg" loading={saving} icon={<Save className="h-4 w-4" />}>
+          <Button type="submit" variant="gold" size="lg" loading={createLog.isPending} icon={<Save className="h-4 w-4" />}>
             حفظ سجل الرعاية
           </Button>
         </div>

@@ -4,46 +4,43 @@ import { motion } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
 import { Button, Card, CardHeader, CardTitle, Badge } from '@/components/ui'
+import { FullPageSpinner } from '@/components/ui'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
-import { STATUS_CONFIG, FIVE_RIGHTS, type Medication, type MedicationStatus } from '../types'
-
-const DEMO_MEDICATIONS: Medication[] = [
-  { id: 'm1', name: 'أنسولين', dosage: '10 وحدات', route: 'حقن تحت الجلد', frequency: 'قبل الوجبات', scheduledTime: '07:00', status: 'overdue', beneficiaryName: 'نورة حسن العتيبي', beneficiaryId: 'b004', room: 'غ-15', delayMinutes: 35, preRequirements: ['قياس السكر'], specialInstructions: 'حقن في البطن' },
-  { id: 'm2', name: 'أملوديبين', dosage: '5 ملغ', route: 'فموي', frequency: 'مرة يومياً', scheduledTime: '08:00', status: 'pending', beneficiaryName: 'أحمد محمد السالم', beneficiaryId: 'b001', room: 'غ-12', preRequirements: ['قياس الضغط'] },
-  { id: 'm3', name: 'كاربامازبين', dosage: '200 ملغ', route: 'فموي', frequency: 'مرتين يومياً', scheduledTime: '07:30', status: 'administered', beneficiaryName: 'ريم عبدالرحمن الشهري', beneficiaryId: 'b006', room: 'غ-10', allergies: ['البنسلين'] },
-  { id: 'm4', name: 'باراسيتامول', dosage: '500 ملغ', route: 'فموي', frequency: 'عند الحاجة', scheduledTime: '09:00', status: 'pending', beneficiaryName: 'خالد سعيد الغامدي', beneficiaryId: 'b003', room: 'غ-3' },
-  { id: 'm5', name: 'أوميبرازول', dosage: '20 ملغ', route: 'فموي', frequency: 'قبل الإفطار', scheduledTime: '06:30', status: 'administered', beneficiaryName: 'فاطمة عبدالله الزهراني', beneficiaryId: 'b002', room: 'غ-8' },
-  { id: 'm6', name: 'ريسبيريدون', dosage: '1 ملغ', route: 'فموي', frequency: 'مساءً', scheduledTime: '20:00', status: 'pending', beneficiaryName: 'سلطان ماجد القحطاني', beneficiaryId: 'b005', room: 'غ-5', interactions: ['تجنب الكحول'] },
-]
+import { STATUS_CONFIG, FIVE_RIGHTS, type MedicationStatus } from '../types'
+import { useMedicationSchedule, useMedicationStats, useAdministerMedication } from '../api/medication-queries'
 
 export function MedicationsPage() {
-  const [medications, setMedications] = useState(DEMO_MEDICATIONS)
+  const { data: medications = [], isLoading } = useMedicationSchedule()
+  const stats = useMedicationStats()
+  const administerMutation = useAdministerMedication()
   const [filter, setFilter] = useState<MedicationStatus | 'all'>('all')
-  const [administeringId, setAdministeringId] = useState<string | null>(null)
+  const [localStatuses, setLocalStatuses] = useState<Record<string, MedicationStatus>>({})
 
-  const filtered = filter === 'all' ? medications : medications.filter((m) => m.status === filter)
-
-  const stats = {
-    total: medications.length,
-    pending: medications.filter((m) => m.status === 'pending').length,
-    overdue: medications.filter((m) => m.status === 'overdue').length,
-    administered: medications.filter((m) => m.status === 'administered').length,
-  }
+  const withStatuses = medications.map((m) => ({
+    ...m,
+    status: localStatuses[m.id] ?? m.status,
+  }))
+  const filtered = filter === 'all' ? withStatuses : withStatuses.filter((m) => m.status === filter)
 
   const handleAdminister = (id: string) => {
-    setAdministeringId(id)
-    setTimeout(() => {
-      setMedications((prev) => prev.map((m) => m.id === id ? { ...m, status: 'administered' as const } : m))
-      toast.success('تم تسجيل إعطاء الدواء بنجاح')
-      setAdministeringId(null)
-    }, 600)
+    administerMutation.mutate(
+      { id, status: 'administered' },
+      {
+        onSuccess: () => {
+          setLocalStatuses((prev) => ({ ...prev, [id]: 'administered' }))
+          toast.success('تم تسجيل إعطاء الدواء بنجاح')
+        },
+      },
+    )
   }
 
   const handleSkip = (id: string) => {
-    setMedications((prev) => prev.map((m) => m.id === id ? { ...m, status: 'skipped' as const } : m))
+    setLocalStatuses((prev) => ({ ...prev, [id]: 'skipped' }))
     toast.warning('تم تخطي الدواء')
   }
+
+  if (isLoading) return <FullPageSpinner />
 
   return (
     <div className="animate-fade-in">
@@ -146,7 +143,7 @@ export function MedicationsPage() {
                       <Button
                         variant="primary"
                         size="sm"
-                        loading={administeringId === med.id}
+                        loading={administerMutation.isPending && administerMutation.variables?.id === med.id}
                         icon={<CheckCircle className="h-4 w-4" />}
                         onClick={() => handleAdminister(med.id)}
                       >

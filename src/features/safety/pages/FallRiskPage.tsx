@@ -7,10 +7,13 @@ import { Button, Select, Card, CardHeader, CardTitle, Badge } from '@/components
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { calculateFallRisk, RISK_LEVEL_CONFIG, type FallRiskFormData, type FallRiskResult } from '../types'
+import { useCreateFallRiskAssessment } from '../api/safety-queries'
+import { useBeneficiaryOptions } from '@/features/beneficiaries/api/beneficiary-queries'
 
 export function FallRiskPage() {
   const [result, setResult] = useState<FallRiskResult | null>(null)
-  const [saving, setSaving] = useState(false)
+  const beneficiaryOptions = useBeneficiaryOptions()
+  const createAssessment = useCreateFallRiskAssessment()
 
   const { register, handleSubmit, watch } = useForm<FallRiskFormData>({
     defaultValues: {
@@ -31,10 +34,23 @@ export function FallRiskPage() {
   const onSubmit = async (data: FallRiskFormData) => {
     const calcResult = calculateFallRisk(data)
     setResult(calcResult)
-    setSaving(true)
-    await new Promise((r) => setTimeout(r, 800))
-    toast.success('تم حفظ تقييم مخاطر السقوط')
-    setSaving(false)
+    try {
+      await createAssessment.mutateAsync({
+        beneficiary_id: data.beneficiaryId,
+        fall_history: data.historyOfFalls ? 25 : 0,
+        medications_risk: data.secondaryDiagnosis ? 15 : 0,
+        cognitive_level: data.mentalStatus === 'forgets' ? 15 : 0,
+        mobility_level: data.gait === 'impaired' ? 20 : data.gait === 'weak' ? 10 : 0,
+        risk_score: calcResult.riskScore,
+        risk_level: calcResult.riskLevel === 'high' ? 'عالي' : calcResult.riskLevel === 'medium' ? 'متوسط' : 'منخفض',
+        preventive_measures: calcResult.preventiveMeasures,
+        next_assessment_date: null,
+        assessed_by: 'المستخدم الحالي',
+      })
+      toast.success('تم حفظ تقييم مخاطر السقوط')
+    } catch {
+      toast.error('فشل حفظ التقييم')
+    }
   }
 
   const riskConfig = RISK_LEVEL_CONFIG[liveResult.riskLevel]
@@ -56,12 +72,7 @@ export function FallRiskPage() {
               <Select
                 label="المستفيد"
                 placeholder="اختر المستفيد..."
-                options={[
-                  { value: 'b001', label: 'أحمد محمد السالم' },
-                  { value: 'b002', label: 'فاطمة عبدالله الزهراني' },
-                  { value: 'b003', label: 'خالد سعيد الغامدي' },
-                  { value: 'b004', label: 'نورة حسن العتيبي' },
-                ]}
+                options={beneficiaryOptions}
                 {...register('beneficiaryId')}
               />
               <div>
@@ -163,7 +174,7 @@ export function FallRiskPage() {
             </div>
 
             <div className="mt-6 flex justify-end">
-              <Button type="submit" variant="gold" size="lg" loading={saving} icon={<Save className="h-4 w-4" />}>
+              <Button type="submit" variant="gold" size="lg" loading={createAssessment.isPending} icon={<Save className="h-4 w-4" />}>
                 حفظ التقييم
               </Button>
             </div>

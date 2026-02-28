@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
 import { Button, Card, CardHeader, CardTitle, Badge, Input, Select, Modal } from '@/components/ui'
+import { FullPageSpinner } from '@/components/ui'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import { SHIFT_CONFIG, CATEGORY_CONFIG, type Shift, type ShiftHandoverItem, type HandoverCategory, type HandoverPriority } from '../types'
+import { useHandoverItems } from '../api/care-queries'
 
 function getCurrentShift(): Shift {
   const hour = new Date().getHours()
@@ -15,17 +17,12 @@ function getCurrentShift(): Shift {
   return 'ليلي'
 }
 
-const DEMO_ITEMS: ShiftHandoverItem[] = [
-  { id: 'h1', category: 'critical', title: 'ارتفاع حرارة المستفيد', description: 'أحمد محمد — حرارة 38.5°C تم إعطاء خافض حرارة، يحتاج متابعة', beneficiaryName: 'أحمد محمد السالم', priority: 'high', shiftType: 'صباحي', status: 'active', createdAt: new Date().toISOString(), createdBy: 'ممرض: سعيد' },
-  { id: 'h2', category: 'medication', title: 'تأخر في إعطاء الأنسولين', description: 'نورة حسن — لم يتم إعطاء جرعة الأنسولين الصباحية بسبب انخفاض السكر', beneficiaryName: 'نورة حسن العتيبي', priority: 'high', shiftType: 'صباحي', status: 'active', createdAt: new Date().toISOString(), createdBy: 'ممرض: سعيد' },
-  { id: 'h3', category: 'care', title: 'تغيير ضمادة', description: 'خالد سعيد — يحتاج تغيير ضمادة الجرح في الساق اليمنى', beneficiaryName: 'خالد سعيد الغامدي', priority: 'medium', shiftType: 'صباحي', status: 'active', createdAt: new Date().toISOString(), createdBy: 'ممرض: سعيد' },
-  { id: 'h4', category: 'pending', title: 'نتائج تحليل دم', description: 'فاطمة عبدالله — بانتظار نتائج تحليل CBC من المختبر', beneficiaryName: 'فاطمة عبدالله الزهراني', priority: 'low', shiftType: 'صباحي', status: 'active', createdAt: new Date().toISOString(), createdBy: 'ممرض: سعيد' },
-]
-
 export function ShiftHandoverPage() {
   const currentShift = getCurrentShift()
   const shiftInfo = SHIFT_CONFIG[currentShift]
-  const [items, setItems] = useState(DEMO_ITEMS)
+  const { data: fetchedItems = [], isLoading } = useHandoverItems()
+  const [localItems, setLocalItems] = useState<ShiftHandoverItem[]>([])
+  const items = [...localItems, ...fetchedItems]
   const [showAddModal, setShowAddModal] = useState(false)
   const [filterCategory, setFilterCategory] = useState<HandoverCategory | 'all'>('all')
 
@@ -38,8 +35,10 @@ export function ShiftHandoverPage() {
     pending: items.filter((i) => i.status === 'active' && i.category === 'pending').length,
   }
 
+  if (isLoading) return <FullPageSpinner />
+
   const markDone = (id: string) => {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, status: 'completed' as const } : i)))
+    setLocalItems((prev) => prev.map((i) => (i.id === id ? { ...i, status: 'completed' as const } : i)))
     toast.success('تم إتمام البند')
   }
 
@@ -52,7 +51,7 @@ export function ShiftHandoverPage() {
       createdAt: new Date().toISOString(),
       createdBy: 'المستخدم الحالي',
     }
-    setItems((prev) => [newItem, ...prev])
+    setLocalItems((prev) => [newItem, ...prev])
     toast.success('تمت إضافة بند التسليم')
     setShowAddModal(false)
   }

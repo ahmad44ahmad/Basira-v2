@@ -3,46 +3,27 @@ import { Heart, Calendar, MessageCircle, Image, Video, Trophy, Phone, Send, Thum
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
-import { Button, Card, CardHeader, CardTitle, Badge, Input, Modal, Tabs } from '@/components/ui'
+import { Button, Card, Badge, Input, Modal, Tabs } from '@/components/ui'
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
-  VISIT_TYPES, FEED_TYPE_CONFIG, UPDATE_TYPE_CONFIG,
-  type Visit, type FeedPost, type FamilyUpdate, type VisitType,
+  VISIT_TYPES, UPDATE_TYPE_CONFIG,
+  type FeedPost, type FamilyUpdate, type VisitType,
 } from '../types'
+import { useVisits, useFamilyFeed, useFamilyUpdates } from '../api/family-queries'
 
-// ─── Demo Data ──────────────────────────────────────────────────
+// ─── Main Page ──────────────────────────────────────────────────
 
-const DEMO_UPDATES: FamilyUpdate[] = [
-  { id: 'u1', type: 'progress', title: 'تحسن في المشي', description: 'استطاع أحمد المشي 35 متراً بالمشاية بشكل مستقل — تقدم ممتاز!', date: '2026-02-28' },
-  { id: 'u2', type: 'activity', title: 'ورشة فنون تشكيلية', description: 'شارك أحمد في ورشة الرسم بالألوان المائية وأبدع في لوحة جميلة', date: '2026-02-25' },
-  { id: 'u3', type: 'social', title: 'تفاعل اجتماعي إيجابي', description: 'لوحظ تحسن في التفاعل مع زملائه أثناء الأنشطة الجماعية', date: '2026-02-22' },
-  { id: 'u4', type: 'health', title: 'فحص دوري', description: 'تمت مراجعة العلامات الحيوية — جميع القراءات ضمن المعدل الطبيعي', date: '2026-02-20' },
-]
-
-const DEMO_FEED: FeedPost[] = [
-  { id: 'f1', type: 'image', author: { name: 'سارة الأحمد', role: 'الأخصائية الاجتماعية', avatar: '👩‍⚕️' }, content: 'قضينا وقتاً ممتعاً اليوم في ورشة الرسم! أحمد أبدع في استخدام الألوان المائية وكان سعيداً جداً بالإنجاز.', mediaColor: 'bg-gradient-to-br from-sky-200 to-indigo-300', timestamp: 'منذ ساعتين', likes: 12, comments: 3, isLiked: false },
-  { id: 'f2', type: 'milestone', author: { name: 'د. فيصل المالكي', role: 'طبيب العلاج الطبيعي', avatar: '👨‍⚕️' }, content: 'تحسن ملحوظ في استجابة العضلات بعد جلسات العلاج الطبيعي المكثفة هذا الأسبوع. ماشاء الله تبارك الله.', timestamp: 'أمس', likes: 24, comments: 5, isLiked: true },
-  { id: 'f3', type: 'video', author: { name: 'نورة السعيد', role: 'مشرفة الأنشطة', avatar: '👩' }, content: 'مقتطفات من حفل اليوم الوطني بالمركز — احتفلنا سوياً في أجواء عائلية جميلة.', mediaColor: 'bg-gradient-to-br from-emerald-200 to-teal-300', timestamp: 'قبل 3 أيام', likes: 45, comments: 8, isLiked: false },
-]
-
-const DEMO_VISITS: Visit[] = [
-  { id: 'v1', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', type: 'internal', date: '2026-02-28', time: '10:00', visitorName: 'محمد السالم', relation: 'والد', notes: 'زيارة دورية — الحالة مستقرة والتفاعل إيجابي', employeeName: 'سعيد الغامدي', duration: 60 },
-  { id: 'v2', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', type: 'phone', date: '2026-02-25', time: '14:30', visitorName: 'نورة السالم', relation: 'أخت', notes: 'مكالمة هاتفية — اطمئنان على الحالة', employeeName: 'هند المحمد', duration: 15 },
-  { id: 'v3', beneficiaryId: 'b2', beneficiaryName: 'فاطمة عبدالله الزهراني', type: 'external', date: '2026-02-20', time: '09:00', visitorName: 'عبدالله الزهراني', relation: 'أخ', notes: 'خروج لموعد طبي في مستشفى الملك فيصل', employeeName: 'سعاد المالكي', duration: 180 },
-  { id: 'v4', beneficiaryId: 'b3', beneficiaryName: 'خالد سعيد الغامدي', type: 'behavioral', date: '2026-02-18', time: '11:00', visitorName: 'والدة خالد', relation: 'والدة', notes: 'لوحظ تحسن في التفاعل أثناء الزيارة', employeeName: 'نورة العتيبي', duration: 45 },
-]
-
-const DEMO_GOALS_PROGRESS = [
+const GOALS_PROGRESS = [
   { id: 'g1', title: 'المشي باستقلالية', domain: '🦿 علاج طبيعي', progress: 70 },
   { id: 'g2', title: 'نطق 20 كلمة جديدة', domain: '🗣️ تخاطب', progress: 60 },
   { id: 'g3', title: 'ارتداء الملابس', domain: '🪥 عناية ذاتية', progress: 40 },
 ]
 
-// ─── Main Page ──────────────────────────────────────────────────
-
 export function FamilyPortalPage() {
   const [activeTab, setActiveTab] = useState('updates')
+  const { data: visits = [] } = useVisits()
+  const { data: updates = [] } = useFamilyUpdates()
 
   const tabs = [
     { id: 'updates', label: 'التحديثات' },
@@ -67,10 +48,10 @@ export function FamilyPortalPage() {
 
       {/* Quick Stats */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard title="الأهداف النشطة" value={DEMO_GOALS_PROGRESS.length} accent="teal" />
-        <StatCard title="الزيارات هذا الشهر" value={DEMO_VISITS.filter((v) => v.date.startsWith('2026-02')).length} accent="navy" />
-        <StatCard title="متوسط التقدم" value={`${Math.round(DEMO_GOALS_PROGRESS.reduce((s, g) => s + g.progress, 0) / DEMO_GOALS_PROGRESS.length)}%`} accent="gold" />
-        <StatCard title="التحديثات الجديدة" value={DEMO_UPDATES.length} accent="teal" />
+        <StatCard title="الأهداف النشطة" value={GOALS_PROGRESS.length} accent="teal" />
+        <StatCard title="الزيارات هذا الشهر" value={visits.filter((v) => v.date?.startsWith('2026-02')).length} accent="navy" />
+        <StatCard title="متوسط التقدم" value={`${Math.round(GOALS_PROGRESS.reduce((s, g) => s + g.progress, 0) / GOALS_PROGRESS.length)}%`} accent="gold" />
+        <StatCard title="التحديثات الجديدة" value={updates.length} accent="teal" />
       </div>
 
       <Tabs
@@ -92,10 +73,12 @@ export function FamilyPortalPage() {
 // ─── Updates Section ────────────────────────────────────────────
 
 function UpdatesSection() {
+  const { data: updates = [] } = useFamilyUpdates()
+
   return (
     <div className="space-y-3">
-      {DEMO_UPDATES.map((update) => {
-        const config = UPDATE_TYPE_CONFIG[update.type]
+      {updates.map((update) => {
+        const config = UPDATE_TYPE_CONFIG[update.type as FamilyUpdate['type']]
         return (
           <motion.div key={update.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <Card>
@@ -108,7 +91,7 @@ function UpdatesSection() {
                     <h3 className="font-bold text-slate-900 dark:text-white">{update.title}</h3>
                     <Badge className={config.color}>{config.label}</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{update.description}</p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{update.description ?? (update as Record<string, unknown>).content as string}</p>
                   <p className="mt-1 text-xs text-slate-400">{update.date}</p>
                 </div>
               </div>
@@ -123,7 +106,7 @@ function UpdatesSection() {
 // ─── Visits Section ─────────────────────────────────────────────
 
 function VisitsSection() {
-  const [visits] = useState(DEMO_VISITS)
+  const { data: visits = [] } = useVisits()
   const [filterType, setFilterType] = useState<VisitType | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
 
@@ -157,18 +140,18 @@ function VisitsSection() {
       <div className="space-y-3">
         <AnimatePresence>
           {filtered.map((visit) => {
-            const typeConfig = VISIT_TYPES.find((t) => t.value === visit.type)!
+            const typeConfig = VISIT_TYPES.find((t) => t.value === visit.type)
             return (
               <motion.div key={visit.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50 }}>
                 <Card>
                   <div className="flex items-start gap-3">
-                    <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg', typeConfig.color)}>
-                      {typeConfig.emoji}
+                    <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg', typeConfig?.color)}>
+                      {typeConfig?.emoji}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-bold text-slate-900 dark:text-white">{visit.beneficiaryName}</h3>
-                        <Badge className={typeConfig.color}>{typeConfig.label}</Badge>
+                        {typeConfig && <Badge className={typeConfig.color}>{typeConfig.label}</Badge>}
                       </div>
                       <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{visit.notes}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -222,28 +205,33 @@ function AddVisitModal({ open, onClose }: { open: boolean; onClose: () => void }
 // ─── Feed Section ───────────────────────────────────────────────
 
 function FeedSection() {
-  const [posts, setPosts] = useState(DEMO_FEED)
+  const { data: fetchedPosts = [] } = useFamilyFeed()
+  const [posts, setPosts] = useState<FeedPost[]>([])
+  const displayPosts = posts.length > 0 ? posts : fetchedPosts
 
   const toggleLike = (id: string) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 } : p,
-      ),
-    )
+    const current = posts.length > 0 ? posts : fetchedPosts
+    setPosts(current.map((p) =>
+      p.id === id ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 } : p,
+    ))
   }
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      {posts.map((post) => (
+      {displayPosts.map((post) => (
         <motion.div key={post.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="overflow-hidden">
             {/* Author */}
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{post.author.avatar}</span>
-              <div>
-                <p className="font-bold text-slate-900 dark:text-white">{post.author.name}</p>
-                <p className="text-xs text-slate-500">{post.author.role} · {post.timestamp}</p>
-              </div>
+              {post.author && typeof post.author === 'object' && (
+                <>
+                  <span className="text-2xl">{post.author.avatar}</span>
+                  <div>
+                    <p className="font-bold text-slate-900 dark:text-white">{post.author.name}</p>
+                    <p className="text-xs text-slate-500">{post.author.role} · {post.timestamp}</p>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Content */}
@@ -283,7 +271,7 @@ function FeedSection() {
               </button>
               <button className="flex items-center gap-1 text-sm text-slate-500 hover:text-teal">
                 <MessageCircle className="h-4 w-4" />
-                {post.comments}
+                {post.comments ?? 0}
               </button>
               <button className="flex items-center gap-1 text-sm text-slate-500 hover:text-teal">
                 <Send className="h-4 w-4" />
@@ -307,15 +295,15 @@ function GoalsSection() {
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal/10 text-xl">🎯</div>
           <div>
             <h3 className="font-bold text-slate-900 dark:text-white">متوسط التقدم الإجمالي</h3>
-            <p className="text-sm text-slate-500">{DEMO_GOALS_PROGRESS.length} أهداف نشطة</p>
+            <p className="text-sm text-slate-500">{GOALS_PROGRESS.length} أهداف نشطة</p>
           </div>
           <div className="mr-auto text-3xl font-bold text-teal">
-            {Math.round(DEMO_GOALS_PROGRESS.reduce((s, g) => s + g.progress, 0) / DEMO_GOALS_PROGRESS.length)}%
+            {Math.round(GOALS_PROGRESS.reduce((s, g) => s + g.progress, 0) / GOALS_PROGRESS.length)}%
           </div>
         </div>
       </Card>
 
-      {DEMO_GOALS_PROGRESS.map((goal) => (
+      {GOALS_PROGRESS.map((goal) => (
         <Card key={goal.id}>
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">

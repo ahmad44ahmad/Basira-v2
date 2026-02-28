@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, isDemoMode } from '@/lib/supabase'
 import { queryKeys } from '@/lib/query-keys'
@@ -117,6 +118,18 @@ export function useUpdateBeneficiary() {
       qc.invalidateQueries({ queryKey: queryKeys.beneficiaries.detail(id) })
     },
   })
+}
+
+/** Active beneficiaries as { value, label } options for Select dropdowns */
+export function useBeneficiaryOptions() {
+  const { data } = useBeneficiaries()
+  return useMemo(
+    () =>
+      (data ?? [])
+        .filter((b) => b.status === 'نشط')
+        .map((b) => ({ value: b.id, label: `${b.full_name} (${b.room_number ?? ''})` })),
+    [data],
+  )
 }
 
 export function useBeneficiaryStats() {

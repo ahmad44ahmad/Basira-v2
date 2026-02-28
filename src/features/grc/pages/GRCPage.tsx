@@ -15,35 +15,7 @@ import {
   type ComplianceRequirement, type ComplianceStatus,
   type SafetyIncident, type SafetyIncidentType,
 } from '../types'
-
-// ─── Demo Data ──────────────────────────────────────────────────
-
-const DEMO_RISKS: Risk[] = [
-  { id: 'r1', riskCode: 'RISK-2026-001', titleAr: 'مخاطر السقوط للمستفيدين', description: 'احتمال سقوط المستفيدين بسبب ضعف إجراءات السلامة في الأجنحة', category: 'safety', likelihood: 4, impact: 4, riskScore: 16, riskLevel: 'high', riskOwner: 'مدير التمريض', department: 'الخدمات الطبية', responseStrategy: 'mitigate', mitigationAction: 'تركيب مقابض جانبية وأرضيات مانعة للانزلاق', status: 'mitigating', reviewFrequency: 'monthly', nextReviewDate: '2026-03-15' },
-  { id: 'r2', riskCode: 'RISK-2026-002', titleAr: 'مخاطر الحريق', description: 'قدم أنظمة الإنذار والإطفاء في بعض الأجنحة', category: 'safety', likelihood: 3, impact: 5, riskScore: 15, riskLevel: 'high', riskOwner: 'مسؤول السلامة', department: 'الصيانة والتشغيل', responseStrategy: 'mitigate', mitigationAction: 'تحديث أنظمة الحريق وتدريب الموظفين على الإخلاء', status: 'mitigating', reviewFrequency: 'monthly', nextReviewDate: '2026-03-10' },
-  { id: 'r3', riskCode: 'RISK-2026-003', titleAr: 'نقص الكوادر التمريضية', description: 'عدم كفاية أعداد الممرضين مقارنة بعدد المستفيدين', category: 'operational', likelihood: 4, impact: 3, riskScore: 12, riskLevel: 'high', riskOwner: 'مدير الموارد البشرية', department: 'الموارد البشرية', responseStrategy: 'mitigate', status: 'identified', reviewFrequency: 'quarterly' },
-  { id: 'r4', riskCode: 'RISK-2026-004', titleAr: 'مخاطر العدوى المكتسبة', description: 'خطر انتقال العدوى بين المستفيدين في الأجنحة المشتركة', category: 'compliance', likelihood: 3, impact: 4, riskScore: 12, riskLevel: 'high', riskOwner: 'مسؤول IPC', department: 'مكافحة العدوى', responseStrategy: 'mitigate', mitigationAction: 'تعزيز بروتوكولات مكافحة العدوى والعزل', status: 'mitigating', reviewFrequency: 'monthly' },
-  { id: 'r5', riskCode: 'RISK-2026-005', titleAr: 'تأخر الصيانة الوقائية', description: 'تراكم طلبات الصيانة الوقائية وتأخر تنفيذها', category: 'operational', likelihood: 3, impact: 2, riskScore: 6, riskLevel: 'medium', riskOwner: 'مشرف الصيانة', department: 'الصيانة والتشغيل', responseStrategy: 'accept', status: 'monitoring', reviewFrequency: 'quarterly' },
-  { id: 'r6', riskCode: 'RISK-2026-006', titleAr: 'مخاطر أمن المعلومات', description: 'ضعف سياسات حماية البيانات الشخصية للمستفيدين', category: 'compliance', likelihood: 2, impact: 4, riskScore: 8, riskLevel: 'medium', riskOwner: 'مسؤول IT', department: 'تقنية المعلومات', responseStrategy: 'mitigate', mitigationAction: 'تطبيق سياسات PDPL وتشفير البيانات', status: 'mitigating', reviewFrequency: 'quarterly' },
-  { id: 'r7', riskCode: 'RISK-2026-007', titleAr: 'مخاطر انقطاع التيار الكهربائي', description: 'تأثير انقطاع الكهرباء على الأجهزة الطبية الحرجة', category: 'operational', likelihood: 2, impact: 5, riskScore: 10, riskLevel: 'medium', riskOwner: 'مهندس الكهرباء', department: 'الصيانة والتشغيل', responseStrategy: 'mitigate', mitigationAction: 'صيانة المولد الاحتياطي وتركيب UPS', status: 'monitoring', reviewFrequency: 'monthly' },
-]
-
-const DEMO_COMPLIANCE: ComplianceRequirement[] = [
-  { id: 'comp1', requirementCode: 'ISO-4-1', titleAr: 'فهم احتياجات المستفيدين وتوقعاتهم', standardName: 'ISO 9001:2015', section: 'سياق المنظمة', complianceStatus: 'compliant', complianceScore: 95, responsibleDepartment: 'الخدمات الاجتماعية', evidenceNotes: 'بحث اجتماعي + تقييم طبي محدث كل 6 أشهر', lastAuditDate: '2026-02-15' },
-  { id: 'comp2', requirementCode: 'ISO-5-2', titleAr: 'سياسة الجودة والالتزام القيادي', standardName: 'ISO 9001:2015', section: 'القيادة', complianceStatus: 'compliant', complianceScore: 100, responsibleDepartment: 'الإدارة العليا', evidenceNotes: 'توقيع المستفيد/الولي على خطة التمكين' },
-  { id: 'comp3', requirementCode: 'ISO-6-1', titleAr: 'إدارة المخاطر والفرص', standardName: 'ISO 9001:2015', section: 'التخطيط', complianceStatus: 'partial', complianceScore: 70, responsibleDepartment: 'الجودة', gapDescription: 'سجل المخاطر يحتاج ربط بخطة الإخلاء', remediationPlan: 'دمج سجل المخاطر مع خطة BCP' },
-  { id: 'comp4', requirementCode: 'ISO-7-1', titleAr: 'الموارد والبنية التحتية', standardName: 'ISO 9001:2015', section: 'الدعم', complianceStatus: 'partial', complianceScore: 60, responsibleDepartment: 'الصيانة والتشغيل', gapDescription: 'تقارير الصيانة الوقائية غير مكتملة' },
-  { id: 'comp5', requirementCode: 'ISO-8-1', titleAr: 'التخطيط والضبط التشغيلي', standardName: 'ISO 9001:2015', section: 'العمليات', complianceStatus: 'compliant', complianceScore: 90, responsibleDepartment: 'الخدمات الطبية', evidenceNotes: 'سجلات العلامات الحيوية وتوزيع الوجبات مكتملة' },
-  { id: 'comp6', requirementCode: 'MOH-045', titleAr: 'ترخيص العيادة الطبية', standardName: 'وزارة الصحة', section: 'التراخيص', complianceStatus: 'non_compliant', complianceScore: 30, responsibleDepartment: 'الخدمات الطبية', gapDescription: 'الترخيص منتهي الصلاحية — يحتاج تجديد فوري', remediationPlan: 'تقديم طلب تجديد عاجل', dueDate: '2026-03-15' },
-  { id: 'comp7', requirementCode: 'PDPL-001', titleAr: 'حماية البيانات الشخصية', standardName: 'نظام حماية البيانات الشخصية', section: 'الخصوصية', complianceStatus: 'partial', complianceScore: 55, responsibleDepartment: 'تقنية المعلومات', gapDescription: 'سياسة الخصوصية تحتاج تحديث لتتوافق مع PDPL' },
-]
-
-const DEMO_SAFETY: SafetyIncident[] = [
-  { id: 's1', incidentDate: '2026-02-27', incidentType: 'near_miss', severity: 'minor', location: 'ممر الجناح A', description: 'أرضية مبللة بدون لافتة تحذيرية بالقرب من الحمام', reportedBy: 'نورة العتيبي', status: 'closed', correctiveActions: 'تركيب لافتات دائمة ومسح الأرضيات فوراً' },
-  { id: 's2', incidentDate: '2026-02-24', incidentType: 'injury', severity: 'moderate', location: 'غرفة 12', description: 'سقوط مستفيد أثناء محاولة النهوض من السرير بدون مساعدة', reportedBy: 'هند المحمد', status: 'investigating', rootCause: 'عدم تفعيل جرس الاستدعاء وغياب حاجز السرير', injuries: 1 },
-  { id: 's3', incidentDate: '2026-02-20', incidentType: 'fire', severity: 'minor', location: 'المطبخ المركزي', description: 'ارتفاع درجة حرارة الفرن بشكل غير طبيعي — تم إيقافه فوراً', reportedBy: 'الشيف أحمد', status: 'closed', correctiveActions: 'فحص الفرن بواسطة الفني وصيانة الحساسات' },
-  { id: 's4', incidentDate: '2026-02-15', incidentType: 'property_damage', severity: 'minor', location: 'موقف السيارات', description: 'تضرر مرآة سيارة الإسعاف أثناء المناورة', reportedBy: 'السائق محمد', status: 'closed' },
-]
+import { useRisks, useComplianceRequirements, useSafetyIncidents } from '../api/grc-queries'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -72,7 +44,7 @@ export function GRCPage() {
 // ─── Risk Section ───────────────────────────────────────────────
 
 function RiskSection() {
-  const [risks] = useState(DEMO_RISKS)
+  const { data: risks = [] } = useRisks()
   const [filterLevel, setFilterLevel] = useState<RiskLevel | 'all'>('all')
   const [filterCategory, setFilterCategory] = useState<RiskCategory | 'all'>('all')
 
@@ -191,7 +163,7 @@ function RiskSection() {
 // ─── Compliance Section ─────────────────────────────────────────
 
 function ComplianceSection() {
-  const [requirements] = useState(DEMO_COMPLIANCE)
+  const { data: requirements = [] } = useComplianceRequirements()
   const [filterStatus, setFilterStatus] = useState<ComplianceStatus | 'all'>('all')
 
   const filtered = filterStatus === 'all' ? requirements : requirements.filter((r) => r.complianceStatus === filterStatus)
@@ -265,7 +237,7 @@ function ComplianceSection() {
 // ─── Safety Section ─────────────────────────────────────────────
 
 function SafetySection() {
-  const [incidents] = useState(DEMO_SAFETY)
+  const { data: incidents = [] } = useSafetyIncidents()
   const [filterType, setFilterType] = useState<SafetyIncidentType | 'all'>('all')
 
   const filtered = filterType === 'all' ? incidents : incidents.filter((i) => i.incidentType === filterType)

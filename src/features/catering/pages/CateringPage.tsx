@@ -13,52 +13,7 @@ import {
   type QualityCheckItem, type ComplianceStatus,
   type InventoryItem, type InventoryTransaction,
 } from '../types'
-
-// ─── Demo Data ──────────────────────────────────────────────────
-
-const BENEFICIARIES = ['أحمد محمد السالم', 'فاطمة عبدالله الزهراني', 'خالد سعيد الغامدي', 'نورة حسن العتيبي', 'عبدالرحمن علي الشهري', 'سارة إبراهيم المالكي']
-
-function generateDemoMeals(): DailyMeal[] {
-  const today = new Date().toISOString().split('T')[0]
-  const meals: DailyMeal[] = []
-  const mealTypes: MealType[] = ['breakfast', 'lunch', 'dinner']
-  const statuses: MealStatus[] = ['consumed', 'consumed', 'consumed', 'delivered', 'pending', 'refused']
-
-  BENEFICIARIES.forEach((name, i) => {
-    mealTypes.forEach((type, j) => {
-      meals.push({
-        id: `meal-${i}-${j}`,
-        beneficiaryId: `b${i + 1}`,
-        beneficiaryName: name,
-        dietaryPlan: i === 2 ? 'حمية سكري' : i === 4 ? 'حمية كلى' : 'قياسي',
-        mealDate: today,
-        mealType: type,
-        status: type === 'dinner' ? 'pending' : statuses[i % statuses.length],
-        consumptionPercentage: type !== 'dinner' ? Math.floor(Math.random() * 40) + 60 : undefined,
-      })
-    })
-  })
-  return meals
-}
-
-const DEMO_MEALS = generateDemoMeals()
-
-const DEMO_INVENTORY: InventoryItem[] = [
-  { id: 'inv1', code: 'VEG-001', nameAr: 'طماطم طازجة', category: 'خضروات', unit: 'كجم', currentStock: 45, minStock: 20, maxStock: 100, dailyQuota: 8, lastUpdated: '2026-02-28' },
-  { id: 'inv2', code: 'VEG-002', nameAr: 'خيار', category: 'خضروات', unit: 'كجم', currentStock: 30, minStock: 15, maxStock: 80, dailyQuota: 5, lastUpdated: '2026-02-28' },
-  { id: 'inv3', code: 'MEAT-001', nameAr: 'دجاج طازج', category: 'لحوم', unit: 'كجم', currentStock: 25, minStock: 30, maxStock: 100, dailyQuota: 12, lastUpdated: '2026-02-28' },
-  { id: 'inv4', code: 'MEAT-002', nameAr: 'لحم بقر', category: 'لحوم', unit: 'كجم', currentStock: 18, minStock: 15, maxStock: 60, dailyQuota: 8, lastUpdated: '2026-02-27' },
-  { id: 'inv5', code: 'GRN-001', nameAr: 'أرز بسمتي', category: 'حبوب', unit: 'كجم', currentStock: 120, minStock: 50, maxStock: 300, dailyQuota: 15, lastUpdated: '2026-02-28' },
-  { id: 'inv6', code: 'DRY-001', nameAr: 'حليب طويل الأجل', category: 'ألبان', unit: 'لتر', currentStock: 80, minStock: 40, maxStock: 200, dailyQuota: 10, lastUpdated: '2026-02-27' },
-  { id: 'inv7', code: 'OIL-001', nameAr: 'زيت زيتون', category: 'زيوت', unit: 'لتر', currentStock: 35, minStock: 20, maxStock: 80, dailyQuota: 3, lastUpdated: '2026-02-26' },
-]
-
-const DEMO_TRANSACTIONS: InventoryTransaction[] = [
-  { id: 't1', materialId: 'inv3', materialName: 'دجاج طازج', transactionDate: '2026-02-28', transactionType: 'receipt', quantity: 50, supplierName: 'شركة الأغذية المتحدة', invoiceNumber: 'INV-2026-0234', createdBy: 'محمد المخزن' },
-  { id: 't2', materialId: 'inv5', materialName: 'أرز بسمتي', transactionDate: '2026-02-28', transactionType: 'consumption', quantity: 15, createdBy: 'الشيف أحمد' },
-  { id: 't3', materialId: 'inv1', materialName: 'طماطم طازجة', transactionDate: '2026-02-28', transactionType: 'waste', quantity: 5, reason: 'تلف بسبب سوء التخزين', createdBy: 'محمد المخزن' },
-  { id: 't4', materialId: 'inv6', materialName: 'حليب طويل الأجل', transactionDate: '2026-02-27', transactionType: 'receipt', quantity: 100, supplierName: 'شركة الألبان السعودية', invoiceNumber: 'INV-2026-0233', createdBy: 'محمد المخزن' },
-]
+import { useDailyMeals, useUpdateMealStatus, useInventory, useInventoryTransactions } from '../api/catering-queries'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -93,7 +48,9 @@ export function CateringPage() {
 // ─── Daily Log Section ──────────────────────────────────────────
 
 function DailyLogSection() {
-  const [meals, setMeals] = useState(DEMO_MEALS)
+  const { data: fetchedMeals = [] } = useDailyMeals()
+  const [localMeals, setLocalMeals] = useState<DailyMeal[]>([])
+  const meals = localMeals.length > 0 ? localMeals : fetchedMeals
   const [filterMealType, setFilterMealType] = useState<MealType | 'all'>('all')
   const [filterStatus, setFilterStatus] = useState<MealStatus | 'all'>('all')
 
@@ -109,7 +66,8 @@ function DailyLogSection() {
   const specialDiets = new Set(todayMeals.filter((m) => m.dietaryPlan !== 'قياسي').map((m) => m.beneficiaryId)).size
 
   const updateMealStatus = (id: string, status: MealStatus) => {
-    setMeals((prev) => prev.map((m) => m.id === id ? { ...m, status, deliveredAt: new Date().toISOString() } : m))
+    const current = localMeals.length > 0 ? localMeals : fetchedMeals
+    setLocalMeals(current.map((m) => m.id === id ? { ...m, status, deliveredAt: new Date().toISOString() } : m))
     toast.success(`تم تحديث الحالة: ${MEAL_STATUS_CONFIG[status].label}`)
   }
 
@@ -312,8 +270,8 @@ function QualitySection() {
 // ─── Inventory Section ──────────────────────────────────────────
 
 function InventorySection() {
-  const [inventory] = useState(DEMO_INVENTORY)
-  const [transactions] = useState(DEMO_TRANSACTIONS)
+  const { data: inventory = [] } = useInventory()
+  const { data: transactions = [] } = useInventoryTransactions()
   const [view, setView] = useState<'stock' | 'transactions'>('stock')
 
   const lowStockCount = inventory.filter((i) => i.currentStock <= i.minStock).length

@@ -15,80 +15,7 @@ import {
   type AuditCycle, type AuditFinding,
   type OvrReport, type OvrCategory, type OvrSeverity,
 } from '../types'
-
-// ─── Demo Data ──────────────────────────────────────────────────
-
-const DEMO_NCRS: NCR[] = [
-  {
-    id: 'ncr1', title: 'قصور في نظام السلامة من الحرائق', description: 'عدم تحديث كاشفات الدخان في الجناح B منذ 2019',
-    isoClause: '7.1.3 / 8.5.1', department: 'الصيانة والتشغيل', severity: 'critical', status: 'in_progress',
-    reportedBy: 'فريق التدقيق', reportedDate: '2026-01-15', dueDate: '2026-03-30',
-    rootCause: 'عدم تحديث منظومة الحرائق منذ 2019 وغياب جدول صيانة دوري',
-    capas: [
-      { id: 'c1', type: 'corrective', description: 'استبدال كاشفات الدخان في الجناح B فوراً', assignedTo: 'مهندس الصيانة', dueDate: '2026-02-28', status: 'completed', completionDate: '2026-02-10', evidence: 'تقرير فني + صور التركيب' },
-      { id: 'c2', type: 'corrective', description: 'تركيب نظام Sprinkler في أجنحة الإيواء', assignedTo: 'شركة السلامة', dueDate: '2026-03-30', status: 'in_progress' },
-      { id: 'c3', type: 'preventive', description: 'إنشاء جدول صيانة ربع سنوي لأنظمة الحرائق', assignedTo: 'مشرف الصيانة', dueDate: '2026-03-15', status: 'pending' },
-    ],
-  },
-  {
-    id: 'ncr2', title: 'فجوات في توثيق العمليات الابتكارية', description: 'غياب إجراءات موحدة لتوثيق عمليات التطوير والابتكار',
-    isoClause: '8.3 / 7.5', department: 'الجودة وتطوير الأداء', severity: 'major', status: 'action_planned',
-    reportedBy: 'مدقق خارجي', reportedDate: '2026-02-01', dueDate: '2026-06-30',
-    capas: [
-      { id: 'c4', type: 'corrective', description: 'إعداد SOP لتوثيق العمليات الابتكارية', assignedTo: 'مدير الجودة', dueDate: '2026-04-30', status: 'in_progress' },
-      { id: 'c5', type: 'preventive', description: 'تدريب الموظفين على نظام التوثيق الجديد', assignedTo: 'قسم التدريب', dueDate: '2026-05-30', status: 'pending' },
-    ],
-  },
-  {
-    id: 'ncr3', title: 'انقطاع التواصل الاستراتيجي مع الوزارة', description: 'عدم إرسال التقارير الدورية في المواعيد المحددة',
-    isoClause: '5.1 / 7.4', department: 'الإدارة العليا', severity: 'major', status: 'in_progress',
-    reportedBy: 'مدير المركز', reportedDate: '2026-02-10', dueDate: '2026-03-31',
-    capas: [
-      { id: 'c6', type: 'corrective', description: 'إنشاء تقويم ثابت لإرسال التقارير', assignedTo: 'السكرتارية', dueDate: '2026-03-01', status: 'completed', completionDate: '2026-02-25' },
-    ],
-  },
-  {
-    id: 'ncr4', title: 'نقص في سجلات التدريب على مكافحة العدوى', description: 'عدم وجود سجلات تدريب محدثة لـ 8 موظفين',
-    isoClause: '7.2', department: 'مكافحة العدوى', severity: 'minor', status: 'verification',
-    reportedBy: 'مسؤول IPC', reportedDate: '2026-02-20', dueDate: '2026-03-15',
-    capas: [
-      { id: 'c7', type: 'corrective', description: 'عقد دورات تدريبية فورية للموظفين المعنيين', assignedTo: 'مسؤول IPC', dueDate: '2026-03-10', status: 'completed', completionDate: '2026-03-05' },
-    ],
-  },
-]
-
-const DEMO_AUDITS: AuditCycle[] = [
-  {
-    id: 'aud1', cycleName: 'تدقيق الربع الأول 2026', cycleYear: 2026, cycleQuarter: 1,
-    leadAuditor: 'أ. محمد الجودة', status: 'in_progress',
-    plannedStartDate: '2026-02-01', plannedEndDate: '2026-03-31',
-    scope: 'بنود 4-7 من ISO 9001:2015',
-    findings: [
-      { id: 'f1', findingType: 'major_nc', isoClause: '7.1.3', department: 'الصيانة والتشغيل', description: 'عدم توفر سجلات صيانة وقائية لبعض المعدات الحرجة', status: 'action_planned', responsiblePerson: 'مشرف الصيانة', dueDate: '2026-03-15' },
-      { id: 'f2', findingType: 'minor_nc', isoClause: '7.5', department: 'الخدمات الاجتماعية', description: 'بعض النماذج لا تحمل رقم إصدار محدث', status: 'in_progress', responsiblePerson: 'مدير الخدمات', dueDate: '2026-03-20' },
-      { id: 'f3', findingType: 'observation', isoClause: '6.1', department: 'الموارد البشرية', description: 'فرصة لتحسين آلية تحديد المخاطر في خطط التوظيف', status: 'open' },
-      { id: 'f4', findingType: 'strength', isoClause: '5.2', department: 'الإدارة العليا', description: 'سياسة الجودة واضحة ومنتشرة بين الموظفين', status: 'closed' },
-      { id: 'f5', findingType: 'opportunity', isoClause: '9.1', department: 'الجودة وتطوير الأداء', description: 'إمكانية أتمتة تقارير الأداء الشهرية', status: 'open' },
-    ],
-  },
-  {
-    id: 'aud2', cycleName: 'تدقيق الربع الرابع 2025', cycleYear: 2025, cycleQuarter: 4,
-    leadAuditor: 'أ. سارة المالكي', status: 'completed',
-    plannedStartDate: '2025-10-01', plannedEndDate: '2025-12-15',
-    scope: 'بنود 8-10 من ISO 9001:2015',
-    findings: [
-      { id: 'f6', findingType: 'minor_nc', isoClause: '8.5.1', department: 'الخدمات الطبية', description: 'تأخر في تحديث بعض البروتوكولات الطبية', status: 'closed', correctiveAction: 'تم تحديث جميع البروتوكولات' },
-      { id: 'f7', findingType: 'strength', isoClause: '10.2', department: 'الجودة وتطوير الأداء', description: 'نظام NCR/CAPA فعال ومتابع بشكل منتظم', status: 'closed' },
-    ],
-  },
-]
-
-const DEMO_OVRS: OvrReport[] = [
-  { id: 'ovr1', incidentDate: '2026-02-26', description: 'تأخر في إعطاء جرعة الأنسولين الصباحية بسبب عدم توفر الممرضة في القسم', category: 'medication_error', severity: 'minor', isAnonymous: false, reporterName: 'ممرض: سعيد', status: 'closed', justCultureCategory: 'human_error', lessonsLearned: 'ضرورة وجود ممرض احتياطي في كل وردية' },
-  { id: 'ovr2', incidentDate: '2026-02-24', description: 'سقوط مستفيد أثناء محاولة النهوض من السرير بدون مساعدة', category: 'fall', severity: 'moderate', isAnonymous: false, reporterName: 'هند المحمد', status: 'investigating', justCultureCategory: 'human_error' },
-  { id: 'ovr3', incidentDate: '2026-02-20', description: 'ملاحظة أرضية مبللة بالقرب من الحمام بدون لافتة تحذيرية', category: 'fall', severity: 'near_miss', isAnonymous: true, status: 'closed', lessonsLearned: 'تركيب لافتات تحذيرية دائمة وحساسات رطوبة' },
-  { id: 'ovr4', incidentDate: '2026-02-18', description: 'سلوك عنيف من مستفيد تجاه زميله أثناء النشاط الجماعي', category: 'behavioral', severity: 'moderate', isAnonymous: false, reporterName: 'نورة العتيبي', status: 'closed', justCultureCategory: 'at_risk_behavior' },
-]
+import { useNCRs, useAuditCycles, useOVRReports } from '../api/quality-queries'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -117,7 +44,7 @@ export function QualityPage() {
 // ─── NCR Section ────────────────────────────────────────────────
 
 function NcrSection() {
-  const [ncrs] = useState(DEMO_NCRS)
+  const { data: ncrs = [] } = useNCRs()
   const [filterSeverity, setFilterSeverity] = useState<NcrSeverity | 'all'>('all')
   const [expandedNcr, setExpandedNcr] = useState<string | null>(null)
 
@@ -234,8 +161,8 @@ function NcrSection() {
 // ─── Audit Section ──────────────────────────────────────────────
 
 function AuditSection() {
-  const [audits] = useState(DEMO_AUDITS)
-  const [expandedAudit, setExpandedAudit] = useState<string | null>(DEMO_AUDITS[0].id)
+  const { data: audits = [] } = useAuditCycles()
+  const [expandedAudit, setExpandedAudit] = useState<string | null>(audits[0]?.id ?? null)
 
   const allFindings = audits.flatMap((a) => a.findings)
   const stats = {
@@ -315,7 +242,7 @@ function AuditSection() {
 // ─── OVR Section ────────────────────────────────────────────────
 
 function OvrSection() {
-  const [reports] = useState(DEMO_OVRS)
+  const { data: reports = [] } = useOVRReports()
   const [filterCategory, setFilterCategory] = useState<OvrCategory | 'all'>('all')
 
   const filtered = filterCategory === 'all' ? reports : reports.filter((r) => r.category === filterCategory)

@@ -14,34 +14,7 @@ import {
   type MaintenanceRequest, type MaintenanceStatus, type MaintenanceType, type MaintenancePriority,
   type WasteRecord, type WasteType,
 } from '../types'
-
-// ─── Demo Data ──────────────────────────────────────────────────
-
-const DEMO_ASSETS: Asset[] = [
-  { id: 'a1', assetCode: 'EQ-2024-0001', nameAr: 'جهاز تكييف مركزي - المبنى الرئيسي', category: 'تكييف', assetType: 'fixed', building: 'المبنى الرئيسي', floor: '1', room: 'القاعة المركزية', status: 'active', condition: 'good', acquisitionDate: '2024-01-15', acquisitionCost: 45000, currentBookValue: 36000, depreciationRate: 10 },
-  { id: 'a2', assetCode: 'EQ-2024-0002', nameAr: 'مصعد كهربائي - المبنى أ', category: 'مصاعد', assetType: 'fixed', building: 'المبنى أ', floor: 'الكل', status: 'under_maintenance', condition: 'fair', acquisitionDate: '2023-06-01', acquisitionCost: 120000, currentBookValue: 96000, depreciationRate: 10 },
-  { id: 'a3', assetCode: 'VH-2024-0001', nameAr: 'سيارة إسعاف تويوتا هايس', category: 'أسطول', assetType: 'fixed', building: 'موقف السيارات', status: 'active', condition: 'excellent', acquisitionDate: '2024-03-20', acquisitionCost: 180000, currentBookValue: 162000, depreciationRate: 10, warrantyEnd: '2027-03-20' },
-  { id: 'a4', assetCode: 'IT-2024-0015', nameAr: 'جهاز حاسب محمول Dell', category: 'تقنية معلومات', assetType: 'movable', building: 'المبنى الرئيسي', room: 'مكتب 205', status: 'active', condition: 'good', acquisitionDate: '2024-09-10', acquisitionCost: 4500, currentBookValue: 4050, depreciationRate: 20 },
-  { id: 'a5', assetCode: 'MED-2024-0003', nameAr: 'سرير طبي كهربائي', category: 'تجهيزات طبية', assetType: 'fixed', building: 'جناح الرعاية', room: 'غرفة 12', status: 'active', condition: 'good', acquisitionDate: '2024-02-01', acquisitionCost: 15000, currentBookValue: 13500, depreciationRate: 10 },
-  { id: 'a6', assetCode: 'EQ-2023-0010', nameAr: 'مولد كهربائي احتياطي', category: 'كهرباء', assetType: 'fixed', building: 'المبنى الخلفي', status: 'out_of_service', condition: 'poor', acquisitionDate: '2021-04-15', acquisitionCost: 85000, currentBookValue: 42500, depreciationRate: 10 },
-]
-
-const DEMO_MAINTENANCE: MaintenanceRequest[] = [
-  { id: 'm1', requestNumber: 'MR-2026-0042', assetName: 'مصعد كهربائي - المبنى أ', title: 'عطل في باب المصعد الرئيسي', description: 'الباب لا ينغلق بشكل كامل ويصدر صوت', requestType: 'corrective', priority: 'high', status: 'in_progress', reportedBy: 'سعيد الغامدي', assignedTo: 'شركة الصيانة المتحدة', reportedDate: '2026-02-26', targetCompletion: '2026-03-01', estimatedCost: 3500 },
-  { id: 'm2', requestNumber: 'MR-2026-0043', assetName: 'جهاز تكييف مركزي', title: 'صيانة دورية فلاتر التكييف', requestType: 'preventive', priority: 'medium', status: 'pending', reportedBy: 'النظام', reportedDate: '2026-02-28', targetCompletion: '2026-03-05', estimatedCost: 800 },
-  { id: 'm3', requestNumber: 'MR-2026-0041', assetName: 'مولد كهربائي احتياطي', title: 'استبدال بطارية المولد', description: 'البطارية فقدت كفاءتها ولا تعمل عند انقطاع التيار', requestType: 'emergency', priority: 'critical', status: 'approved', reportedBy: 'خالد المهندس', assignedTo: 'فريق الكهرباء', reportedDate: '2026-02-25', targetCompletion: '2026-02-28', estimatedCost: 5000 },
-  { id: 'm4', requestNumber: 'MR-2026-0040', assetName: 'سرير طبي كهربائي', title: 'إصلاح آلية رفع السرير', requestType: 'corrective', priority: 'medium', status: 'completed', reportedBy: 'هند الممرضة', assignedTo: 'فني الأجهزة الطبية', reportedDate: '2026-02-20', targetCompletion: '2026-02-22', actualCompletion: '2026-02-21', estimatedCost: 1200, actualCost: 900, qualityRating: 5 },
-  { id: 'm5', requestNumber: 'MR-2026-0039', title: 'تركيب إنارة إضافية في الممر الخارجي', requestType: 'improvement', priority: 'low', status: 'pending', reportedBy: 'أحمد الأمن', reportedDate: '2026-02-27', estimatedCost: 2000 },
-]
-
-const DEMO_WASTE: WasteRecord[] = [
-  { id: 'w1', recordDate: '2026-02-28', wasteType: 'general', sourceLocation: 'المطبخ المركزي', quantity: 45, unit: 'kg', disposalMethod: 'landfill' },
-  { id: 'w2', recordDate: '2026-02-28', wasteType: 'recyclable', sourceLocation: 'المكاتب الإدارية', quantity: 12, unit: 'kg', disposalMethod: 'recycling' },
-  { id: 'w3', recordDate: '2026-02-27', wasteType: 'medical', sourceLocation: 'العيادة الطبية', quantity: 8, unit: 'kg', disposalMethod: 'special_treatment', contractorName: 'شركة المعالجة البيئية' },
-  { id: 'w4', recordDate: '2026-02-27', wasteType: 'hazardous', sourceLocation: 'مختبر التحاليل', quantity: 3, unit: 'kg', disposalMethod: 'incineration', contractorName: 'شركة المعالجة البيئية' },
-  { id: 'w5', recordDate: '2026-02-26', wasteType: 'electronic', sourceLocation: 'تقنية المعلومات', quantity: 15, unit: 'kg', disposalMethod: 'recycling', contractorName: 'شركة التدوير الأخضر' },
-  { id: 'w6', recordDate: '2026-02-26', wasteType: 'general', sourceLocation: 'الأجنحة السكنية', quantity: 60, unit: 'kg', disposalMethod: 'landfill' },
-]
+import { useAssets, useMaintenanceRequests, useCreateMaintenanceRequest, useUpdateMaintenanceStatus, useWasteRecords } from '../api/operations-queries'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -78,11 +51,15 @@ export function OperationsPage() {
 // ─── Dashboard Section ──────────────────────────────────────────
 
 function DashboardSection() {
-  const activeAssets = DEMO_ASSETS.filter((a) => a.status === 'active').length
-  const totalValue = DEMO_ASSETS.reduce((s, a) => s + a.currentBookValue, 0)
-  const pendingMaintenance = DEMO_MAINTENANCE.filter((m) => m.status === 'pending' || m.status === 'in_progress').length
-  const completedThisMonth = DEMO_MAINTENANCE.filter((m) => m.status === 'completed').length
-  const wasteThisMonth = DEMO_WASTE.reduce((s, w) => s + w.quantity, 0)
+  const { data: assets = [] } = useAssets()
+  const { data: maintenance = [] } = useMaintenanceRequests()
+  const { data: waste = [] } = useWasteRecords()
+
+  const activeAssets = assets.filter((a) => a.status === 'active').length
+  const totalValue = assets.reduce((s, a) => s + a.currentBookValue, 0)
+  const pendingMaintenance = maintenance.filter((m) => m.status === 'pending' || m.status === 'in_progress').length
+  const completedThisMonth = maintenance.filter((m) => m.status === 'completed').length
+  const wasteThisMonth = waste.reduce((s, w) => s + w.quantity, 0)
 
   return (
     <div className="space-y-6">
@@ -98,7 +75,7 @@ function DashboardSection() {
       <Card>
         <h3 className="mb-3 font-bold text-slate-900 dark:text-white">آخر طلبات الصيانة</h3>
         <div className="space-y-2">
-          {DEMO_MAINTENANCE.slice(0, 4).map((req) => {
+          {maintenance.slice(0, 4).map((req) => {
             const typeConfig = MAINTENANCE_TYPE_CONFIG[req.requestType]
             const statusConfig = MAINTENANCE_STATUS_CONFIG[req.status]
             const priorityConfig = MAINTENANCE_PRIORITY_CONFIG[req.priority]
@@ -126,7 +103,7 @@ function DashboardSection() {
         <h3 className="mb-3 font-bold text-slate-900 dark:text-white">حالة الأصول</h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {(Object.entries(ASSET_CONDITION_CONFIG) as [AssetCondition, { label: string; color: string }][]).map(([cond, config]) => {
-            const count = DEMO_ASSETS.filter((a) => a.condition === cond).length
+            const count = assets.filter((a) => a.condition === cond).length
             return (
               <div key={cond} className={cn('rounded-xl p-3 text-center', config.color)}>
                 <p className="text-2xl font-bold">{count}</p>
@@ -143,7 +120,7 @@ function DashboardSection() {
 // ─── Assets Section ─────────────────────────────────────────────
 
 function AssetsSection() {
-  const [assets] = useState(DEMO_ASSETS)
+  const { data: assets = [] } = useAssets()
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<AssetStatus | 'all'>('all')
 
@@ -208,7 +185,9 @@ function AssetsSection() {
 // ─── Maintenance Section ────────────────────────────────────────
 
 function MaintenanceSection() {
-  const [requests, setRequests] = useState(DEMO_MAINTENANCE)
+  const { data: fetchedRequests = [] } = useMaintenanceRequests()
+  const [localRequests, setLocalRequests] = useState<MaintenanceRequest[]>([])
+  const requests = localRequests.length > 0 ? localRequests : fetchedRequests
   const [filterStatus, setFilterStatus] = useState<MaintenanceStatus | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
 
@@ -222,7 +201,8 @@ function MaintenanceSection() {
   }
 
   const updateStatus = (id: string, newStatus: MaintenanceStatus) => {
-    setRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: newStatus } : r))
+    const current = localRequests.length > 0 ? localRequests : fetchedRequests
+    setLocalRequests(current.map((r) => r.id === id ? { ...r, status: newStatus } : r))
     toast.success(`تم تحديث الحالة إلى: ${MAINTENANCE_STATUS_CONFIG[newStatus].label}`)
   }
 
@@ -301,7 +281,8 @@ function MaintenanceSection() {
           id: `m${Date.now()}`, requestNumber: `MR-2026-${String(requests.length + 44).padStart(4, '0')}`,
           ...data, status: 'pending', reportedBy: 'المستخدم الحالي', reportedDate: new Date().toISOString().split('T')[0],
         }
-        setRequests((prev) => [newReq, ...prev])
+        const current = localRequests.length > 0 ? localRequests : fetchedRequests
+        setLocalRequests([newReq, ...current])
         toast.success('تم إنشاء طلب الصيانة')
         setShowAddModal(false)
       }} />
@@ -344,7 +325,7 @@ function AddMaintenanceModal({ open, onClose, onAdd }: {
 // ─── Waste Section ──────────────────────────────────────────────
 
 function WasteSection() {
-  const [records] = useState(DEMO_WASTE)
+  const { data: records = [] } = useWasteRecords()
   const [filterType, setFilterType] = useState<WasteType | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Sparkles, Target, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award } from 'lucide-react'
+import { Sparkles, Heart, Plus, ChevronDown, ChevronUp, TrendingUp, Award } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { StatCard } from '@/components/data'
@@ -7,41 +7,12 @@ import { Button, Card, CardHeader, CardTitle, Badge, Modal, Input, Select, Tabs 
 import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
-  REHAB_DOMAINS, GOAL_STATUS_CONFIG, QOL_DIMENSIONS, MEASUREMENT_TYPES, SESSION_TYPES,
-  PERSONALITY_TYPES, COMMUNICATION_STYLES, PRESET_ACTIVITIES, PRESET_CALMING, PRESET_MOTIVATORS,
-  type RehabGoal, type GoalStatus, type GoalDomain, type GoalProgressLog, type DignityProfile,
+  REHAB_DOMAINS, GOAL_STATUS_CONFIG, MEASUREMENT_TYPES,
+  PERSONALITY_TYPES, COMMUNICATION_STYLES,
+  type GoalStatus, type GoalDomain,
 } from '../types'
-
-// ─── Demo Data ──────────────────────────────────────────────────
-
-const DEMO_GOALS: RehabGoal[] = [
-  { id: 'g1', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', domain: 'physical', goalTitle: 'المشي باستقلالية لمسافة 50 متر', goalDescription: 'تحسين القدرة على المشي المستقل باستخدام المشاية ثم بدونها', measurementType: 'numeric', measurementUnit: 'متر', baselineValue: 10, targetValue: 50, currentValue: 35, startDate: '2026-01-15', targetDate: '2026-04-15', assignedTo: 'أ. سعيد', assignedDepartment: 'العلاج الطبيعي', status: 'in_progress', progressPercentage: 70, qualityOfLifeDimension: 'physical_wellbeing', createdAt: '2026-01-15', updatedAt: '2026-02-28' },
-  { id: 'g2', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', domain: 'speech', goalTitle: 'نطق 20 كلمة جديدة بوضوح', goalDescription: 'تحسين النطق والتواصل اللفظي من خلال جلسات تخاطب مكثفة', measurementType: 'numeric', measurementUnit: 'كلمة', baselineValue: 5, targetValue: 20, currentValue: 14, startDate: '2026-01-20', targetDate: '2026-05-20', assignedTo: 'أ. هند', assignedDepartment: 'التخاطب', status: 'in_progress', progressPercentage: 60, qualityOfLifeDimension: 'interpersonal_relations', createdAt: '2026-01-20', updatedAt: '2026-02-25' },
-  { id: 'g3', beneficiaryId: 'b2', beneficiaryName: 'فاطمة عبدالله الزهراني', domain: 'self_care', goalTitle: 'ارتداء الملابس باستقلالية', goalDescription: 'القدرة على ارتداء الملابس الأساسية بدون مساعدة', measurementType: 'milestone', startDate: '2026-02-01', targetDate: '2026-06-01', assignedTo: 'أ. نورة', assignedDepartment: 'العلاج الوظيفي', status: 'in_progress', progressPercentage: 40, qualityOfLifeDimension: 'self_determination', createdAt: '2026-02-01', updatedAt: '2026-02-20' },
-  { id: 'g4', beneficiaryId: 'b3', beneficiaryName: 'خالد سعيد الغامدي', domain: 'psychological', goalTitle: 'تقليل نوبات القلق الأسبوعية', goalDescription: 'خفض عدد نوبات القلق من 5 إلى 1 أسبوعياً', measurementType: 'frequency', measurementUnit: 'مرات/أسبوع', baselineValue: 5, targetValue: 1, currentValue: 2, startDate: '2026-01-10', targetDate: '2026-04-10', assignedTo: 'د. سارة', assignedDepartment: 'الطب النفسي', status: 'in_progress', progressPercentage: 75, createdAt: '2026-01-10', updatedAt: '2026-02-28' },
-  { id: 'g5', beneficiaryId: 'b2', beneficiaryName: 'فاطمة عبدالله الزهراني', domain: 'social', goalTitle: 'المشاركة في 3 أنشطة جماعية شهرياً', goalDescription: 'تعزيز الدمج الاجتماعي عبر المشاركة الفعالة في الأنشطة', measurementType: 'frequency', measurementUnit: 'نشاط/شهر', baselineValue: 0, targetValue: 3, currentValue: 3, startDate: '2026-01-01', targetDate: '2026-03-01', assignedTo: 'أ. هند', status: 'achieved', progressPercentage: 100, createdAt: '2026-01-01', updatedAt: '2026-02-28' },
-]
-
-const DEMO_DIGNITY: DignityProfile = {
-  id: 'd1', beneficiaryId: 'b1', preferredName: 'أبو خالد', preferredTitle: 'أبو خالد',
-  communicationStyle: 'verbal', personalityType: 'social',
-  preferredActivities: ['المشي', 'مشاهدة التلفاز', 'الصلاة'],
-  hobbies: ['الرسم', 'القراءة'],
-  calmingStrategies: ['الاستماع للقرآن', 'المشي الهادئ'],
-  motivators: ['الثناء اللفظي', 'مكالمة العائلة'],
-  favoriteFoods: ['كبسة', 'مندي', 'حلويات'],
-  whatMakesMeHappy: 'زيارة العائلة والتحدث مع الأبناء',
-  whatMakesMeUpset: 'الضوضاء العالية والتأخر في المواعيد',
-  myDreams: 'أن أمشي بدون مساعدة وأزور الحرم',
-  wakeUpTime: '06:00', sleepTime: '22:00',
-  lastUpdated: '2026-02-20',
-}
-
-const DEMO_LOGS: GoalProgressLog[] = [
-  { id: 'pl1', goalId: 'g1', recordedValue: 35, previousValue: 30, progressNote: 'تحسن ملحوظ في التوازن أثناء المشي', sessionType: 'individual', sessionDurationMinutes: 45, beneficiaryFeedback: 'أشعر بتحسن', recordedBy: 'أ. سعيد', recordedAt: '2026-02-28' },
-  { id: 'pl2', goalId: 'g1', recordedValue: 30, previousValue: 25, progressNote: 'استطاع المشي بالمشاية بثقة أكبر', sessionType: 'individual', sessionDurationMinutes: 40, recordedBy: 'أ. سعيد', recordedAt: '2026-02-21' },
-  { id: 'pl3', goalId: 'g1', recordedValue: 25, previousValue: 15, progressNote: 'بدأ باستخدام المشاية بشكل مستقل', sessionType: 'individual', sessionDurationMinutes: 30, recordedBy: 'أ. سعيد', recordedAt: '2026-02-14' },
-]
+import { useRehabGoals, useDignityProfile, useCreateRehabGoal } from '../api/empowerment-queries'
+import { DEMO_LOGS } from '../api/demo-data'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -78,7 +49,7 @@ export function EmpowermentPage() {
 // ─── Goals Section ──────────────────────────────────────────────
 
 function GoalsSection() {
-  const [goals] = useState(DEMO_GOALS)
+  const { data: goals = [] } = useRehabGoals()
   const [filterDomain, setFilterDomain] = useState<GoalDomain | 'all'>('all')
   const [filterStatus, setFilterStatus] = useState<GoalStatus | 'all'>('all')
   const [expandedGoal, setExpandedGoal] = useState<string | null>(null)
@@ -91,9 +62,9 @@ function GoalsSection() {
 
   const stats = {
     total: goals.length,
-    inProgress: goals.filter((g) => g.status === 'in_progress').length,
+    inProgress: goals.filter((g) => g.status === 'active').length,
     achieved: goals.filter((g) => g.status === 'achieved').length,
-    avgProgress: Math.round(goals.reduce((sum, g) => sum + g.progressPercentage, 0) / (goals.length || 1)),
+    avgProgress: Math.round(goals.reduce((sum, g) => sum + g.progress_percentage, 0) / (goals.length || 1)),
   }
 
   return (
@@ -146,9 +117,10 @@ function GoalsSection() {
       <div className="space-y-3">
         <AnimatePresence>
           {filtered.map((goal) => {
-            const domainConfig = REHAB_DOMAINS.find((d) => d.value === goal.domain)!
-            const statusConfig = GOAL_STATUS_CONFIG[goal.status]
+            const domainConfig = REHAB_DOMAINS.find((d) => d.value === goal.domain)
+            const statusConfig = GOAL_STATUS_CONFIG[goal.status as GoalStatus]
             const isExpanded = expandedGoal === goal.id
+            const goalLogs = DEMO_LOGS.filter((l) => l.goalId === goal.id)
 
             return (
               <motion.div key={goal.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -50 }}>
@@ -157,32 +129,32 @@ function GoalsSection() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge className={domainConfig.color}>{domainConfig.emoji} {domainConfig.label}</Badge>
-                          <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                          {domainConfig && <Badge className={domainConfig.color}>{domainConfig.emoji} {domainConfig.label}</Badge>}
+                          {statusConfig && <Badge className={statusConfig.color}>{statusConfig.label}</Badge>}
                           {goal.status === 'achieved' && <Award className="h-4 w-4 text-amber-500" />}
                         </div>
-                        <h3 className="mt-1.5 font-bold text-slate-900 dark:text-white">{goal.goalTitle}</h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">{goal.beneficiaryName}</p>
+                        <h3 className="mt-1.5 font-bold text-slate-900 dark:text-white">{goal.goal_title}</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">{goal.beneficiary_id}</p>
 
                         {/* Progress bar */}
                         <div className="mt-3 flex items-center gap-3">
                           <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                             <motion.div
-                              className={cn('h-full rounded-full', goal.progressPercentage >= 100 ? 'bg-emerald-500' : goal.progressPercentage >= 50 ? 'bg-teal' : 'bg-gold')}
+                              className={cn('h-full rounded-full', goal.progress_percentage >= 100 ? 'bg-emerald-500' : goal.progress_percentage >= 50 ? 'bg-teal' : 'bg-gold')}
                               initial={{ width: 0 }}
-                              animate={{ width: `${goal.progressPercentage}%` }}
+                              animate={{ width: `${goal.progress_percentage}%` }}
                               transition={{ duration: 0.8, ease: 'easeOut' }}
                             />
                           </div>
-                          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{goal.progressPercentage}%</span>
+                          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{goal.progress_percentage}%</span>
                         </div>
 
                         {/* Measurement info */}
-                        {goal.baselineValue !== undefined && goal.targetValue !== undefined && (
+                        {goal.baseline_value != null && goal.target_value != null && (
                           <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
-                            <span>📏 الأساسي: {goal.baselineValue} {goal.measurementUnit}</span>
-                            <span>📊 الحالي: {goal.currentValue} {goal.measurementUnit}</span>
-                            <span>🎯 المستهدف: {goal.targetValue} {goal.measurementUnit}</span>
+                            <span>📏 الأساسي: {goal.baseline_value} {goal.measurement_unit}</span>
+                            <span>📊 الحالي: {goal.current_value} {goal.measurement_unit}</span>
+                            <span>🎯 المستهدف: {goal.target_value} {goal.measurement_unit}</span>
                           </div>
                         )}
                       </div>
@@ -202,23 +174,23 @@ function GoalsSection() {
                         className="overflow-hidden"
                       >
                         <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
-                          <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">{goal.goalDescription}</p>
+                          <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">{goal.goal_description}</p>
                           <div className="mb-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
                             <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
                               <span className="text-slate-500">الأخصائي</span>
-                              <p className="font-medium">{goal.assignedTo || '—'}</p>
+                              <p className="font-medium">{goal.assigned_to || '—'}</p>
                             </div>
                             <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
                               <span className="text-slate-500">القسم</span>
-                              <p className="font-medium">{goal.assignedDepartment || '—'}</p>
+                              <p className="font-medium">{goal.assigned_department || '—'}</p>
                             </div>
                             <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
                               <span className="text-slate-500">تاريخ البداية</span>
-                              <p className="font-medium">{goal.startDate}</p>
+                              <p className="font-medium">{goal.start_date}</p>
                             </div>
                             <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
                               <span className="text-slate-500">تاريخ الإنجاز</span>
-                              <p className="font-medium">{goal.targetDate}</p>
+                              <p className="font-medium">{goal.target_date}</p>
                             </div>
                           </div>
 
@@ -227,31 +199,18 @@ function GoalsSection() {
                             <TrendingUp className="h-4 w-4" /> سجل الجلسات
                           </h4>
                           <div className="space-y-2">
-                            {DEMO_LOGS.filter((l) => l.goalId === goal.id).map((log) => (
+                            {goalLogs.map((log) => (
                               <div key={log.id} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2 text-xs">
                                     <span className="font-medium">{log.recordedBy}</span>
-                                    <Badge variant="outline">{SESSION_TYPES.find((s) => s.value === log.sessionType)?.label}</Badge>
-                                    {log.sessionDurationMinutes && <span className="text-slate-500">{log.sessionDurationMinutes} دقيقة</span>}
                                   </div>
-                                  <span className="text-xs text-slate-500">{log.recordedAt}</span>
+                                  <span className="text-xs text-slate-500">{log.date}</span>
                                 </div>
-                                {log.recordedValue !== undefined && log.previousValue !== undefined && (
-                                  <div className="mt-1 flex items-center gap-2 text-xs">
-                                    <span className="text-slate-500">{log.previousValue} → {log.recordedValue}</span>
-                                    <span className={log.recordedValue > log.previousValue ? 'text-emerald-600' : 'text-red-600'}>
-                                      {log.recordedValue > log.previousValue ? '↑' : '↓'} {Math.abs(log.recordedValue - log.previousValue)}
-                                    </span>
-                                  </div>
-                                )}
-                                {log.progressNote && <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{log.progressNote}</p>}
-                                {log.beneficiaryFeedback && (
-                                  <p className="mt-1 text-xs italic text-teal">💬 {log.beneficiaryFeedback}</p>
-                                )}
+                                {log.note && <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{log.note}</p>}
                               </div>
                             ))}
-                            {DEMO_LOGS.filter((l) => l.goalId === goal.id).length === 0 && (
+                            {goalLogs.length === 0 && (
                               <p className="text-xs text-slate-400">لا توجد جلسات مسجلة</p>
                             )}
                           </div>
@@ -278,7 +237,30 @@ function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void })
   const [form, setForm] = useState({ goalTitle: '', goalDescription: '', measurementType: 'numeric', measurementUnit: '', baselineValue: '', targetValue: '', startDate: '', targetDate: '', assignedTo: '' })
   const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }))
 
+  const createGoal = useCreateRehabGoal()
   const handleSubmit = () => {
+    createGoal.mutate({
+      beneficiary_id: '',
+      domain: domain || 'physical',
+      goal_title: form.goalTitle,
+      goal_description: form.goalDescription || null,
+      measurement_type: form.measurementType || null,
+      measurement_unit: form.measurementUnit || null,
+      baseline_value: form.baselineValue ? Number(form.baselineValue) : null,
+      target_value: form.targetValue ? Number(form.targetValue) : null,
+      current_value: null,
+      quality_of_life_dimension: null,
+      start_date: form.startDate || null,
+      target_date: form.targetDate || null,
+      assigned_to: form.assignedTo || null,
+      assigned_department: null,
+      status: 'active',
+      progress_percentage: 0,
+      achievement_evidence: null,
+      barriers_notes: null,
+      family_involvement: null,
+      linked_national_goal: null,
+    })
     toast.success('تم إنشاء الهدف التأهيلي')
     onClose()
     setStep(1)
@@ -350,10 +332,12 @@ function AddGoalModal({ open, onClose }: { open: boolean; onClose: () => void })
 // ─── Dignity Section ────────────────────────────────────────────
 
 function DignitySection() {
-  const [profile] = useState(DEMO_DIGNITY)
+  const { data: profile } = useDignityProfile('b1')
 
-  const personalityConfig = PERSONALITY_TYPES.find((p) => p.value === profile.personalityType)!
-  const commConfig = COMMUNICATION_STYLES.find((c) => c.value === profile.communicationStyle)!
+  if (!profile) return <div className="py-12 text-center text-sm text-slate-400">لا يوجد ملف كرامة</div>
+
+  const personalityConfig = PERSONALITY_TYPES.find((p) => p.value === profile.personalityType)
+  const commConfig = COMMUNICATION_STYLES.find((c) => c.value === profile.communicationStyle)
 
   return (
     <div className="space-y-6">
@@ -371,8 +355,8 @@ function DignitySection() {
               {profile.preferredTitle && `يفضل أن يُنادى: ${profile.preferredTitle}`}
             </p>
             <div className="mt-1 flex items-center gap-2">
-              <Badge variant="outline">{personalityConfig.emoji} {personalityConfig.label}</Badge>
-              <Badge variant="outline">{commConfig.emoji} {commConfig.label}</Badge>
+              {personalityConfig && <Badge variant="outline">{personalityConfig.emoji} {personalityConfig.label}</Badge>}
+              {commConfig && <Badge variant="outline">{commConfig.emoji} {commConfig.label}</Badge>}
             </div>
           </div>
         </div>
@@ -387,11 +371,11 @@ function DignitySection() {
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-lg bg-amber-50 p-3 text-center dark:bg-amber-900/20">
               <p className="text-xs text-slate-500">وقت الاستيقاظ</p>
-              <p className="mt-1 text-lg font-bold text-amber-700 dark:text-amber-400">☀️ {profile.wakeUpTime}</p>
+              <p className="mt-1 text-lg font-bold text-amber-700 dark:text-amber-400">☀️ {profile.wakeUpTime ?? '—'}</p>
             </div>
             <div className="rounded-lg bg-indigo-50 p-3 text-center dark:bg-indigo-900/20">
               <p className="text-xs text-slate-500">وقت النوم</p>
-              <p className="mt-1 text-lg font-bold text-indigo-700 dark:text-indigo-400">🌙 {profile.sleepTime}</p>
+              <p className="mt-1 text-lg font-bold text-indigo-700 dark:text-indigo-400">🌙 {profile.sleepTime ?? '—'}</p>
             </div>
           </div>
         </Card>
@@ -402,7 +386,7 @@ function DignitySection() {
             <CardTitle className="text-base">الأطعمة المفضلة</CardTitle>
           </CardHeader>
           <div className="flex flex-wrap gap-2">
-            {profile.favoriteFoods.map((food) => (
+            {(profile.favoriteFoods ?? []).map((food) => (
               <Badge key={food} variant="outline">🍽️ {food}</Badge>
             ))}
           </div>
@@ -417,7 +401,7 @@ function DignitySection() {
             <div>
               <p className="mb-1.5 text-xs font-medium text-slate-500">الأنشطة المفضلة</p>
               <div className="flex flex-wrap gap-2">
-                {profile.preferredActivities.map((a) => (
+                {(profile.preferredActivities ?? []).map((a) => (
                   <Badge key={a} className="bg-teal/10 text-teal">{a}</Badge>
                 ))}
               </div>
@@ -425,7 +409,7 @@ function DignitySection() {
             <div>
               <p className="mb-1.5 text-xs font-medium text-slate-500">الهوايات</p>
               <div className="flex flex-wrap gap-2">
-                {profile.hobbies.map((h) => (
+                {(profile.hobbies ?? []).map((h) => (
                   <Badge key={h} className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">{h}</Badge>
                 ))}
               </div>
@@ -442,7 +426,7 @@ function DignitySection() {
             <div>
               <p className="mb-1.5 text-xs font-medium text-slate-500">استراتيجيات التهدئة</p>
               <div className="flex flex-wrap gap-2">
-                {profile.calmingStrategies.map((c) => (
+                {(profile.calmingStrategies ?? []).map((c) => (
                   <Badge key={c} className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">😌 {c}</Badge>
                 ))}
               </div>
@@ -450,7 +434,7 @@ function DignitySection() {
             <div>
               <p className="mb-1.5 text-xs font-medium text-slate-500">المحفزات</p>
               <div className="flex flex-wrap gap-2">
-                {profile.motivators.map((m) => (
+                {(profile.motivators ?? []).map((m) => (
                   <Badge key={m} className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">⭐ {m}</Badge>
                 ))}
               </div>

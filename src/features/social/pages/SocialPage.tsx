@@ -8,28 +8,9 @@ import { toast } from '@/stores/useToastStore'
 import { cn } from '@/lib/utils'
 import {
   LEAVE_STATUS_CONFIG, LEAVE_TYPES, TARGET_GROUPS, FOLLOW_UP_STATUS,
-  FATHER_MOTHER_STATUS, HOUSING_TYPES, ECONOMIC_STATUS,
-  type LeaveRequest, type LeaveStatus, type SocialResearch, type SocialActivity,
+  type LeaveRequest, type LeaveStatus, type SocialActivity,
 } from '../types'
-
-// ─── Demo Data ──────────────────────────────────────────────────
-
-const DEMO_RESEARCHES: SocialResearch[] = [
-  { id: 'sr1', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', researcherName: 'نورة العتيبي', researchDate: '2026-02-15', guardianName: 'محمد السالم', guardianRelation: 'والد', guardianMobile: '0551234567', isFatherAlive: 'alive', isMotherAlive: 'alive', economicStatus: 'average', housingType: 'owned', socialResearchSummary: 'أسرة مستقرة مع حاجة لدعم تأهيلي مستمر', recommendations: 'الاستمرار في البرنامج التأهيلي مع زيادة مشاركة الأسرة', createdAt: '2026-02-15' },
-  { id: 'sr2', beneficiaryId: 'b2', beneficiaryName: 'فاطمة عبدالله الزهراني', researcherName: 'سعاد المالكي', researchDate: '2026-02-10', guardianName: 'عبدالله الزهراني', guardianRelation: 'أخ', guardianMobile: '0559876543', isFatherAlive: 'deceased', isMotherAlive: 'alive', economicStatus: 'poor', housingType: 'rented', socialResearchSummary: 'وضع اقتصادي صعب يحتاج دعم مالي', recommendations: 'التنسيق مع الجمعيات الخيرية لتقديم دعم مالي', createdAt: '2026-02-10' },
-]
-
-const DEMO_LEAVES: LeaveRequest[] = [
-  { id: 'l1', beneficiaryId: 'b1', beneficiaryName: 'أحمد محمد السالم', leaveType: 'home_visit', startDate: '2026-03-01', endDate: '2026-03-03', guardianName: 'محمد السالم', guardianContact: '0551234567', reason: 'زيارة عائلية بمناسبة عيد الأم', status: 'approved', medicalClearance: { clearedBy: 'د. فهد', clearedAt: '2026-02-26', isFit: true }, history: [{ action: 'request', actionBy: 'نورة', role: 'أخصائية', date: '2026-02-25' }, { action: 'medical_clear', actionBy: 'د. فهد', role: 'طبيب', date: '2026-02-26' }, { action: 'approve', actionBy: 'خالد المدير', role: 'مدير', date: '2026-02-27' }], createdAt: '2026-02-25', createdBy: 'نورة العتيبي' },
-  { id: 'l2', beneficiaryId: 'b3', beneficiaryName: 'خالد سعيد الغامدي', leaveType: 'hospital', startDate: '2026-03-05', endDate: '2026-03-05', guardianName: 'سعيد الغامدي', guardianContact: '0553456789', reason: 'موعد مراجعة في المستشفى', status: 'pending_medical', history: [{ action: 'request', actionBy: 'سعاد', role: 'أخصائية', date: '2026-02-28' }], createdAt: '2026-02-28', createdBy: 'سعاد المالكي' },
-  { id: 'l3', beneficiaryId: 'b2', beneficiaryName: 'فاطمة عبدالله الزهراني', leaveType: 'event', startDate: '2026-03-10', endDate: '2026-03-10', guardianName: 'عبدالله الزهراني', guardianContact: '0559876543', reason: 'حضور حفل زفاف أحد الأقارب', status: 'pending_director', medicalClearance: { clearedBy: 'د. سارة', clearedAt: '2026-02-27', isFit: true, precautions: 'يجب توفير كرسي متحرك' }, history: [{ action: 'request', actionBy: 'نورة', role: 'أخصائية', date: '2026-02-26' }, { action: 'medical_clear', actionBy: 'د. سارة', role: 'طبيبة', date: '2026-02-27' }], createdAt: '2026-02-26', createdBy: 'نورة العتيبي' },
-]
-
-const DEMO_ACTIVITIES: SocialActivity[] = [
-  { id: 'a1', activityName: 'ورشة فنون تشكيلية', supervisor: 'هند المحمد', date: '2026-02-20', targetGroup: 'beneficiaries', location: 'قاعة الأنشطة', objectives: 'تنمية المهارات الحركية الدقيقة', outcomes: 'مشاركة 15 مستفيد بنجاح', internalParticipants: 15, externalParticipants: 2, cost: 500, status: 'achieved' },
-  { id: 'a2', activityName: 'رحلة ترفيهية - حديقة الملك فهد', supervisor: 'سعيد القحطاني', date: '2026-02-25', targetGroup: 'both', location: 'حديقة الملك فهد', objectives: 'تعزيز الدمج المجتمعي', internalParticipants: 20, externalParticipants: 5, cost: 2000, status: 'achieved' },
-  { id: 'a3', activityName: 'احتفال اليوم العالمي لذوي الإعاقة', supervisor: 'نورة العتيبي', date: '2026-03-15', targetGroup: 'community', location: 'المسرح الرئيسي', objectives: 'التوعية المجتمعية', internalParticipants: 30, externalParticipants: 50, cost: 5000, status: 'not_achieved' },
-]
+import { useLeaveRequests, useSocialResearches, useSocialActivities } from '../api/social-queries'
 
 // ─── Main Page ──────────────────────────────────────────────────
 
@@ -68,7 +49,9 @@ export function SocialPage() {
 // ─── Leaves Section ─────────────────────────────────────────────
 
 function LeavesSection() {
-  const [leaves, setLeaves] = useState(DEMO_LEAVES)
+  const { data: fetchedLeaves = [] } = useLeaveRequests()
+  const [localLeaves, setLocalLeaves] = useState<LeaveRequest[] | null>(null)
+  const leaves = localLeaves ?? fetchedLeaves
   const [filterStatus, setFilterStatus] = useState<LeaveStatus | 'all'>('all')
   const [showAddModal, setShowAddModal] = useState(false)
   const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null)
@@ -83,22 +66,24 @@ function LeavesSection() {
   }
 
   const handleApprove = (id: string, step: 'medical' | 'director') => {
-    setLeaves((prev) =>
-      prev.map((l) => {
+    const current = localLeaves ?? fetchedLeaves
+    setLocalLeaves(
+      current.map((l) => {
         if (l.id !== id) return l
         if (step === 'medical') {
-          return { ...l, status: 'pending_director' as const, medicalClearance: { clearedBy: 'الطبيب', clearedAt: new Date().toISOString(), isFit: true }, history: [...l.history, { action: 'medical_clear' as const, actionBy: 'الطبيب', role: 'طبيب', date: new Date().toISOString() }] }
+          return { ...l, status: 'pending_director' as const, medicalClearance: { clearedBy: 'الطبيب', clearedAt: new Date().toISOString(), isFit: true }, history: [...(l.history ?? []), { action: 'medical_clear' as const, actionBy: 'الطبيب', role: 'طبيب', date: new Date().toISOString() }] }
         }
-        return { ...l, status: 'approved' as const, history: [...l.history, { action: 'approve' as const, actionBy: 'المدير', role: 'مدير', date: new Date().toISOString() }] }
+        return { ...l, status: 'approved' as const, history: [...(l.history ?? []), { action: 'approve' as const, actionBy: 'المدير', role: 'مدير', date: new Date().toISOString() }] }
       }),
     )
     toast.success(step === 'medical' ? 'تمت الموافقة الطبية' : 'تمت موافقة المدير')
   }
 
   const handleReject = (id: string) => {
-    setLeaves((prev) =>
-      prev.map((l) =>
-        l.id === id ? { ...l, status: 'rejected' as const, history: [...l.history, { action: 'reject' as const, actionBy: 'المستخدم', role: 'مسؤول', date: new Date().toISOString() }] } : l,
+    const current = localLeaves ?? fetchedLeaves
+    setLocalLeaves(
+      current.map((l) =>
+        l.id === id ? { ...l, status: 'rejected' as const, history: [...(l.history ?? []), { action: 'reject' as const, actionBy: 'المستخدم', role: 'مسؤول', date: new Date().toISOString() }] } : l,
       ),
     )
     toast.error('تم رفض الطلب')
@@ -190,7 +175,7 @@ function LeavesSection() {
               <div><span className="text-slate-500">من:</span> <strong>{selectedLeave.startDate}</strong></div>
               <div><span className="text-slate-500">إلى:</span> <strong>{selectedLeave.endDate}</strong></div>
               <div><span className="text-slate-500">المرافق:</span> <strong>{selectedLeave.guardianName}</strong></div>
-              <div><span className="text-slate-500">التواصل:</span> <strong dir="ltr">{selectedLeave.guardianContact}</strong></div>
+              <div><span className="text-slate-500">التواصل:</span> <strong dir="ltr">{selectedLeave.guardianContact ?? ''}</strong></div>
             </div>
             <div>
               <span className="text-sm text-slate-500">السبب:</span>
@@ -208,7 +193,7 @@ function LeavesSection() {
             <div>
               <h4 className="mb-2 text-sm font-bold text-slate-700 dark:text-slate-300">سجل المتابعة</h4>
               <div className="space-y-2">
-                {selectedLeave.history.map((h, i) => (
+                {(selectedLeave.history ?? []).map((h, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
                     <span className="h-2 w-2 rounded-full bg-teal" />
                     <span className="font-medium">{h.actionBy}</span>
@@ -229,7 +214,8 @@ function LeavesSection() {
           history: [{ action: 'request', actionBy: 'المستخدم', role: 'أخصائي', date: new Date().toISOString() }],
           createdAt: new Date().toISOString(), createdBy: 'المستخدم الحالي',
         }
-        setLeaves((prev) => [newLeave, ...prev])
+        const current = localLeaves ?? fetchedLeaves
+        setLocalLeaves([newLeave, ...current])
         toast.success('تم إنشاء طلب الإجازة')
         setShowAddModal(false)
       }} />
@@ -274,20 +260,22 @@ function AddLeaveModal({ open, onClose, onAdd }: {
 // ─── Research Section ───────────────────────────────────────────
 
 function ResearchSection() {
-  const [researches] = useState(DEMO_RESEARCHES)
-  const [selectedResearch, setSelectedResearch] = useState<SocialResearch | null>(null)
+  const { data: researches = [] } = useSocialResearches()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- DB type differs from local type; will unify later
+  const [selectedResearch, setSelectedResearch] = useState<Record<string, unknown> | null>(null)
   const [search, setSearch] = useState('')
 
-  const filtered = researches.filter((r) =>
-    r.beneficiaryName?.includes(search) || r.researcherName.includes(search),
-  )
+  const filtered = researches.filter((r) => {
+    const worker = (r as Record<string, unknown>).social_worker as string | undefined
+    return worker?.includes(search) || r.id?.includes(search)
+  })
 
   return (
     <>
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard title="إجمالي البحوث" value={researches.length} accent="navy" />
-        <StatCard title="هذا الشهر" value={researches.filter((r) => r.researchDate.startsWith('2026-02')).length} accent="teal" />
-        <StatCard title="باحثون نشطون" value={new Set(researches.map((r) => r.researcherName)).size} accent="gold" />
+        <StatCard title="هذا الشهر" value={researches.filter((r) => r.research_date?.startsWith('2026-02')).length} accent="teal" />
+        <StatCard title="باحثون نشطون" value={new Set(researches.map((r) => r.social_worker)).size} accent="gold" />
       </div>
 
       <div className="mb-4 flex items-center gap-3">
@@ -299,23 +287,21 @@ function ResearchSection() {
 
       <div className="space-y-3">
         {filtered.map((research) => {
-          const economic = ECONOMIC_STATUS.find((e) => e.value === research.economicStatus)
+          const rec = research as Record<string, unknown>
           return (
-            <Card key={research.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedResearch(research)}>
+            <Card key={research.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedResearch(rec)}>
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-slate-900 dark:text-white">{research.beneficiaryName}</h3>
-                    {economic && <Badge className={economic.color}>{economic.label}</Badge>}
+                    <h3 className="font-bold text-slate-900 dark:text-white">{research.beneficiary_id}</h3>
                   </div>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{research.socialResearchSummary}</p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{research.social_status}</p>
                   <div className="mt-2 flex items-center gap-3 text-xs text-slate-500">
-                    <span>📝 {research.researcherName}</span>
-                    <span>📅 {research.researchDate}</span>
-                    <span>👤 ولي: {research.guardianName}</span>
+                    <span>📝 {research.social_worker}</span>
+                    <span>📅 {research.research_date}</span>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" icon={<Eye className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setSelectedResearch(research) }} />
+                <Button variant="outline" size="sm" icon={<Eye className="h-3.5 w-3.5" />} onClick={(e) => { e.stopPropagation(); setSelectedResearch(rec) }} />
               </div>
             </Card>
           )
@@ -327,26 +313,26 @@ function ResearchSection() {
         {selectedResearch && (
           <div className="space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-4">
-              <div><span className="text-slate-500">المستفيد:</span> <strong>{selectedResearch.beneficiaryName}</strong></div>
-              <div><span className="text-slate-500">الباحث:</span> <strong>{selectedResearch.researcherName}</strong></div>
-              <div><span className="text-slate-500">التاريخ:</span> <strong>{selectedResearch.researchDate}</strong></div>
-              <div><span className="text-slate-500">ولي الأمر:</span> <strong>{selectedResearch.guardianName} ({selectedResearch.guardianRelation})</strong></div>
+              <div><span className="text-slate-500">المستفيد:</span> <strong>{String(selectedResearch.beneficiary_id ?? '')}</strong></div>
+              <div><span className="text-slate-500">الباحث:</span> <strong>{String(selectedResearch.social_worker ?? '')}</strong></div>
+              <div><span className="text-slate-500">التاريخ:</span> <strong>{String(selectedResearch.research_date ?? '')}</strong></div>
+              <div><span className="text-slate-500">الحالة الاجتماعية:</span> <strong>{String(selectedResearch.social_status ?? '')}</strong></div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div><span className="text-slate-500">الأب:</span> <strong>{FATHER_MOTHER_STATUS.find((s) => s.value === selectedResearch.isFatherAlive)?.label}</strong></div>
-              <div><span className="text-slate-500">الأم:</span> <strong>{FATHER_MOTHER_STATUS.find((s) => s.value === selectedResearch.isMotherAlive)?.label}</strong></div>
-              <div><span className="text-slate-500">السكن:</span> <strong>{HOUSING_TYPES.find((h) => h.value === selectedResearch.housingType)?.label}</strong></div>
+              <div><span className="text-slate-500">حجم الأسرة:</span> <strong>{String(selectedResearch.family_size ?? '')}</strong></div>
+              <div><span className="text-slate-500">مصدر الدخل:</span> <strong>{String(selectedResearch.income_source ?? '')}</strong></div>
+              <div><span className="text-slate-500">السكن:</span> <strong>{String(selectedResearch.housing_type ?? '')}</strong></div>
             </div>
-            {selectedResearch.socialResearchSummary && (
-              <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
-                <h4 className="mb-1 font-bold text-slate-700 dark:text-slate-300">خلاصة البحث</h4>
-                <p className="text-slate-600 dark:text-slate-400">{selectedResearch.socialResearchSummary}</p>
-              </div>
-            )}
             {selectedResearch.recommendations && (
               <div className="rounded-lg bg-teal/5 p-3 dark:bg-teal/10">
                 <h4 className="mb-1 font-bold text-teal">التوصيات</h4>
-                <p className="text-slate-600 dark:text-slate-400">{selectedResearch.recommendations}</p>
+                <p className="text-slate-600 dark:text-slate-400">{String(selectedResearch.recommendations)}</p>
+              </div>
+            )}
+            {selectedResearch.notes && (
+              <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
+                <h4 className="mb-1 font-bold text-slate-700 dark:text-slate-300">ملاحظات</h4>
+                <p className="text-slate-600 dark:text-slate-400">{String(selectedResearch.notes)}</p>
               </div>
             )}
           </div>
@@ -359,7 +345,7 @@ function ResearchSection() {
 // ─── Activities Section ─────────────────────────────────────────
 
 function ActivitiesSection() {
-  const [activities] = useState(DEMO_ACTIVITIES)
+  const { data: activities = [] } = useSocialActivities()
   const [filterStatus, setFilterStatus] = useState<'all' | 'achieved' | 'not_achieved'>('all')
 
   const filtered = filterStatus === 'all' ? activities : activities.filter((a) => a.status === filterStatus)
@@ -367,7 +353,7 @@ function ActivitiesSection() {
   const stats = {
     total: activities.length,
     achieved: activities.filter((a) => a.status === 'achieved').length,
-    totalParticipants: activities.reduce((sum, a) => sum + a.internalParticipants + a.externalParticipants, 0),
+    totalParticipants: activities.reduce((sum, a) => sum + (a.internalParticipants ?? 0) + (a.externalParticipants ?? 0), 0),
     totalCost: activities.reduce((sum, a) => sum + (a.cost || 0), 0),
   }
 
@@ -390,32 +376,32 @@ function ActivitiesSection() {
               filterStatus === s ? 'bg-teal text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400',
             )}
           >
-            {s === 'all' ? 'الكل' : FOLLOW_UP_STATUS.find((f) => f.value === s)!.label}
+            {s === 'all' ? 'الكل' : FOLLOW_UP_STATUS.find((f) => f.value === s)?.label ?? s}
           </button>
         ))}
       </div>
 
       <div className="space-y-3">
         {filtered.map((activity) => {
-          const targetConfig = TARGET_GROUPS.find((t) => t.value === activity.targetGroup)!
-          const statusConfig = FOLLOW_UP_STATUS.find((f) => f.value === activity.status)!
+          const targetConfig = TARGET_GROUPS.find((t) => t.value === activity.targetGroup)
+          const statusConfig = FOLLOW_UP_STATUS.find((f) => f.value === activity.status)
           return (
             <Card key={activity.id}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-bold text-slate-900 dark:text-white">{activity.activityName}</h3>
-                    <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
-                    <Badge variant="outline">{targetConfig.emoji} {targetConfig.label}</Badge>
+                    {statusConfig && <Badge className={statusConfig.color}>{statusConfig.label}</Badge>}
+                    {targetConfig && <Badge variant="outline">{targetConfig.emoji} {targetConfig.label}</Badge>}
                   </div>
                   {activity.objectives && <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{activity.objectives}</p>}
-                  {activity.outcomes && <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">✅ {activity.outcomes}</p>}
+                  {activity.outcomes && <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">{activity.outcomes}</p>}
                   <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                    <span>📅 {activity.date}</span>
-                    <span>📍 {activity.location}</span>
-                    <span>👤 {activity.supervisor}</span>
-                    <span>👥 {activity.internalParticipants + activity.externalParticipants} مشارك</span>
-                    {activity.cost && <span>💰 {activity.cost.toLocaleString('ar-SA')} ر.س</span>}
+                    <span>{activity.date}</span>
+                    {activity.location && <span>{activity.location}</span>}
+                    {activity.supervisor && <span>{activity.supervisor}</span>}
+                    <span>{(activity.internalParticipants ?? 0) + (activity.externalParticipants ?? 0)} مشارك</span>
+                    {activity.cost != null && activity.cost > 0 && <span>{activity.cost.toLocaleString('ar-SA')} ر.س</span>}
                   </div>
                 </div>
               </div>

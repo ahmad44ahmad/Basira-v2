@@ -79,7 +79,7 @@ function GoalsSection() {
   const [showAddModal, setShowAddModal] = useState(false)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (goals.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم إنشاء أي أهداف تأهيلية بعد" />
 
   const filtered = goals.filter((g) =>
@@ -384,7 +384,7 @@ function IcfSection() {
   const [filterComponent, setFilterComponent] = useState<IcfComponent | 'all'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (assessments.length === 0) return <EmptyState title="لا توجد تقييمات ICF" description="لم يتم إجراء أي تقييم بإطار التصنيف الدولي للأداء بعد" />
 
   const filtered = filterComponent === 'all' ? assessments : assessments.filter((a) => a.component === filterComponent)
@@ -488,7 +488,7 @@ function LifePlansSection() {
   const { data: plans = [], isLoading, error } = useLifePlans()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (plans.length === 0) return <EmptyState title="لا توجد خطط حياة" description="لم يتم إنشاء خطط حياة فردية بعد" />
 
   return (
@@ -560,7 +560,7 @@ function RightsSection() {
   const stats = useRightsStats()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (log.length === 0) return <EmptyState title="لا توجد سجلات حقوق" description="لم يتم تسجيل أي إدخالات في سجل تحقّق الحقوق بعد" />
 
   return (
@@ -625,7 +625,7 @@ function DignitySection() {
   const { data: profile, isLoading, error } = useDignityProfile('b1')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (!profile) return <EmptyState title="لا يوجد ملف كرامة" description="لم يتم إنشاء ملف كرامة لهذا المستفيد بعد" />
 
   const personalityConfig = PERSONALITY_TYPES.find((p) => p.value === profile.personalityType)
@@ -770,7 +770,7 @@ function TrainingSection() {
   const error = errorReferrals || errorEvaluations
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (referrals.length === 0 && evaluations.length === 0) return <EmptyState title="لا توجد بيانات تدريبية" description="لم يتم إنشاء أي إحالات أو تقييمات تدريبية بعد" />
 
   const avgPercentage = evaluations.length
@@ -970,7 +970,7 @@ function CoDesignSection() {
   const error = errorAssessments || errorBudgets
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (assessments.length === 0 && budgets.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم إنشاء أي تقييمات تصميم مشترك أو ميزانيات استقلالية بعد" />
 
   const coDesignedCount = assessments.filter((a) => a.is_plan_codesigned).length

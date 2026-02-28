@@ -54,7 +54,7 @@ function RiskSection() {
   const [filterCategory, setFilterCategory] = useState<RiskCategory | 'all'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (risks.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد مخاطر مسجلة في السجل حاليا" />
 
   const filtered = risks.filter((r) =>
@@ -176,7 +176,7 @@ function ComplianceSection() {
   const [filterStatus, setFilterStatus] = useState<ComplianceStatus | 'all'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (requirements.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد متطلبات امتثال مسجلة حاليا" />
 
   const filtered = filterStatus === 'all' ? requirements : requirements.filter((r) => r.complianceStatus === filterStatus)
@@ -254,7 +254,7 @@ function SafetySection() {
   const [filterType, setFilterType] = useState<SafetyIncidentType | 'all'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (incidents.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد حوادث سلامة مسجلة حاليا" />
 
   const filtered = filterType === 'all' ? incidents : incidents.filter((i) => i.incidentType === filterType)
@@ -329,7 +329,7 @@ function AbuseSection() {
   const [filterStatus, setFilterStatus] = useState<string>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (reports.length === 0) return <EmptyState title="لا توجد بلاغات" description="لم يتم تسجيل أي بلاغات عنف أو إيذاء" />
 
   const filtered = filterStatus === 'all' ? reports : reports.filter((r) => r.investigation_status === filterStatus)

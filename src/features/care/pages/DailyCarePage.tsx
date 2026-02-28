@@ -119,7 +119,7 @@ function DailyCareFormSection() {
   })
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (beneficiaryOptions.length === 0) return <EmptyState title="لا توجد بيانات" description="لا يوجد مستفيدون نشطون لتسجيل الرعاية اليومية لهم" />
 
   const temp = watch('temperature')

@@ -93,7 +93,7 @@ function UpdatesSection() {
   const { data: updates = [], isLoading, error } = useFamilyUpdates()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (updates.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد تحديثات جديدة حالياً" />
 
   return (
@@ -132,7 +132,7 @@ function VisitsSection() {
   const [showAddModal, setShowAddModal] = useState(false)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (visits.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي زيارات بعد" />
 
   const filtered = filterType === 'all' ? visits : visits.filter((v) => v.type === filterType)
@@ -264,7 +264,7 @@ function VisitRecordsSection() {
   const [filterType, setFilterType] = useState<'all' | 'internal' | 'external'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (records.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي زيارات شاملة بعد" />
 
   const filtered = filterType === 'all' ? records : records.filter((r) => r.visit_type === filterType)
@@ -392,7 +392,7 @@ function CounselingSection() {
   const { data: cases = [], isLoading, error } = useCounselingCases()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (cases.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي حالات إرشاد أسري بعد" />
 
   const activeCases = cases.filter((c) => c.status === 'active').length
@@ -599,7 +599,7 @@ function FeedSection() {
   const displayPosts = posts.length > 0 ? posts : fetchedPosts
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (displayPosts.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد منشورات في البث الإعلامي حالياً" />
 
   const toggleLike = (id: string) => {

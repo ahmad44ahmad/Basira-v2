@@ -50,7 +50,7 @@ export function EmergencyPage() {
   const error = plansError || equipError
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   const tabs = [
     { id: 'peep', label: 'خطط PEEP' },

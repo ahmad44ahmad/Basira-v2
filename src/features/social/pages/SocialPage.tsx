@@ -82,7 +82,7 @@ function LeavesSection() {
   const [rejectConfirmId, setRejectConfirmId] = useState<string | null>(null)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (leaves.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تقديم أي طلبات إجازة بعد" />
 
   const filtered = filterStatus === 'all' ? leaves : leaves.filter((l) => l.status === filterStatus)
@@ -325,7 +325,7 @@ function ResearchSection() {
   const [search, setSearch] = useState('')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (researches.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم إجراء أي بحوث اجتماعية بعد" />
 
   const filtered = researches.filter((r) => {
@@ -412,7 +412,7 @@ function ActivitiesSection() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'achieved' | 'not_achieved'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (activities.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي أنشطة اجتماعية بعد" />
 
   const filtered = filterStatus === 'all' ? activities : activities.filter((a) => a.status === filterStatus)
@@ -494,7 +494,7 @@ function MonitoringSection() {
   const error = errorFollowups || errorRounds
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   return (
     <>
@@ -733,7 +733,7 @@ function ReferralsSection() {
   const error = errorRef || errorNotif || errorInc
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   return (
     <>
@@ -988,7 +988,7 @@ function ClothingSection() {
   const error = errorInv || errorTx
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   const totalItems = inventory.reduce((sum, item) => sum + item.quantity, 0)
   const goodItems = inventory.filter((item) => item.condition === 'good').length
@@ -1132,7 +1132,7 @@ function AdvancesSection() {
   const [filterStatus, setFilterStatus] = useState<string>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (advances.length === 0) return <EmptyState title="لا توجد سلف" description="لم يتم تسجيل أي سلف أو عهد بعد" />
 
   const filtered = filterStatus === 'all' ? advances : advances.filter((a) => a.approval_status === filterStatus)

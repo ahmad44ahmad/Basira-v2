@@ -42,7 +42,7 @@ export function MoodTelemetrySection() {
   const [filterColor, setFilterColor] = useState<string | null>(null)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري تحميل القياسات..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل بيانات القياس الحيوي</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل بيانات القياس الحيوي" />
   if (!telemetry?.length) return <EmptyState icon={<Activity className="h-8 w-8 text-slate-400" />} title="لا توجد قراءات حيوية" description="لم يتم تسجيل أي بيانات من أساور المزاج بعد" />
 
   // Stats calculations

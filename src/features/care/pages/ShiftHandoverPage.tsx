@@ -48,7 +48,7 @@ export function ShiftHandoverPage() {
   }
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (fetchedItems.length === 0 && localItems.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد بنود تسليم مسجلة للورديات حالياً" />
 
   const markDone = (id: string) => {
@@ -179,7 +179,7 @@ function StaffWellbeingSection() {
   const stats = useWellbeingStats()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (scores.length === 0) return <EmptyState title="لا توجد تقييمات" description="لم يتم إجراء تقييمات رفاهية للموظفين بعد" />
 
   return (

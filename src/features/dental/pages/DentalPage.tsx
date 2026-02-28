@@ -29,7 +29,7 @@ function DentalRecordsSection() {
   }, [records, typeFilter, phaseFilter])
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   const chartingCount = records.filter((r) => r.record_type === 'charting').length
   const treatmentCount = records.filter((r) => r.record_type === 'treatment').length
@@ -152,7 +152,7 @@ function HygieneSection() {
   const { data: logs = [], isLoading, error } = useDentalHygieneLogs()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   const brushingDone = logs.filter((l) => l.brushing_done).length
   const brushingRate = logs.length > 0 ? Math.round((brushingDone / logs.length) * 100) : 0
@@ -237,7 +237,7 @@ function SterilizationSection() {
   const { data: records = [], isLoading, error } = useDentalSterilization()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   const passCount = records.filter((r) => r.biological_indicator_result === 'pass').length
   const passRate = records.length > 0 ? Math.round((passCount / records.length) * 100) : 0

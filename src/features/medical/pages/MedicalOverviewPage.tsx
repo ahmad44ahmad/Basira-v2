@@ -99,7 +99,7 @@ function OverviewSection() {
   const benStats = useBeneficiaryStats()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if ((profiles ?? []).length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي ملفات طبية بعد" />
 
   const recentExams = (profiles ?? []).slice(0, 4).map((p) => ({

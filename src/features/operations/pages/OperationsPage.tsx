@@ -68,7 +68,7 @@ function DashboardSection() {
   const error = errorAssets || errorMaintenance || errorWaste
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (assets.length === 0 && maintenance.length === 0 && waste.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد بيانات في لوحة التحكم حاليا" />
 
   const activeAssets = assets.filter((a) => a.status === 'active').length
@@ -141,7 +141,7 @@ function AssetsSection() {
   const [filterStatus, setFilterStatus] = useState<AssetStatus | 'all'>('all')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (assets.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد أصول مسجلة حاليا" />
 
   const filtered = assets.filter((a) =>
@@ -212,7 +212,7 @@ function MaintenanceSection() {
   const [showAddModal, setShowAddModal] = useState(false)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (fetchedRequests.length === 0 && localRequests.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد طلبات صيانة مسجلة حاليا" />
 
   const filtered = filterStatus === 'all' ? requests : requests.filter((r) => r.status === filterStatus)
@@ -377,7 +377,7 @@ function ChecklistsSection() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (checklists.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد قوائم تدقيق صيانة مسجلة حاليا" />
 
   const filtered = checklists.filter((c) =>
@@ -543,7 +543,7 @@ function WasteSection() {
   const [showAddModal, setShowAddModal] = useState(false)
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (records.length === 0) return <EmptyState title="لا توجد بيانات" description="لا توجد سجلات نفايات مسجلة حاليا" />
 
   const filtered = filterType === 'all' ? records : records.filter((r) => r.wasteType === filterType)

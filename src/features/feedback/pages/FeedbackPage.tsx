@@ -3,6 +3,7 @@ import { MessageCircleHeart } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PageHeader } from '@/components/layout'
 import { Spinner, Tabs } from '@/components/ui'
+import { EmptyState } from '@/components/feedback'
 import { useVisualSurveys } from '../api/feedback-queries'
 import { VisualSurvey } from '../components/VisualSurvey'
 import { MoodCurveDashboard } from '../components/MoodCurveDashboard'
@@ -13,7 +14,7 @@ export function FeedbackPage() {
   const { isLoading, error } = useVisualSurveys()
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
 
   const tabs = [
     { id: 'survey', label: 'الاستبيان البصري' },

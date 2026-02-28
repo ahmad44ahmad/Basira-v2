@@ -30,7 +30,7 @@ function InspectionsSection() {
   const [newShift, setNewShift] = useState<InspectionShift>('morning')
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (inspections.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي جولات تفتيش بعد" />
 
   const avgCompliance = inspections.length > 0 ? Math.round(inspections.reduce((a, i) => a + i.compliance_score, 0) / inspections.length) : 0
@@ -164,7 +164,7 @@ function IncidentsSection() {
   const openCount = incidents.filter((i) => i.status !== 'closed' && i.status !== 'resolved').length
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (incidents.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي حوادث مكافحة عدوى بعد" />
 
   return (
@@ -241,7 +241,7 @@ function ImmunizationsSection() {
   )
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" text="جاري التحميل..." /></div>
-  if (error) return <div className="flex justify-center py-12 text-center"><p className="text-lg font-bold text-red-600">خطأ في تحميل البيانات</p></div>
+  if (error) return <EmptyState title="خطأ" description="خطأ في تحميل البيانات" />
   if (immunizations.length === 0) return <EmptyState title="لا توجد بيانات" description="لم يتم تسجيل أي سجلات تحصين بعد" />
 
   const immuneCount = immunizations.filter((i) => i.immunity_status === 'complete').length
